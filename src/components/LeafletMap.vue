@@ -4,15 +4,14 @@ import L from "leaflet";
 import path from "path";
 
 export default {
-  name: "LeafletMap",
-  data() {
+  name: "LeafletMap", data() {
     return {
       map: null,
     };
-  },
-  mounted: async function () {
+  }, mounted: async function () {
     const proxy = "https://corsproxy.io/?";
     const baseURL = "https://nina.api.proxy.bund.dev/api31"
+
 
     this.map = L.map("map").setView([51.1642292, 10.4541194], 6);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -30,7 +29,7 @@ export default {
       return this._div;
     };
     info.update = function (props) {
-      this._div.innerHTML = '<h4>Deutschland Landkreise</h4>' + (props ? '<b>' + props.NAME_3 + '</b><br />' + 'Bundesland: ' + props.NAME_1 : 'Hover over a Bundesland');
+      this._div.innerHTML = '<h4>Deutschland Landkreise</h4>' + (props ? '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE',{ maximumFractionDigits: 2 }).format(props.cases7Per100k) : 'Hover over a Bundesland');
     };
     info.addTo(this.map);
 
@@ -56,11 +55,23 @@ export default {
     };
     legend.addTo(this.map);
 
-    // let data = await fetch("src/assets/landkreise.geojson").then(value => value.json());
-    let data = await fetch(proxy + encodeURIComponent("https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/4_kreise/1_sehr_hoch.geo.json")).then(value => value.json());
+    // let data = await fetch(proxy + encodeURIComponent("https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/4_kreise/1_sehr_hoch.geo.json")).then(value => value.json());
+    let data = await fetch(proxy + encodeURIComponent("https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/main/landkreise.geojson")).then(value => value.json());
+    let covidData = await fetch(proxy + encodeURIComponent(baseURL + '/appdata/covid/covidmap/DE/covidmap.json')).then(value => value.json())
+
+    addCovidData(data.features)
+
+    function addCovidData(features) {
+      features.forEach(feature => {
+        let covid = covidData.mapData.find(value => value.rs === feature.properties.RS) || 0;
+        feature.properties.cases = covid.cases ;
+        feature.properties.cases7Per100k = covid.cases7Per100k;
+        feature.properties.cases_per_100k = covid.cases_per_100k;
+        feature.properties.deaths = covid.deaths;
+      })
+    }
 
     let geojson = L.geoJSON(data, {style: style, onEachFeature: onEachFeature}).addTo(this.map);
-
 
     function getColor(d) {
       return d > conditions[0] ? colors[0] :
@@ -73,20 +84,9 @@ export default {
                                   colors[7];
 
     }
-
-    const url = proxy + encodeURIComponent('https://warnung.bund.de/assets/json/converted_corona_kreise.json');
-
-    (await fetch(url)).json().then(obj => {
-      Object.entries(obj).forEach(([key, value]) => {
-        console.log(`${key} ${value.n}`);
-
-      });
-    });
-
     function style(feature) {
-      // mit hilfe des namens den index finden und casesPer7 als fillcolor
       return {
-        fillColor: getColor(feature.properties.ID_3),
+        fillColor: getColor(feature.properties.cases7Per100k),
         weight: 2,
         opacity: 1,
         color: 'black',
@@ -94,7 +94,6 @@ export default {
         fillOpacity: 0.7
       };
     }
-
     function highlightFeature(e) {
       let layer = e.target;
 
@@ -107,12 +106,10 @@ export default {
       }
       info.update(layer.feature.properties);
     }
-
     function resetHighlight(e) {
       geojson.resetStyle(e.target);
       info.update();
     }
-
     function onEachFeature(feature, layer) {
       layer.on({
         mouseover: highlightFeature, mouseout: resetHighlight
@@ -120,8 +117,7 @@ export default {
     }
 
 
-  },
-  onBeforeUnmount() {
+  }, onBeforeUnmount() {
     if (this.map) {
       this.map.remove();
     }
