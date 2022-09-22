@@ -7,13 +7,18 @@
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
+    "autoprefixer": "10.4.5",
     "axios": "^0.27.2",
-    "cors-anywhere": "^0.4.4",
     "leaflet": "^1.8.0",
     "vue": "^3.2.38"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^3.0.3",
+    "postcss": "^8.4.16",
+    "tailwindcss": "^3.1.8",
     "vite": "^3.0.9"
+  },
+  "overrides": {
+    "autoprefixer": "10.4.5"
   }
 }
