@@ -62,7 +62,8 @@ export default {
     addCovidData(data.features, covidData);
 
     let covid = L.geoJSON(data, {style: style, onEachFeature: onEachFeature}).addTo(this.map);
-    let landkreise = L.geoJSON(data).addTo(this.map);
+
+    // let landkreise = L.geoJSON(data).addTo(this.map);
 
 
     function getColor(d) {
@@ -93,10 +94,9 @@ export default {
       let layer = e.target;
 
       layer.setStyle({
-        weight: 2,
-        opacity: 1,
+        weight: 3,
         color: 'black',
-        dashArray: '3',
+        dashArray: '',
         fillOpacity: 0.7
       });
 
@@ -122,8 +122,8 @@ export default {
     };
 
     let overlayMaps = {
+      // "Nur Landkreise": landkreise,
       "Covid-19": covid,
-      "Nur Landkreise": landkreise
     }
     let layerControl = L.control.layers(baseMaps, overlayMaps).addTo(this.map);
   }, onBeforeUnmount() {

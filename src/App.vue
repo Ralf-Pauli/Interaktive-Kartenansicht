@@ -3,16 +3,19 @@ import LeafletMap from './components/LeafletMap.vue';
 </script>
 
 <template>
-  <div class="flex flex-row">
-    <div class="basis-1/4">
-      
+  <LeafletMap/>
+  <div id="sidebar-wrapper">
+    <div id="sidebar">
     </div>
-      <LeafletMap class="baiss-1/2"/>
-   
   </div>
-
 </template>
 
-<style>
+<style scoped>
+#sidebar, #sidebar-wrapper {
+  background: white;
+  width: 25%;
+  float: right;
+  z-index: 2;
+}
 
 </style>

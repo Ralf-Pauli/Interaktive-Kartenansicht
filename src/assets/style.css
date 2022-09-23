@@ -1,15 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 #map {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 20%;
-    height: 75%;
-    width: 80%;
+    position: fixed;
+    height: 72%;
+    width: 72%;
+    overflow: hidden;
 }
 
 .info {
@@ -37,5 +30,18 @@
     height: 18px;
     float: left;
     margin-right: 8px;
+}
 
+#app {
+}
+
+html {
+    height: 100%;
+    background: #777777;
+}
+
+body {
+    margin: 0.5rem;
+    min-height: 100%;
+    overflow: hidden;
 }
