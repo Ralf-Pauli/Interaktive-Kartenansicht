@@ -1,13 +1,7 @@
 <script setup>
-import LeafletMap from './components/LeafletMap.vue';
-import InfoCard from "./components/InfoCard.vue";
+import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <LeafletMap/>
-  <InfoCard/>
+  <RouterView />
 </template>
-
-<style scoped>
-
-</style>
