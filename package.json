@@ -10,6 +10,7 @@
     "autoprefixer": "10.4.5",
     "axios": "^0.27.2",
     "leaflet": "^1.8.0",
+    "pinia": "^2.0.22",
     "vue": "^3.2.38"
   },
   "devDependencies": {

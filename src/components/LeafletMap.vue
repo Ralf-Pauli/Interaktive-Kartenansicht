@@ -6,6 +6,7 @@ export default {
   name: "LeafletMap", data() {
     return {
       map: null,
+      info: getInfo,
     };
   }, mounted: async function () {
     const proxy = "https://corsproxy.io/?";
@@ -63,8 +64,15 @@ export default {
 
     let covid = L.geoJSON(data, {style: style, onEachFeature: onEachFeature}).addTo(this.map);
 
-    // let landkreise = L.geoJSON(data).addTo(this.map);
+    let baseMaps = {
+      "OpenStreetMap": osm,
+    };
 
+    let overlayMaps = {
+      "Covid-19": covid,
+    }
+
+    let layerControl = L.control.layers(baseMaps, overlayMaps).addTo(this.map);
 
     function getColor(d) {
       return d > conditions[0] ? colors[0] :
@@ -111,26 +119,23 @@ export default {
       info.update();
     }
 
+    function getInfo(e){
+      let layer = e.target;
+      console.log(layer.feature.properties)
+    }
+
     function onEachFeature(feature, layer) {
       layer.on({
-        mouseover: highlightFeature, mouseout: resetHighlight
+        mouseover: highlightFeature, mouseout: resetHighlight, click: getInfo
       });
     }
 
-    let baseMaps = {
-      "OpenStreetMap": osm,
-    };
-
-    let overlayMaps = {
-      // "Nur Landkreise": landkreise,
-      "Covid-19": covid,
-    }
-    let layerControl = L.control.layers(baseMaps, overlayMaps).addTo(this.map);
   }, onBeforeUnmount() {
     if (this.map) {
       this.map.remove();
     }
   },
+
 };
 
 function addCovidData(features, covidData) {
@@ -149,5 +154,15 @@ function addCovidData(features, covidData) {
 </template>
 
 <style scoped>
+#map {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  z-index: 1;
+}
+
 
 </style>
