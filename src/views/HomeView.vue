@@ -1,15 +1,15 @@
 <script setup>
-import {onBeforeMount, onMounted} from 'vue';
+import {onBeforeMount, onMounted, ref} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
+import InfoOverlay from "@/components/InfoOverlay.vue";
 
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
 const mapDataURL = "https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/main/landkreise.geojson"
 
 let mapData,
-    countiesMap,
-    covidMap;
+    countiesMap;
 
 let map,
     osm;
@@ -76,7 +76,6 @@ function addLegend() {
   legend.addTo(map);
 }
 
-
 async function addCounties(mapDataURL) {
   mapData = await fetch(proxyURL + encodeURIComponent(mapDataURL)).then(value => value.json());
   await addCovidData(mapData)
@@ -124,7 +123,7 @@ function resetHighlight(e) {
 
 function onEachFeature(feature, layer) {
   layer.on({
-    mouseover: highlightFeature, mouseout: resetHighlight
+    mouseover: highlightFeature, mouseout: resetHighlight, click: click
   });
 }
 
@@ -156,18 +155,22 @@ function addLayerControl() {
   layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
 }
 
+let open = ref(true);
+
+function click(e) {
+  open.value = !open.value;
+}
 
 onBeforeMount(() => {
   if (map) {
     map.remove();
   }
 })
-
-
 </script>
 
 <template>
   <div id="map" class="h-full z-10"></div>
+  <info-overlay :open="open"/>
 </template>
 
 <style>
