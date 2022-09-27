@@ -114,6 +114,7 @@ function highlightFeature(e) {
     layer.bringToFront();
   }
   info.update(layer.feature.properties);
+  open.value = false
 }
 
 function resetHighlight(e) {
@@ -123,7 +124,7 @@ function resetHighlight(e) {
 
 function onEachFeature(feature, layer) {
   layer.on({
-    mouseover: highlightFeature, mouseout: resetHighlight, click: click
+    mouseover: highlightFeature, mouseout: resetHighlight, click: onClick
   });
 }
 
@@ -155,10 +156,11 @@ function addLayerControl() {
   layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
 }
 
-let open = ref(true);
+let open = ref(false);
 
-function click(e) {
-  open.value = !open.value;
+function onClick(e) {
+  open.value = !open.value
+  console.log(open)
 }
 
 onBeforeMount(() => {
