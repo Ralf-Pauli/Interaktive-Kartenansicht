@@ -2,6 +2,7 @@
 import {onBeforeMount, onMounted, ref} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
+import 'leaflet-sidebar-v2'
 import InfoOverlay from "@/components/InfoOverlay.vue";
 
 const proxyURL = "https://corsproxy.io/?";
@@ -22,7 +23,8 @@ let layerControl,
     overlayMaps = {};
 
 let info = L.control({position: "bottomright"}),
-    legend = L.control({position: "bottomleft"});
+    legend = L.control({position: "bottomleft"}),
+    sidebar;
 
 onMounted(() => {
   map = L.map("map").setView([51.1642292, 10.4541194], 6);
@@ -34,6 +36,7 @@ onMounted(() => {
 
   addInfo();
   addLegend();
+  addSidebar();
   addCounties(mapDataURL);
   baseMaps.OpenStreetMap = osm;
 
@@ -76,6 +79,25 @@ function addLegend() {
   legend.addTo(map);
 }
 
+function addSidebar() {
+  sidebar = L.control.sidebar({
+    autopan: true,
+    closeButton: true,
+    container: "sidebar",
+    position: "left"
+  })
+  sidebar.addPanel({
+    id: 'covid',
+    tab:`<i class="covid"></i>`,
+    button: loadCovidData
+  });
+  sidebar.addTo(map).openOn('covid');
+}
+
+function loadCovidData() {
+  console.log("corona")
+}
+
 async function addCounties(mapDataURL) {
   mapData = await fetch(proxyURL + encodeURIComponent(mapDataURL)).then(value => value.json());
   await addCovidData(mapData)
@@ -114,7 +136,6 @@ function highlightFeature(e) {
     layer.bringToFront();
   }
   info.update(layer.feature.properties);
-  open.value = false
 }
 
 function resetHighlight(e) {
@@ -159,8 +180,7 @@ function addLayerControl() {
 let open = ref(false);
 
 function onClick(e) {
-  open.value = !open.value
-  console.log(open)
+  sidebar.open('covid')
 }
 
 onBeforeMount(() => {
@@ -171,8 +191,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div id="map" class="h-full z-10"></div>
-  <info-overlay :open="open"/>
+  <div id="map" class="h-full z-10 "></div>
 </template>
 
 <style>
@@ -202,4 +221,5 @@ onBeforeMount(() => {
   float: left;
   margin-right: 8px;
 }
+
 </style>
