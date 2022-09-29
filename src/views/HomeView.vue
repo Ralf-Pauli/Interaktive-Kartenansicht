@@ -2,8 +2,8 @@
 import {onBeforeMount, onMounted, ref} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
-import 'leaflet-sidebar-v2'
-import InfoOverlay from "@/components/InfoOverlay.vue";
+import "leaflet-sidebar"
+import Sidebar from "@/components/Sidebar.vue";
 
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
@@ -36,7 +36,6 @@ onMounted(() => {
 
   addInfo();
   addLegend();
-  addSidebar();
   addCounties(mapDataURL);
   baseMaps.OpenStreetMap = osm;
 
@@ -79,24 +78,6 @@ function addLegend() {
   legend.addTo(map);
 }
 
-function addSidebar() {
-  sidebar = L.control.sidebar({
-    autopan: true,
-    closeButton: true,
-    container: "sidebar",
-    position: "left"
-  })
-  sidebar.addPanel({
-    id: 'covid',
-    tab:`<i class="covid"></i>`,
-    button: loadCovidData
-  });
-  sidebar.addTo(map).openOn('covid');
-}
-
-function loadCovidData() {
-  console.log("corona")
-}
 
 async function addCounties(mapDataURL) {
   mapData = await fetch(proxyURL + encodeURIComponent(mapDataURL)).then(value => value.json());
@@ -191,7 +172,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div id="map" class="h-full z-10 "></div>
+  <div id="map" class=" z-10 h-full"></div>
 </template>
 
 <style>
