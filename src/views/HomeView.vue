@@ -3,7 +3,9 @@ import {onBeforeMount, onMounted, ref} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 import "leaflet-sidebar"
-import Sidebar from "@/components/Sidebar.vue";
+import "@/assets/leaflet-sidepanel.css"
+import "@/assets/leaflet-sidepanel.min"
+// import {toggleSidebar} from "@/components/state";
 
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
@@ -24,7 +26,7 @@ let layerControl,
 
 let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
-    sidebar;
+    panelRight;
 
 onMounted(() => {
   map = L.map("map").setView([51.1642292, 10.4541194], 6);
@@ -37,6 +39,7 @@ onMounted(() => {
   addInfo();
   addLegend();
   addCounties(mapDataURL);
+  addSidePanel()
   baseMaps.OpenStreetMap = osm;
 
 });
@@ -126,7 +129,7 @@ function resetHighlight(e) {
 
 function onEachFeature(feature, layer) {
   layer.on({
-    mouseover: highlightFeature, mouseout: resetHighlight, click: onClick
+    mouseover: highlightFeature, mouseout: resetHighlight, click: toggleSidebar
   });
 }
 
@@ -158,10 +161,25 @@ function addLayerControl() {
   layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
 }
 
-let open = ref(false);
+function addSidePanel() {
+  panelRight = L.control.sidepanel('sidePanel', {
+    panelPosition: 'right',
+    hasTabs: true,
+    tabsPosition: 'right',
+    pushControls: true,
+    darkMode: false,
+    startTab: 'tab-5'
+  }).addTo(map);
+}
 
-function onClick(e) {
-  sidebar.open('covid')
+//TODO 2 div classes ändern sich: 2. Div class anpassen
+function toggleSidebar(e) {
+  // let a = document.getElementById("sidePanel");
+  // if (a.className.includes("opened")) {
+  //   a.setAttribute("class", "sidepanel sidepanel-right tabs-top closed")
+  // } else {
+  //   a.setAttribute("class", "sidepanel sidepanel-right tabs-top opened")
+  // }
 }
 
 onBeforeMount(() => {
@@ -172,9 +190,40 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div id="map" class=" z-10 h-full"></div>
-</template>
+  <div id="map" class=" z-10 h-full">
 
+    <!--  <Sidebar :map="map"/>-->
+    <div id="sidePanel" aria-hidden="false" aria-label="side panel" class="sidepanel">
+      <div class="sidepanel-inner-wrapper">
+        <nav aria-label="sidepanel tab navigation" class="sidepanel-tabs-wrapper">
+          <ul class="sidepanel-tabs">
+            <li class="sidepanel-tab">
+              <a class="sidebar-tab-link" data-tab-link="tab-1" href="#" role="tab">
+                <svg fill="currentColor" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd"/>
+                </svg>
+              </a>
+            </li>
+            <!-- [...] -->
+          </ul>
+        </nav>
+        <div class="sidepanel-content-wrapper">
+          <div class="sidepanel-content">
+            <div class="sidepanel-tab-content" data-tab-content="tab-1">
+              <p>Content 1.</p>
+            </div>
+            <!-- [...] -->
+          </div>
+        </div>
+      </div>
+      <div class="sidepanel-toggle-container">
+        <button ref="sidebarBtn" aria-label="toggle side panel" class="sidepanel-toggle-button" type="button"
+                @click="toggleSidebar"></button>
+      </div>
+    </div>
+  </div>
+
+</template>
 <style>
 .info {
   padding: 6px 8px;
