@@ -1,8 +1,8 @@
 <script setup>
-import {onBeforeMount, onMounted, ref} from 'vue';
+import {onBeforeMount, onMounted} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
-import "leaflet-sidebar"
+// import "leaflet-sidebar"
 import "@/assets/leaflet-sidepanel.css"
 import "@/assets/leaflet-sidepanel.min"
 // import {toggleSidebar} from "@/components/state";
@@ -26,7 +26,7 @@ let layerControl,
 
 let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
-    panelRight;
+    sidePanel;
 
 onMounted(() => {
   map = L.map("map").setView([51.1642292, 10.4541194], 6);
@@ -37,12 +37,13 @@ onMounted(() => {
   }).addTo(map);
 
   addInfo();
+  addSidePanel()
   addLegend();
   addCounties(mapDataURL);
-  addSidePanel()
   baseMaps.OpenStreetMap = osm;
-
+  map.doubleClickZoom.disable();
 });
+
 
 function addInfo() {
   info.onAdd = function (map) {
@@ -128,9 +129,12 @@ function resetHighlight(e) {
 }
 
 function onEachFeature(feature, layer) {
-  layer.on({
-    mouseover: highlightFeature, mouseout: resetHighlight, click: toggleSidebar
-  });
+  if (layer.feature.geometry.type === "MultiPolygon" || layer.feature.geometry.type === "Polygon") {
+    layer.on({
+      mouseover: highlightFeature, mouseout: resetHighlight, click: toggleSidebar
+    });
+  }
+
 }
 
 function getColor(d) {
@@ -162,7 +166,7 @@ function addLayerControl() {
 }
 
 function addSidePanel() {
-  panelRight = L.control.sidepanel('sidePanel', {
+  sidePanel = L.control.sidepanel('sidePanel', {
     panelPosition: 'right',
     hasTabs: true,
     tabsPosition: 'right',
@@ -172,14 +176,9 @@ function addSidePanel() {
   }).addTo(map);
 }
 
-//TODO 2 div classes ändern sich: 2. Div class anpassen
 function toggleSidebar(e) {
-  // let a = document.getElementById("sidePanel");
-  // if (a.className.includes("opened")) {
-  //   a.setAttribute("class", "sidepanel sidepanel-right tabs-top closed")
-  // } else {
-  //   a.setAttribute("class", "sidepanel sidepanel-right tabs-top opened")
-  // }
+  let sButton = document.getElementsByClassName("sidepanel-toggle-button")[0];
+  sButton.click();
 }
 
 onBeforeMount(() => {
@@ -199,9 +198,12 @@ onBeforeMount(() => {
           <ul class="sidepanel-tabs">
             <li class="sidepanel-tab">
               <a class="sidebar-tab-link" data-tab-link="tab-1" href="#" role="tab">
-                <svg fill="currentColor" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd"/>
-                </svg>
+                <div>d</div>
+              </a>
+            </li>
+            <li class="sidepanel-tab">
+              <a class="sidebar-tab-link" data-tab-link="tab-2" href="#" role="tab">
+                <span class="material-symbols-sharp">coronavirus</span>
               </a>
             </li>
             <!-- [...] -->
@@ -212,13 +214,16 @@ onBeforeMount(() => {
             <div class="sidepanel-tab-content" data-tab-content="tab-1">
               <p>Content 1.</p>
             </div>
+            <div class="sidepanel-tab-content" data-tab-content="tab-2">
+              <p>Content 2.</p>
+            </div>
             <!-- [...] -->
           </div>
         </div>
       </div>
       <div class="sidepanel-toggle-container">
         <button ref="sidebarBtn" aria-label="toggle side panel" class="sidepanel-toggle-button" type="button"
-                @click="toggleSidebar"></button>
+        ></button>
       </div>
     </div>
   </div>
