@@ -171,7 +171,7 @@ function addSidePanel() {
     hasTabs: true,
     tabsPosition: 'right',
     pushControls: true,
-    darkMode: false,
+    darkMode: true,
     startTab: 'tab-5'
   }).addTo(map);
 }
@@ -194,28 +194,118 @@ onBeforeMount(() => {
     <!--  <Sidebar :map="map"/>-->
     <div id="sidePanel" aria-hidden="false" aria-label="side panel" class="sidepanel">
       <div class="sidepanel-inner-wrapper">
+
         <nav aria-label="sidepanel tab navigation" class="sidepanel-tabs-wrapper">
           <ul class="sidepanel-tabs">
+
+
             <li class="sidepanel-tab">
               <a class="sidebar-tab-link" data-tab-link="tab-1" href="#" role="tab">
-                <div>d</div>
+                <span class="material-symbols-sharp">info</span>
               </a>
             </li>
+
             <li class="sidepanel-tab">
               <a class="sidebar-tab-link" data-tab-link="tab-2" href="#" role="tab">
+                <span class="material-symbols-sharp">warning</span>
+              </a>
+            </li>
+
+            <li class="sidepanel-tab">
+              <a class="sidebar-tab-link" data-tab-link="tab-3" href="#" role="tab">
                 <span class="material-symbols-sharp">coronavirus</span>
               </a>
             </li>
+
+            <li class="sidepanel-tab">
+              <a class="sidebar-tab-link" data-tab-link="tab-4" href="#" role="tab">
+                <span class="material-symbols-sharp">thunderstorm</span>
+              </a>
+            </li>
+
             <!-- [...] -->
           </ul>
         </nav>
         <div class="sidepanel-content-wrapper">
-          <div class="sidepanel-content">
+
+          <div class="sidepanel-content w-full h-full">
             <div class="sidepanel-tab-content" data-tab-content="tab-1">
-              <p>Content 1.</p>
+              <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>
+
+              <div class="grid grid-rows-1 grid-cols-1 grid-flow-row gap-5 text-base">
+                <dl>
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-2 sm:gap-3 sm:px-6">
+                    <dt class="text-lg text-gray-300">Name</dt>
+                    <dd class="mt-1 text-lg text-gray-50 sm:mt-0 ">Deggendorf</dd>
+                  </div>
+
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-2 sm:gap-3 sm:px-6 sm:auto-rows-max ">
+                    <dt class="text-lg text-gray-300">Bezeichnung</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">Kreisfreie Stadt</dd>
+                  </div>
+
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-2 sm:gap-3 sm:px-6 sm:auto-rows-max ">
+                    <dt class="text-lg text-gray-300">Einwohner</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">42069</dd>
+                  </div>
+
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-2 sm:gap-3 sm:px-6 sm:auto-rows-max ">
+                    <dt class="text-lg text-gray-300">Einwohner Männlich</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">69</dd>
+                  </div>
+
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-2 sm:gap-3 sm:px-6 sm:auto-rows-max ">
+                    <dt class="text-lg text-gray-300">Einwohner Weiblich</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">420</dd>
+                  </div>
+                </dl>
+
+
+              </div>
             </div>
+          </div>
+          <div class="sidepanel-content w-full h-full">
             <div class="sidepanel-tab-content" data-tab-content="tab-2">
-              <p>Content 2.</p>
+              <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
+
+              <div class="grid grid-rows-1 grid-cols-2 grid-flow-row gap-3">
+                <div>Event</div>
+                <div></div>
+                <div>Dringlichkeit</div>
+                <div></div>
+                <div>Überschrift</div>
+                <div></div>
+                <div>Beschreibung</div>
+                <div></div>
+                <div>Weitere Informationen</div>
+                <div></div>
+
+              </div>
+            </div>
+
+            <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
+              <h2 class="text-2xl text-center mb-3">Covid-19</h2>
+
+              <div class="grid grid-rows-1 grid-cols-2 grid-flow-row gap-3">
+                <div>Gesamt</div>
+                <div></div>
+                <div>Fälle / 100.000 EW</div>
+                <div></div>
+                <div>Fälle der letzten 7 Tage / 100.000 EW</div>
+                <div></div>
+                <div>Todesfälle</div>
+                <div></div>
+              </div>
+
+            </div>
+
+            <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
+              <h2 class="text-2xl text-center">Unwetterwarnungen</h2>
+
+              <div class="grid grid-rows-1 grid-cols-2 grid-flow-row gap-3">
+
+              </div>
+
             </div>
             <!-- [...] -->
           </div>
@@ -227,7 +317,6 @@ onBeforeMount(() => {
       </div>
     </div>
   </div>
-
 </template>
 <style>
 .info {

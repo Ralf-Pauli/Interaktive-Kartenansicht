@@ -1,34 +1,110 @@
 <template>
-  <!--  <div-->
-  <!--      class="bg-white right fixed z-30 right-0 top-0 bottom-0 p-0.5 flex flex-col  content-center items-center">-->
-  <!--    <div class="m-3">-->
-  <!--      <h1 class="text-xl font-bold">-->
-  <!--        Interaktive Kartenansicht-->
-  <!--      </h1>-->
-  <!--    </div>-->
-  <!--    <div class="m-3 flex flex-col font-bold items-center space-y-3 divide-y-2">-->
-  <!--      <div class="m-3 flex flex-col font-bold  items-center space-y-3 ">-->
-  <!--        <h2 class="text-lg">-->
-  <!--          Covid-19-->
-  <!--        </h2>-->
-  <!--        <div>-->
-  <!--          <h3>-->
-  <!--            Allgemeine Informationen-->
-  <!--          </h3>-->
-  <!--        </div>-->
+  <div id="sidePanel" aria-hidden="false" aria-label="side panel" class="sidepanel">
+    <div class="sidepanel-inner-wrapper">
 
-  <!--        <div>-->
-  <!--          <h3>-->
-  <!--            Aktuelle Regeln-->
-  <!--          </h3>-->
-  <!--        </div>-->
-  <!--      </div>-->
-  <!--      <div>-->
-  <!--        <h2 class="text-lg font-bold">-->
-  <!--          Unwetterwarnungen-->
-  <!--        </h2>-->
-  <!--      </div>-->
-  <!--    </div>-->
+      <nav aria-label="sidepanel tab navigation" class="sidepanel-tabs-wrapper">
+        <ul class="sidepanel-tabs">
+
+
+          <li class="sidepanel-tab">
+            <a class="sidebar-tab-link" data-tab-link="tab-1" href="#" role="tab">
+              <span class="material-symbols-sharp">info</span>
+            </a>
+          </li>
+
+          <li class="sidepanel-tab">
+            <a class="sidebar-tab-link" data-tab-link="tab-2" href="#" role="tab">
+              <span class="material-symbols-sharp">warning</span>
+            </a>
+          </li>
+
+          <li class="sidepanel-tab">
+            <a class="sidebar-tab-link" data-tab-link="tab-3" href="#" role="tab">
+              <span class="material-symbols-sharp">coronavirus</span>
+            </a>
+          </li>
+
+          <li class="sidepanel-tab">
+            <a class="sidebar-tab-link" data-tab-link="tab-4" href="#" role="tab">
+              <span class="material-symbols-sharp">thunderstorm</span>
+            </a>
+          </li>
+
+          <!-- [...] -->
+        </ul>
+      </nav>
+      <div class="sidepanel-content-wrapper">
+
+        <div class="sidepanel-content w-full h-full">
+          <div class="sidepanel-tab-content space-y-1" data-tab-content="tab-1">
+            <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>
+
+            <div class="grid grid-rows-1 grid-cols-2 grid-flow-row gap-3">
+              <div class="text-base">Name</div>
+              <div>1</div>
+              <div class="text-base">Einwohner</div>
+              <div></div>
+              <div class="text-base">Einwohner Männlich</div>
+              <div></div>
+              <div class="text-base">Einwohner Weiblich</div>
+              <div></div>
+              <div class="text-base">Bezeichnung</div>
+              <div></div>
+            </div>
+          </div>
+        </div>
+        <div class="sidepanel-content w-full h-full">
+          <div class="sidepanel-tab-content" data-tab-content="tab-2">
+            <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
+
+            <div class="grid grid-rows-1 grid-cols-2 grid-flow-row gap-3">
+              <div>Event</div>
+              <div></div>
+              <div>Dringlichkeit</div>
+              <div></div>
+              <div>Überschrift</div>
+              <div></div>
+              <div>Beschreibung</div>
+              <div></div>
+              <div>Weitere Informationen</div>
+              <div></div>
+
+            </div>
+          </div>
+
+          <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
+            <h2 class="text-2xl text-center mb-3">Covid-19</h2>
+
+            <div class="grid grid-rows-1 grid-cols-2 grid-flow-row gap-3">
+              <div>Gesamt</div>
+              <div></div>
+              <div>Fälle / 100.000 EW</div>
+              <div></div>
+              <div>Fälle der letzten 7 Tage / 100.000 EW</div>
+              <div></div>
+              <div>Todesfälle</div>
+              <div></div>
+            </div>
+
+          </div>
+
+          <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
+            <h2 class="text-2xl text-center">Unwetterwarnungen</h2>
+
+            <div class="grid grid-rows-1 grid-cols-2 grid-flow-row gap-3">
+
+            </div>
+
+          </div>
+          <!-- [...] -->
+        </div>
+      </div>
+    </div>
+    <div class="sidepanel-toggle-container">
+      <button ref="sidebarBtn" aria-label="toggle side panel" class="sidepanel-toggle-button" type="button"
+      ></button>
+    </div>
+  </div>
   <!--  </div>-->
 </template>
 
