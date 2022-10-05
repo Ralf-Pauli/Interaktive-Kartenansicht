@@ -2,8 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-
 #app {
     height: 100vh;
     position: relative;
+}
+
+@font-face {
+    font-family: "Bundes Sans";
+    src: local('src/assets/fonts/bundessansweb-regular.woff');
+    src: local('src/assets/fonts/bundessansweb-bold.woff');
+}
+
+.leaflet-container {
+    font-family: "Bundes Sans",  sans-serif;
+    line-height: 1.5;
 }

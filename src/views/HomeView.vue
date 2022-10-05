@@ -234,33 +234,26 @@ onBeforeMount(() => {
 
               <div class="grid grid-rows-1 grid-cols-1 grid-flow-row gap-5 text-base">
                 <dl>
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-2 sm:gap-3 sm:px-6">
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6">
                     <dt class="text-lg text-gray-300">Name</dt>
                     <dd class="mt-1 text-lg text-gray-50 sm:mt-0 ">Deggendorf</dd>
                   </div>
 
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-2 sm:gap-3 sm:px-6 sm:auto-rows-max ">
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1  sm:px-6 ">
                     <dt class="text-lg text-gray-300">Bezeichnung</dt>
                     <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">Kreisfreie Stadt</dd>
                   </div>
 
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-2 sm:gap-3 sm:px-6 sm:auto-rows-max ">
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1  sm:px-6 sm:auto-rows-max ">
                     <dt class="text-lg text-gray-300">Einwohner</dt>
                     <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">42069</dd>
                   </div>
-
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-2 sm:gap-3 sm:px-6 sm:auto-rows-max ">
-                    <dt class="text-lg text-gray-300">Einwohner Männlich</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">69</dd>
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
+                    <dt class="text-lg text-gray-300">Allgemeine Notfalltips</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">Unter den </dd>
                   </div>
 
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-2 sm:gap-3 sm:px-6 sm:auto-rows-max ">
-                    <dt class="text-lg text-gray-300">Einwohner Weiblich</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">420</dd>
-                  </div>
                 </dl>
-
-
               </div>
             </div>
           </div>
@@ -268,35 +261,70 @@ onBeforeMount(() => {
             <div class="sidepanel-tab-content" data-tab-content="tab-2">
               <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
 
-              <div class="grid grid-rows-1 grid-cols-2 grid-flow-row gap-3">
-                <div>Event</div>
-                <div></div>
-                <div>Dringlichkeit</div>
-                <div></div>
-                <div>Überschrift</div>
-                <div></div>
-                <div>Beschreibung</div>
-                <div></div>
-                <div>Weitere Informationen</div>
-                <div></div>
+              <div class="grid grid-rows-1 grid-cols-1 grid-flow-row gap-5 text-base">
+                <dl>
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6">
+                    <dt class="text-lg text-gray-300">Event</dt>
+                    <dd class="mt-1 text-lg text-gray-50 sm:mt-0 ">Deggendorf</dd>
+                  </div>
 
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 ">
+                    <dt class="text-lg text-gray-300">Warnstufe</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">Kreisfreie Stadt</dd>
+                  </div>
+
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
+                    <dt class="text-lg text-gray-300">Handlungs-empfelungen</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">42069</dd>
+                  </div>
+
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
+                    <dt class="text-lg text-gray-300">Beschreibung</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">69</dd>
+                  </div>
+
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
+                    <dt class="text-lg text-gray-300">Weitere Informationen</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">420</dd>
+                  </div>
+                </dl>
               </div>
             </div>
 
-            <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
+            <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3" >
               <h2 class="text-2xl text-center mb-3">Covid-19</h2>
 
-              <div class="grid grid-rows-1 grid-cols-2 grid-flow-row gap-3">
-                <div>Gesamt</div>
-                <div></div>
-                <div>Fälle / 100.000 EW</div>
-                <div></div>
-                <div>Fälle der letzten 7 Tage / 100.000 EW</div>
-                <div></div>
-                <div>Todesfälle</div>
-                <div></div>
-              </div>
+              <div class="grid grid-rows-1 grid-cols-1 grid-flow-row gap-5 text-base  ">
+                <dl>
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6">
+                    <dt class="text-lg text-gray-300">Gesamt</dt>
+                    <dd class="mt-1 text-lg text-gray-50 sm:mt-0 ">Deggendorf</dd>
+                  </div>
 
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 ">
+                    <dt class="text-lg text-gray-300">Fälle / 100.000 EW</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">Kreisfreie Stadt</dd>
+                  </div>
+
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
+                    <dt class="text-lg text-gray-300">Fälle der letzten 7 Tage / 100.000 EW</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">42069</dd>
+                  </div>
+
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
+                    <dt class="text-lg text-gray-300">Todesfälle</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">69</dd>
+                  </div>
+
+                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
+                    <dt class="text-lg text-gray-300">Weitere Informationen</dt>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">420</dd>
+                  </div>
+                </dl>
+                <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
+                  <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">420</dd>
+                </div>
+              </div>
             </div>
 
             <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
@@ -305,7 +333,6 @@ onBeforeMount(() => {
               <div class="grid grid-rows-1 grid-cols-2 grid-flow-row gap-3">
 
               </div>
-
             </div>
             <!-- [...] -->
           </div>
