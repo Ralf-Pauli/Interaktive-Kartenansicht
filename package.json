@@ -9,7 +9,6 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.2",
     "@heroicons/vue": "^2.0.11",
-    "flowbite": "^1.5.3",
     "leaflet": "^1.9.1",
     "leaflet-sidebar": "^0.2.4",
     "vue": "^3.2.38",

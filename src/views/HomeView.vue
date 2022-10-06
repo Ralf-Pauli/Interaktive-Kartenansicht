@@ -1,11 +1,10 @@
 <script setup>
-import {onBeforeMount, onMounted} from 'vue';
+import {onBeforeMount, onMounted, ref} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
-// import "leaflet-sidebar"
 import "@/assets/leaflet-sidepanel.css"
 import "@/assets/leaflet-sidepanel.min"
-// import {toggleSidebar} from "@/components/state";
+import Warning from "../components/Warning.vue";
 
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
@@ -28,7 +27,7 @@ let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
     sidePanel;
 
-let warnungen = [
+let warnings = [
   {
     "id": "biw.BIWAPP-71189",
     "version": 3,
@@ -50,6 +49,13 @@ let warnungen = [
     }
   }
 ];
+
+warnings.forEach((e) => {
+  e.visible = false;
+})
+
+warnings = ref(warnings);
+
 
 onMounted(() => {
   map = L.map("map").setView([51.1642292, 10.4541194], 6);
@@ -280,55 +286,12 @@ onBeforeMount(() => {
               </div>
             </div>
           </div>
-          <div class="sidepanel-content w-full h-full">
+          <div class="sidepanel-content w-full h-full ">
             <div class="sidepanel-tab-content" data-tab-content="tab-2">
               <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
 
               <div class="mt-5">
-                <div v-for="warn in warnungen" class="flex flex-col mb-2 pb-2 gap-2 border-b">
-
-                  <div class="grid grid-cols-5 auto grid-rows-1 auto-cols-auto">
-                    <div class="col-span-4 self-center text-sm"> {{ warn.i18nTitle.de }}</div>
-                    <button class="self-center mt-1">
-                      <span class="material-symbols-sharp">expand_more</span>
-                    </button>
-                  </div>
-
-<!--                  <div>-->
-<!--                    <div>{{ warn.startDate }}</div>-->
-<!--                  </div>-->
-
-                </div>
-              </div>
-
-
-              <div class="grid grid-rows-1 grid-cols-1 grid-flow-row gap-5 text-base">
-                <dl>
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6">
-                    <dt class="text-lg text-gray-300">Event</dt>
-                    <dd class="mt-1 text-lg text-gray-50 sm:mt-0 ">Deggendorf</dd>
-                  </div>
-
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 ">
-                    <dt class="text-lg text-gray-300">Warnstufe</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">Kreisfreie Stadt</dd>
-                  </div>
-
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
-                    <dt class="text-lg text-gray-300">Handlungs-empfelungen</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">42069</dd>
-                  </div>
-
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
-                    <dt class="text-lg text-gray-300">Beschreibung</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">69</dd>
-                  </div>
-
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
-                    <dt class="text-lg text-gray-300">Weitere Informationen</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">420</dd>
-                  </div>
-                </dl>
+                <Warning v-for="warn in warnings" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
 
