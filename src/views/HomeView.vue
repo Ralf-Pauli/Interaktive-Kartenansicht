@@ -28,6 +28,29 @@ let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
     sidePanel;
 
+let warnungen = [
+  {
+    "id": "biw.BIWAPP-71189",
+    "version": 3,
+    "startDate": "2022-09-28T12:35:05+02:00",
+    "severity": "Minor",
+    "type": "Alert",
+    "i18nTitle": {
+      "de": "Geflügelpest-Ausbruch in einem Putenbetrieb im Landkreis Cloppenburg"
+    }
+  },
+  {
+    "id": "biw.BIWAPP-71267",
+    "version": 3,
+    "startDate": "2022-10-04T11:28:11+02:00",
+    "severity": "Minor",
+    "type": "Alert",
+    "i18nTitle": {
+      "de": "Gefahrguteinsatz in Königshain"
+    }
+  }
+];
+
 onMounted(() => {
   map = L.map("map").setView([51.1642292, 10.4541194], 6);
 
@@ -250,7 +273,7 @@ onBeforeMount(() => {
                   </div>
                   <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
                     <dt class="text-lg text-gray-300">Allgemeine Notfalltips</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">Unter den </dd>
+                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">Unter den</dd>
                   </div>
 
                 </dl>
@@ -260,6 +283,24 @@ onBeforeMount(() => {
           <div class="sidepanel-content w-full h-full">
             <div class="sidepanel-tab-content" data-tab-content="tab-2">
               <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
+
+              <div class="mt-5">
+                <div v-for="warn in warnungen" class="flex flex-col mb-2 pb-2 gap-2 border-b">
+
+                  <div class="grid grid-cols-5 auto grid-rows-1 auto-cols-auto">
+                    <div class="col-span-4 self-center text-sm"> {{ warn.i18nTitle.de }}</div>
+                    <button class="self-center mt-1">
+                      <span class="material-symbols-sharp">expand_more</span>
+                    </button>
+                  </div>
+
+<!--                  <div>-->
+<!--                    <div>{{ warn.startDate }}</div>-->
+<!--                  </div>-->
+
+                </div>
+              </div>
+
 
               <div class="grid grid-rows-1 grid-cols-1 grid-flow-row gap-5 text-base">
                 <dl>
@@ -291,7 +332,7 @@ onBeforeMount(() => {
               </div>
             </div>
 
-            <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3" >
+            <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
               <h2 class="text-2xl text-center mb-3">Covid-19</h2>
 
               <div class="grid grid-rows-1 grid-cols-1 grid-flow-row gap-5 text-base  ">
