@@ -1,7 +1,5 @@
 <script setup>
-import {RouterLink, RouterView} from 'vue-router'
-import Sidebar from "@/components/Sidebar.vue";
-import {sidebarWidth} from '@/components/state.js'
+import {RouterView} from 'vue-router'
 </script>
 
 <template>

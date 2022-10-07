@@ -1,9 +1,12 @@
 <script setup>
 import {onBeforeMount, onMounted, ref} from 'vue';
+
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
+
 import "@/assets/leaflet-sidepanel.css"
 import "@/assets/leaflet-sidepanel.min"
+
 import Warning from "../components/Warning.vue";
 
 const proxyURL = "https://corsproxy.io/?";
@@ -115,7 +118,6 @@ onMounted(() => {
   baseMaps.OpenStreetMap = osm;
   map.doubleClickZoom.disable();
 });
-
 
 function addInfo() {
   info.onAdd = function (map) {
@@ -263,7 +265,6 @@ onBeforeMount(() => {
 <template>
   <div id="map" class=" z-10 h-full">
 
-    <!--  <Sidebar :map="map"/>-->
     <div id="sidePanel" aria-hidden="false" aria-label="side panel" class="sidepanel">
       <div class="sidepanel-inner-wrapper">
 
@@ -295,7 +296,6 @@ onBeforeMount(() => {
               </a>
             </li>
 
-            <!-- [...] -->
           </ul>
         </nav>
         <div class="sidepanel-content-wrapper">
@@ -303,12 +303,8 @@ onBeforeMount(() => {
           <div class="sidepanel-content w-full h-full">
             <div class="sidepanel-tab-content" data-tab-content="tab-1">
               <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>
-
-              <table class="w-full table-fixed text-left ">
-                <tr>
-                  <th class="">Name</th>
-                  <td>name</td>
-                </tr>
+              <h3 class="text-xl">Names</h3>
+              <table class="w-full table-fixed text-left text-base">
                 <tr>
                   <th>Bezeichnung</th>
                   <td>name</td>
@@ -348,8 +344,6 @@ onBeforeMount(() => {
               </div>
             </div>
 
-
-            <!-- [...] -->
           </div>
         </div>
       </div>
@@ -360,6 +354,7 @@ onBeforeMount(() => {
     </div>
   </div>
 </template>
+
 <style>
 .info {
   padding: 6px 8px;
