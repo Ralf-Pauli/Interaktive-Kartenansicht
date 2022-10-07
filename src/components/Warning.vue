@@ -3,9 +3,9 @@
 
     <div class="grid grid-cols-5 auto grid-rows-1 auto-cols-auto">
       <div class="col-span-4 self-center text-sm font-bold">
-        {{ warning.i18nTitle.de }}
+        {{ warning.info[0].headline }}
         <div class="text-xs pt-1 font-extralight">
-          {{ new Date(warning.startDate).toLocaleString("de-DE") + " Uhr" }}
+          {{ new Date(warning.sent).toLocaleString("de-DE") + " Uhr" }}
         </div>
       </div>
       <button class="self-center mt-1" @click="warning.visible = !warning.visible">
@@ -24,6 +24,9 @@
           <span class="material-symbols-sharp ">Accessibility</span>
           <div class="flex-auto self-center text-sm font-bold">Handlungsempfehlung</div>
         </div>
+        <div>
+
+        </div>
       </div>
 
       <div>
@@ -40,7 +43,6 @@
         </div>
       </div>
 
-
     </div>
 
   </div>
@@ -51,7 +53,7 @@
 <script>
 export default {
   name: "InfoList",
-  props: ["warning"]
+  props: ["warning"],
 }
 </script>
 

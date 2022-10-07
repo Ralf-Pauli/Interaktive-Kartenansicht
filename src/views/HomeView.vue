@@ -37,24 +37,67 @@ let warnings = [
     "i18nTitle": {
       "de": "Geflügelpest-Ausbruch in einem Putenbetrieb im Landkreis Cloppenburg"
     }
-  },
-  {
-    "id": "biw.BIWAPP-71267",
-    "version": 3,
-    "startDate": "2022-10-04T11:28:11+02:00",
-    "severity": "Minor",
-    "type": "Alert",
-    "i18nTitle": {
-      "de": "Gefahrguteinsatz in Königshain"
-    }
   }
 ];
+let warningDetails = [{
+  "identifier": "biw.BIWAPP-71189",
+  "sender": "CAP@biwapp.de",
+  "sent": "2022-09-28T12:35:05+02:00",
+  "status": "Actual",
+  "msgType": "Alert",
+  "scope": "Public",
+  "code": [
+    "DVN:3",
+    "BIWAPP"
+  ],
+  "info": [
+    {
+      "language": "DE",
+      "category": [
+        "Other"
+      ],
+      "event": "4",
+      "urgency": "Unknown",
+      "severity": "Minor",
+      "certainty": "Unknown",
+      "expires": "2022-10-07T12:32:00+02:00",
+      "headline": "Geflügelpest-Ausbruch in einem Putenbetrieb im Landkreis Cloppenburg",
+      "description": "Landkreis Cloppenburg. In der Gemeinde Lastrup wurde ein Ausbruch der hochpathogenen Aviären Influenza mit dem Erreger H5N1 in einem Putenbetrieb nachgewiesen. Den Ausbruch hat das Friedrich-Loeffler-Institut (FLI) amtlich bestätigt. Der Bestand mit 8.700 Puten wurde heute tierschutzgerecht getötet und wird nun geräumt.<br>&nbsp;<br>Somit sind im Landkreis Cloppenburg seit September zwei Ausbruchsbetriebe mit insgesamt 39.700 Puten betroffen.<br>&nbsp;<br>Um den Nutzgeflügelbestand mit dem positiven Virusnachweis werden ab Donnerstag (29. September 2022, 0.00 Uhr) &nbsp;als Sperrzone eine Schutzzone (ehemals Sperrbezirk) und eine Überwachungszone (ehemals Beobachtungsgebiet) festgelegt. Als Schutzzone (ehemals Sperrbezirk) wird das Gebiet um den Seuchenbestand in der Gemeinde Lastrup mit einem Radius von mindestens drei Kilometern festgelegt. Um die Schutzzone wird mit einem Radius von mindestens zehn Kilometern um den Seuchenbestand eine Überwachungszone (ehemals Beobachtungsgebiet) festgelegt.<br>&nbsp;<br>Parallel ordnet der Landkreis Cloppenburg ab Donnerstag (29. September 2022, 0.00 Uhr) eine Aufstallungspflicht in der Schutz- und Überwachungszone an. Tierhaltende Betriebe haben alle gehaltenen Vögel (Aves) von freilebenden Vögeln abzusondern. Gehaltene Vögel sind mit Ausnahme von Tauben in geschlossenen Ställen oder unter einer Schutzvorrichtung zu halten, die aus einer überstehenden, nach oben gegen Einträge gesicherten dichten Abdeckung und mit einer gegen das Eindringen von Wildvögeln gesicherten Seitenbegrenzung bestehen muss.<br>&nbsp;<br>Der Landkreis Cloppenburg wird ferner eine tierseuchenrechtliche Allgemeinverfügung zur Anordnung eines Verbots der Wiedereinstallung zum Schutz gegen die Aviäre Influenza erlassen. Geflügelbestände (Truthühner) in einem Radius von 25 Kilometern um den Seuchenbestand in der Gemeinde Lastrup dürfen ab Donnerstag (29. September 2022, 0.00 Uhr) frühestens 30 Tage nach einer Entfernung des Geflügels aus dem jeweiligen Bestand oder der jeweiligen Vogelhaltung oder im Falle leerstehender Gebäude oder Einrichtungen zur Haltung von Vögeln frühestens 30 Tage nach Inkrafttreten dieser Allgemeinverfügung wiederbelegt werden.",
+      "parameter": [
+        {
+          "valueName": "sender_langname",
+          "value": "Landkreis Cloppenburg"
+        },
+        {
+          "valueName": "PHGEM",
+          "value": "35,37,267,270+13,291,294,681,100001"
+        },
+        {
+          "valueName": "GRID",
+          "value": "115366+1,115979+12,116592+13,117205+13,117818+13,118431+13,119043+15,119060,119656+18,120269+20,120881+21,121494+22,122107+27,122720+28,123333+29,123947+28,124562+27,125176+27,125791+26,126404+26,127017+26,127630+26,128243+26,128856+26,129470+25,130084+24,130700+23,131315+21,131928+22,132540+24,133152+26,133765+27,133794+1,134376+31,134987+33,135598+35,136211+34,136824+35,137436+36,138049+36,138661+36,139274+34,139888+33,140502+26,140530+4,141114+26,141726+25,142337+26,142949+27,143562+28,144176+27,144790+9,144804+9,145404+7,145419+2,145425+1,146017+6,500001"
+        }
+      ],
+      "area": [
+        {
+          "areaDesc": "Bakum, Barßel, Bösel, Cappeln (Oldenburg), Cloppenburg, Edewecht, Emstek, Essen (Oldenburg), Friesoythe, Garrel, Großenkneten, Lastrup, Lindern (Oldenburg), Löningen, Menslage, Molbergen, Quakenbrück, Saterland, Visbek, Wardenburg",
+          "geocode": [
+            {
+              "valueName": "AreaId",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}];
 
-warnings.forEach((e) => {
+warningDetails.forEach((e) => {
   e.visible = false;
+  e.severity = warnings.find((w) => w.id === e.identifier).severity;
 })
 
-warnings = ref(warnings);
+warnings = ref(warningDetails);
 
 
 onMounted(() => {
@@ -261,35 +304,29 @@ onBeforeMount(() => {
             <div class="sidepanel-tab-content" data-tab-content="tab-1">
               <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>
 
-              <div class="grid grid-rows-1 grid-cols-1 grid-flow-row gap-5 text-base">
-                <dl>
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6">
-                    <dt class="text-lg text-gray-300">Name</dt>
-                    <dd class="mt-1 text-lg text-gray-50 sm:mt-0 ">Deggendorf</dd>
-                  </div>
-
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1  sm:px-6 ">
-                    <dt class="text-lg text-gray-300">Bezeichnung</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">Kreisfreie Stadt</dd>
-                  </div>
-
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1  sm:px-6 sm:auto-rows-max ">
-                    <dt class="text-lg text-gray-300">Einwohner</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">42069</dd>
-                  </div>
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
-                    <dt class="text-lg text-gray-300">Allgemeine Notfalltips</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">Unter den</dd>
-                  </div>
-
-                </dl>
-              </div>
+              <table class="w-full table-fixed text-left ">
+                <tr>
+                  <th class="">Name</th>
+                  <td>name</td>
+                </tr>
+                <tr>
+                  <th>Bezeichnung</th>
+                  <td>name</td>
+                </tr>
+                <tr>
+                  <th>Einwohner</th>
+                  <td>name</td>
+                </tr>
+                <tr>
+                  <th>Allgemeine Notfalltips</th>
+                  <td>name</td>
+                </tr>
+              </table>
             </div>
           </div>
           <div class="sidepanel-content w-full h-full ">
             <div class="sidepanel-tab-content" data-tab-content="tab-2">
               <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
-
               <div class="mt-5">
                 <Warning v-for="warn in warnings" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
@@ -298,46 +335,20 @@ onBeforeMount(() => {
             <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
               <h2 class="text-2xl text-center mb-3">Covid-19</h2>
 
-              <div class="grid grid-rows-1 grid-cols-1 grid-flow-row gap-5 text-base  ">
-                <dl>
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6">
-                    <dt class="text-lg text-gray-300">Gesamt</dt>
-                    <dd class="mt-1 text-lg text-gray-50 sm:mt-0 ">Deggendorf</dd>
-                  </div>
-
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 ">
-                    <dt class="text-lg text-gray-300">Fälle / 100.000 EW</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">Kreisfreie Stadt</dd>
-                  </div>
-
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
-                    <dt class="text-lg text-gray-300">Fälle der letzten 7 Tage / 100.000 EW</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">42069</dd>
-                  </div>
-
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
-                    <dt class="text-lg text-gray-300">Todesfälle</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">69</dd>
-                  </div>
-
-                  <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
-                    <dt class="text-lg text-gray-300">Weitere Informationen</dt>
-                    <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">420</dd>
-                  </div>
-                </dl>
-                <div class="px-4 py-1 sm:grid sm:grid-cols-1 sm:px-6 sm:auto-rows-max ">
-                  <dd class="mt-1 text-lg text-gray-50  sm:mt-0 ">420</dd>
-                </div>
+              <div class="mt-5">
+                <Warning v-for="warn in warnings" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
 
             <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
               <h2 class="text-2xl text-center">Unwetterwarnungen</h2>
 
-              <div class="grid grid-rows-1 grid-cols-2 grid-flow-row gap-3">
-
+              <div class="mt-5">
+                <Warning v-for="warn in warnings" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
+
+
             <!-- [...] -->
           </div>
         </div>
