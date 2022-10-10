@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .sidepanel {
   width: 400px;
   height: 100%;
@@ -85,7 +89,7 @@
 }
 .sidepanel-content-wrapper::-webkit-scrollbar-thumb {
   background: #636363;
-  border-radius: 0px;
+  border-radius: 0;
 }
 .sidepanel-content-wrapper::-webkit-scrollbar-thumb:hover {
   background: #383838;

@@ -42,7 +42,6 @@
           <div class="flex-auto self-center text-sm font-bold">Betroffene Region(en)</div>
         </div>
       </div>
-
     </div>
 
   </div>
@@ -50,11 +49,8 @@
 
 </template>
 
-<script>
-export default {
-  name: "InfoList",
-  props: ["warning"],
-}
+<script setup>
+  const props = defineProps(["warning"])
 </script>
 
 <style scoped>
