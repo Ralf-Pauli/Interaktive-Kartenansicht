@@ -26,80 +26,16 @@ let layerControl,
 let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
     sidePanel;
-
-let warnings = [
-      {
-        "id": "biw.BIWAPP-71189",
-        "version": 3,
-        "startDate": "2022-09-28T12:35:05+02:00",
-        "severity": "Minor",
-        "type": "Alert",
-        "i18nTitle": {
-          "de": "Geflügelpest-Ausbruch in einem Putenbetrieb im Landkreis Cloppenburg"
-        }
-      }
-    ],
-    warningDetails = [{
-      "identifier": "biw.BIWAPP-71189",
-      "sender": "CAP@biwapp.de",
-      "sent": "2022-09-28T12:35:05+02:00",
-      "status": "Actual",
-      "msgType": "Alert",
-      "scope": "Public",
-      "code": [
-        "DVN:3",
-        "BIWAPP"
-      ],
-      "info": [
-        {
-          "language": "DE",
-          "category": [
-            "Other"
-          ],
-          "event": "4",
-          "urgency": "Unknown",
-          "severity": "Minor",
-          "certainty": "Unknown",
-          "expires": "2022-10-07T12:32:00+02:00",
-          "headline": "Geflügelpest-Ausbruch in einem Putenbetrieb im Landkreis Cloppenburg",
-          "description": "Landkreis Cloppenburg. In der Gemeinde Lastrup wurde ein Ausbruch der hochpathogenen Aviären Influenza mit dem Erreger H5N1 in einem Putenbetrieb nachgewiesen. Den Ausbruch hat das Friedrich-Loeffler-Institut (FLI) amtlich bestätigt. Der Bestand mit 8.700 Puten wurde heute tierschutzgerecht getötet und wird nun geräumt.<br>&nbsp;<br>Somit sind im Landkreis Cloppenburg seit September zwei Ausbruchsbetriebe mit insgesamt 39.700 Puten betroffen.<br>&nbsp;<br>Um den Nutzgeflügelbestand mit dem positiven Virusnachweis werden ab Donnerstag (29. September 2022, 0.00 Uhr) &nbsp;als Sperrzone eine Schutzzone (ehemals Sperrbezirk) und eine Überwachungszone (ehemals Beobachtungsgebiet) festgelegt. Als Schutzzone (ehemals Sperrbezirk) wird das Gebiet um den Seuchenbestand in der Gemeinde Lastrup mit einem Radius von mindestens drei Kilometern festgelegt. Um die Schutzzone wird mit einem Radius von mindestens zehn Kilometern um den Seuchenbestand eine Überwachungszone (ehemals Beobachtungsgebiet) festgelegt.<br>&nbsp;<br>Parallel ordnet der Landkreis Cloppenburg ab Donnerstag (29. September 2022, 0.00 Uhr) eine Aufstallungspflicht in der Schutz- und Überwachungszone an. Tierhaltende Betriebe haben alle gehaltenen Vögel (Aves) von freilebenden Vögeln abzusondern. Gehaltene Vögel sind mit Ausnahme von Tauben in geschlossenen Ställen oder unter einer Schutzvorrichtung zu halten, die aus einer überstehenden, nach oben gegen Einträge gesicherten dichten Abdeckung und mit einer gegen das Eindringen von Wildvögeln gesicherten Seitenbegrenzung bestehen muss.<br>&nbsp;<br>Der Landkreis Cloppenburg wird ferner eine tierseuchenrechtliche Allgemeinverfügung zur Anordnung eines Verbots der Wiedereinstallung zum Schutz gegen die Aviäre Influenza erlassen. Geflügelbestände (Truthühner) in einem Radius von 25 Kilometern um den Seuchenbestand in der Gemeinde Lastrup dürfen ab Donnerstag (29. September 2022, 0.00 Uhr) frühestens 30 Tage nach einer Entfernung des Geflügels aus dem jeweiligen Bestand oder der jeweiligen Vogelhaltung oder im Falle leerstehender Gebäude oder Einrichtungen zur Haltung von Vögeln frühestens 30 Tage nach Inkrafttreten dieser Allgemeinverfügung wiederbelegt werden.",
-          "parameter": [
-            {
-              "valueName": "sender_langname",
-              "value": "Landkreis Cloppenburg"
-            },
-            {
-              "valueName": "PHGEM",
-              "value": "35,37,267,270+13,291,294,681,100001"
-            },
-            {
-              "valueName": "GRID",
-              "value": "115366+1,115979+12,116592+13,117205+13,117818+13,118431+13,119043+15,119060,119656+18,120269+20,120881+21,121494+22,122107+27,122720+28,123333+29,123947+28,124562+27,125176+27,125791+26,126404+26,127017+26,127630+26,128243+26,128856+26,129470+25,130084+24,130700+23,131315+21,131928+22,132540+24,133152+26,133765+27,133794+1,134376+31,134987+33,135598+35,136211+34,136824+35,137436+36,138049+36,138661+36,139274+34,139888+33,140502+26,140530+4,141114+26,141726+25,142337+26,142949+27,143562+28,144176+27,144790+9,144804+9,145404+7,145419+2,145425+1,146017+6,500001"
-            }
-          ],
-          "area": [
-            {
-              "areaDesc": "Bakum, Barßel, Bösel, Cappeln (Oldenburg), Cloppenburg, Edewecht, Emstek, Essen (Oldenburg), Friesoythe, Garrel, Großenkneten, Lastrup, Lindern (Oldenburg), Löningen, Menslage, Molbergen, Quakenbrück, Saterland, Visbek, Wardenburg",
-              "geocode": [
-                {
-                  "valueName": "AreaId",
-                  "value": "0"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }],
+let warnings = new Map(),
+    warningDetails = new Map(),
+    warningsRef = ref(""),
     currentMunicipality = reactive({name: "", bez: "", population: 0, allgNotfall: ""});
 
 
 warningDetails.forEach((e) => {
   e.visible = false;
-  e.severity = warnings.find((w) => w.id === e.identifier).severity;
+  e.severity = warnings.get(e.identifier).severity;
 })
-
-warnings = ref(warningDetails);
 
 
 onMounted(() => {
@@ -116,8 +52,34 @@ onMounted(() => {
   addCounties(mapDataURL);
   baseMaps.OpenStreetMap = osm;
   map.doubleClickZoom.disable();
+  getWarnings();
+  setWarningDetails();
+  warningsRef.value = warningDetails;
 });
 
+async function getWarnings() {
+  let responses = await Promise.allSettled(["katwarn", "biwapp", "mowas", "dwd", "lhp"].map(async source => [
+    await fetch(proxyURL + encodeURIComponent(baseURL + `/${source}/mapData.json`)).then(res => res.json()),
+  ]));
+  responses.forEach(response => {
+    if (response.value[0].length !== 0) {
+
+      response.value[0].forEach(warning => {
+        let id = warning.id
+        delete warning.id;
+        warnings.set(id, warning)
+      });
+    }
+  })
+}
+
+async function setWarningDetails() {
+  for (let key of warnings.keys()) {
+    let data = await fetch(proxyURL + encodeURIComponent(baseURL + `/warnings/${key}.json`)).then(res => res.json());
+    console.log(data)
+  }
+  console.log(warningDetails)
+}
 
 function addInfo() {
   info.onAdd = function (map) {
@@ -248,7 +210,7 @@ function style(feature) {
 }
 
 function addLayerControl() {
-  layerControl = L.control.Layers(baseMaps, overlayMaps).addTo(map);
+  layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
 }
 
 function addSidePanel() {
@@ -339,7 +301,7 @@ onBeforeMount(() => {
             <div class="sidepanel-tab-content" data-tab-content="tab-2">
               <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
               <div class="mt-5">
-                <Warning v-for="warn in warnings" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+                <Warning v-for="warn in warningsRef" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
 
@@ -347,7 +309,7 @@ onBeforeMount(() => {
               <h2 class="text-2xl text-center mb-3">Covid-19</h2>
 
               <div class="mt-5">
-                <Warning v-for="warn in warnings" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+                <Warning v-for="warn in warningsRef" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
 
@@ -355,7 +317,7 @@ onBeforeMount(() => {
               <h2 class="text-2xl text-center">Unwetterwarnungen</h2>
 
               <div class="mt-5">
-                <Warning v-for="warn in warnings" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+                <Warning v-for="warn in warningsRef" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
 
