@@ -26,16 +26,11 @@ let layerControl,
 let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
     sidePanel;
+
 let warnings = new Map(),
     warningDetails = new Map(),
     warningsRef = ref(""),
     currentMunicipality = reactive({name: "", bez: "", population: 0, allgNotfall: ""});
-
-
-warningDetails.forEach((e) => {
-  e.visible = false;
-  e.severity = warnings.get(e.identifier).severity;
-})
 
 
 onMounted(() => {
@@ -49,21 +44,26 @@ onMounted(() => {
   addInfo();
   addSidePanel()
   addLegend();
+
   addCounties(mapDataURL);
   baseMaps.OpenStreetMap = osm;
   map.doubleClickZoom.disable();
+
   getWarnings();
-  setWarningDetails();
-  warningsRef.value = warningDetails;
 });
 
 async function getWarnings() {
-  let responses = await Promise.allSettled(["katwarn", "biwapp", "mowas", "dwd", "lhp"].map(async source => [
-    await fetch(proxyURL + encodeURIComponent(baseURL + `/${source}/mapData.json`)).then(res => res.json()),
-  ]));
+  let responses;
+  try {
+    responses = await Promise.allSettled(["katwarn", "biwapp", "mowas", "dwd", "lhp"].map(async source => [
+      await fetch(proxyURL + encodeURIComponent(baseURL + `/${source}/mapData.json`)).then(res => res.json()),
+    ]));
+  } catch (e) {
+    console.log(e)
+  }
+
   responses.forEach(response => {
     if (response.value[0].length !== 0) {
-
       response.value[0].forEach(warning => {
         let id = warning.id
         delete warning.id;
@@ -71,15 +71,37 @@ async function getWarnings() {
       });
     }
   })
+  setWarningDetails();
 }
 
-async function setWarningDetails() {
+function setWarningDetails() {
+
   for (let key of warnings.keys()) {
-    let data = await fetch(proxyURL + encodeURIComponent(baseURL + `/warnings/${key}.json`)).then(res => res.json());
-    console.log(data)
+    fetch(proxyURL + encodeURIComponent(baseURL + `/warnings/${key}.json`)).then(res => {
+      if (!res.ok) {
+        throw Error(res.statusText);
+      } else {
+        return res.json();
+      }
+
+    }).then(value => {
+      delete value.identifier
+      warningDetails.set(key, value);
+      warningDetails.values().severity = warnings.get(key).severity;
+    }).catch(err => {
+      console.log(err);
+    });
+
+    warningsRef.value = warningDetails;
   }
-  console.log(warningDetails)
+  console.log(warningsRef.value)
+
+  // warningDetails.forEach((e) => {
+  //   e.visible = false;
+  //   e.severity = warnings.get(e.identifier).severity;
+  // })
 }
+
 
 function addInfo() {
   info.onAdd = function (map) {
@@ -183,7 +205,6 @@ function onEachFeature(feature, layer) {
     });
   }
 }
-
 
 function getColor(d) {
   return d > conditions[0] ? colors[0] :
