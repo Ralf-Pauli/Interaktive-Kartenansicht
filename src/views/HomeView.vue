@@ -29,7 +29,7 @@ let info = L.control({position: "bottomright"}),
 
 let warnings = new Map(),
     warningDetails = new Map(),
-    warningsRef = ref(""),
+    allWarnings = ref(new Map()),
     currentMunicipality = reactive({name: "", bez: "", population: 0, allgNotfall: ""});
 
 
@@ -56,7 +56,7 @@ async function getWarnings() {
   let responses;
   try {
     responses = await Promise.allSettled(["katwarn", "biwapp", "mowas", "dwd", "lhp"].map(async source => [
-      await fetch(proxyURL + encodeURIComponent(baseURL + `/${source}/mapData.json`)).then(res => res.json()),
+      await fetch(proxyURL + baseURL + `/${source}/mapData.json`).then(res => res.json()),
     ]));
   } catch (e) {
     console.log(e)
@@ -75,31 +75,24 @@ async function getWarnings() {
 }
 
 function setWarningDetails() {
-
   for (let key of warnings.keys()) {
-    fetch(proxyURL + encodeURIComponent(baseURL + `/warnings/${key}.json`)).then(res => {
-      if (!res.ok) {
-        throw Error(res.statusText);
-      } else {
-        return res.json();
+    fetch(proxyURL + baseURL + `/warnings/${key}.json`).then(res => {
+      if (!res.status === 404) {
+        throw new Error("d")
       }
-
+      return res.json();
     }).then(value => {
+      value.severity = warnings.get(value.identifier).severity;
       delete value.identifier
-      warningDetails.set(key, value);
-      warningDetails.values().severity = warnings.get(key).severity;
+      warningDetails.set(key, value)
+
     }).catch(err => {
-      console.log(err);
+      console.log(err)
     });
-
-    warningsRef.value = warningDetails;
   }
-  console.log(warningsRef.value)
-
-  // warningDetails.forEach((e) => {
-  //   e.visible = false;
-  //   e.severity = warnings.get(e.identifier).severity;
-  // })
+  allWarnings.value = warningDetails;
+  console.log(warnings)
+  console.log(allWarnings.value.values())
 }
 
 
@@ -263,7 +256,6 @@ onBeforeMount(() => {
     <!--  <Sidebar :map="map"/>-->
     <div id="sidePanel" aria-hidden="false" aria-label="side panel" class="sidepanel">
       <div class="sidepanel-inner-wrapper">
-
         <nav aria-label="sidepanel tab navigation" class="sidepanel-tabs-wrapper">
           <ul class="sidepanel-tabs">
 
@@ -296,11 +288,9 @@ onBeforeMount(() => {
           </ul>
         </nav>
         <div class="sidepanel-content-wrapper">
-
           <div class="sidepanel-content w-full h-full">
             <div class="sidepanel-tab-content" data-tab-content="tab-1">
               <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>
-
               <h3 class="text-base font-bold mb-2 border-collapse">{{ currentMunicipality.name }}</h3>
               <table class="w-full table-fixed text-left  border-y-gray-600">
                 <tr class="border-y border-y-gray-600">
@@ -317,12 +307,11 @@ onBeforeMount(() => {
                 </tr>
               </table>
             </div>
-          </div>
-          <div class="sidepanel-content w-full h-full ">
+
             <div class="sidepanel-tab-content" data-tab-content="tab-2">
               <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
               <div class="mt-5">
-                <Warning v-for="warn in warningsRef" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+                <Warning v-for="warn in allWarnings.values()" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
 
@@ -330,7 +319,7 @@ onBeforeMount(() => {
               <h2 class="text-2xl text-center mb-3">Covid-19</h2>
 
               <div class="mt-5">
-                <Warning v-for="warn in warningsRef" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+                <Warning v-for="warn in allWarnings" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
 
@@ -338,14 +327,13 @@ onBeforeMount(() => {
               <h2 class="text-2xl text-center">Unwetterwarnungen</h2>
 
               <div class="mt-5">
-                <Warning v-for="warn in warningsRef" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+                <Warning v-for="warn in allWarnings" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
-
-            <!-- [...] -->
           </div>
         </div>
       </div>
+
       <div class="sidepanel-toggle-container">
         <button ref="sidebarBtn" aria-label="toggle side panel" class="sidepanel-toggle-button" type="button"
         ></button>
