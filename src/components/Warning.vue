@@ -1,9 +1,11 @@
 <template>
   <div class="flex gap-4">
 
-    <div class="grid grid-cols-5 auto grid-rows-1 auto-cols-auto">
+    <div class="grid grid-cols-5 auto grid-rows-1 auto-cols-auto" v-if="warning.info[0].headline">
       <div class="col-span-4 self-center text-sm font-bold">
-        {{ warning.info[0].headline }}
+        <div >
+          {{ warning.info[0].headline }}
+        </div>
         <div class="text-xs pt-1 font-extralight">
           {{ new Date(warning.sent).toLocaleString("de-DE") + " Uhr" }}
         </div>
@@ -48,7 +50,7 @@
 </template>
 
 <script setup>
-  const props = defineProps(["warning"])
+const props = defineProps(["warning"])
 </script>
 
 <style scoped>

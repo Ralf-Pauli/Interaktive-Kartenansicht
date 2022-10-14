@@ -48,8 +48,8 @@ onMounted(() => {
   addCounties(mapDataURL);
   baseMaps.OpenStreetMap = osm;
   map.doubleClickZoom.disable();
-
   getWarnings();
+
 });
 
 async function getWarnings() {
@@ -77,8 +77,8 @@ async function getWarnings() {
 function setWarningDetails() {
   for (let key of warnings.keys()) {
     fetch(proxyURL + baseURL + `/warnings/${key}.json`).then(res => {
-      if (!res.status === 404) {
-        throw new Error("d")
+      if (!res.ok) {
+        throw new Error("Error: " + res.status)
       }
       return res.json();
     }).then(value => {
@@ -86,13 +86,21 @@ function setWarningDetails() {
       delete value.identifier
       warningDetails.set(key, value)
 
+    }).then(() => {
+      for (let value of warningDetails.values()) {
+        console.log(value.info[0])
+        if (value.info !== undefined) {
+          // console.log(value)
+        } else {
+          // console.log( value)
+          // console.log("fehler")
+        }
+      }
+      allWarnings.value = warningDetails
     }).catch(err => {
       console.log(err)
     });
   }
-  allWarnings.value = warningDetails;
-  console.log(warnings)
-  console.log(allWarnings.value.values())
 }
 
 
@@ -174,14 +182,13 @@ function highlightFeature(e) {
     layer.bringToFront();
   }
   info.update(layer.feature.properties);
-
-  updateCurrentMunicipality(layer.feature.properties);
+  // updateCurrentMunicipality(layer.feature.properties);
 }
 
 function resetHighlight(e) {
   countiesMap.resetStyle(e.target);
   info.update();
-  updateCurrentMunicipality()
+  // updateCurrentMunicipality()
 }
 
 function updateCurrentMunicipality(props) {
@@ -234,7 +241,7 @@ function addSidePanel() {
     tabsPosition: 'right',
     pushControls: true,
     darkMode: true,
-    startTab: 'tab-5'
+    startTab: 'tab-1'
   }).addTo(map);
 }
 
@@ -311,7 +318,8 @@ onBeforeMount(() => {
             <div class="sidepanel-tab-content" data-tab-content="tab-2">
               <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
               <div class="mt-5">
-                <Warning v-for="warn in allWarnings.values()" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+                <Warning v-for="warn in allWarnings?.values()" :warning="warn"
+                         class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
 
