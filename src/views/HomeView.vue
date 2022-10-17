@@ -1,5 +1,5 @@
 <script setup>
-import {onBeforeMount, onMounted, reactive, ref} from 'vue';
+import {onBeforeMount, onMounted, ref} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 import "@/assets/leaflet-sidepanel.css"
@@ -30,7 +30,7 @@ let info = L.control({position: "bottomright"}),
 let warnings = new Map(),
     warningDetails = new Map(),
     allWarnings = ref(new Map()),
-    currentMunicipality = reactive({name: "", bez: "", population: 0, allgNotfall: ""});
+    currentMunicipality = ref({name: "", bez: "", population: 0, allgNotfall: ""});
 
 
 onMounted(() => {
@@ -45,11 +45,12 @@ onMounted(() => {
   addSidePanel()
   addLegend();
 
+
+  getWarnings();
   addCounties(mapDataURL);
   baseMaps.OpenStreetMap = osm;
   map.doubleClickZoom.disable();
-  getWarnings();
-
+  // highlightFeature()
 });
 
 async function getWarnings() {
@@ -85,22 +86,11 @@ function setWarningDetails() {
       value.severity = warnings.get(value.identifier).severity;
       delete value.identifier
       warningDetails.set(key, value)
-
-    }).then(() => {
-      for (let value of warningDetails.values()) {
-        console.log(value.info[0])
-        if (value.info !== undefined) {
-          // console.log(value)
-        } else {
-          // console.log( value)
-          // console.log("fehler")
-        }
-      }
-      allWarnings.value = warningDetails
     }).catch(err => {
       console.log(err)
     });
   }
+  allWarnings.value = warningDetails
 }
 
 
@@ -154,6 +144,7 @@ async function addCounties(mapDataURL) {
   ).addTo(map);
   overlayMaps.Landkreise = countiesMap;
   addLayerControl()
+  console.log(Object.keys(countiesMap._layers)[0])
 }
 
 async function addCovidData(mapData) {
@@ -170,31 +161,29 @@ async function addCovidData(mapData) {
 
 function highlightFeature(e) {
   let layer = e.target;
-
   layer.setStyle({
     weight: 3,
     color: 'black',
     dashArray: '',
     fillOpacity: 0.7
   });
-
   if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
     layer.bringToFront();
   }
   info.update(layer.feature.properties);
-  // updateCurrentMunicipality(layer.feature.properties);
+  updateCurrentMunicipality(layer.feature.properties);
 }
 
 function resetHighlight(e) {
   countiesMap.resetStyle(e.target);
   info.update();
-  // updateCurrentMunicipality()
+  updateCurrentMunicipality()
 }
 
 function updateCurrentMunicipality(props) {
-  currentMunicipality.name = (props ? props.GEN : "");
-  currentMunicipality.bez = (props ? props.BEZ : "");
-  currentMunicipality.population = (props ? props.destatis.population : 0);
+  currentMunicipality.value.name = (props ? props.GEN : "");
+  currentMunicipality.value.bez = (props ? props.BEZ : "");
+  currentMunicipality.value.population = (props ? props.destatis.population : 0);
 }
 
 
@@ -257,6 +246,7 @@ onBeforeMount(() => {
   }
 })
 </script>
+
 <template>
   <div id="map" class=" z-10 h-full">
 
@@ -318,7 +308,7 @@ onBeforeMount(() => {
             <div class="sidepanel-tab-content" data-tab-content="tab-2">
               <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
               <div class="mt-5">
-                <Warning v-for="warn in allWarnings?.values()" :warning="warn"
+                <Warning v-for="warn in allWarnings.values()" :warning="warn"
                          class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
@@ -327,7 +317,8 @@ onBeforeMount(() => {
               <h2 class="text-2xl text-center mb-3">Covid-19</h2>
 
               <div class="mt-5">
-                <Warning v-for="warn in allWarnings" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+                <Warning v-for="warn in allWarnings.values()" :warning="warn"
+                         class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
 
@@ -335,7 +326,8 @@ onBeforeMount(() => {
               <h2 class="text-2xl text-center">Unwetterwarnungen</h2>
 
               <div class="mt-5">
-                <Warning v-for="warn in allWarnings" :warning="warn" class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+                <Warning v-for="warn in allWarnings.values()" :warning="warn"
+                         class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
             </div>
           </div>
