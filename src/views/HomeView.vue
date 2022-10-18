@@ -27,11 +27,15 @@ let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
     sidePanel;
 
-let warnings = new Map(),
-    warningDetails = new Map(),
-    allWarnings = ref(new Map()),
-    currentMunicipality = ref({name: "", bez: "", population: 0, allgNotfall: ""});
 
+let warnings = new Map(),
+    coronaWarnings = ref(new Map()),
+    weatherWarnings = ref(new Map()),
+    generalWarnings = ref(new Map()),
+    floodWarnings = ref(new Map()),
+    currentMunicipality = ref({name: "Hover over a Landkreis", bez: "Kreis", population: 0, allgNotfall: "Renn"});
+
+let lastMunicipality = {};
 
 onMounted(() => {
   map = L.map("map").setView([51.1642292, 10.4541194], 6);
@@ -50,7 +54,6 @@ onMounted(() => {
   addCounties(mapDataURL);
   baseMaps.OpenStreetMap = osm;
   map.doubleClickZoom.disable();
-  // highlightFeature()
 });
 
 async function getWarnings() {
@@ -72,12 +75,12 @@ async function getWarnings() {
       });
     }
   })
-  setWarningDetails();
+  await setWarningDetails();
 }
 
-function setWarningDetails() {
+async function setWarningDetails() {
   for (let key of warnings.keys()) {
-    fetch(proxyURL + baseURL + `/warnings/${key}.json`).then(res => {
+    await fetch(proxyURL + baseURL + `/warnings/${key}.json`).then(res => {
       if (!res.ok) {
         throw new Error("Error: " + res.status)
       }
@@ -85,14 +88,44 @@ function setWarningDetails() {
     }).then(value => {
       value.severity = warnings.get(value.identifier).severity;
       delete value.identifier
-      warningDetails.set(key, value)
+
+      switch (key.substring(0, 3)) {
+        case "dwd":
+          weatherWarnings.value.set(key, value);
+          break;
+
+        case "mow":
+          generalWarnings.value.set(key, value);
+          break;
+
+        case "lhp":
+          floodWarnings.value.set(key, value);
+          break;
+
+        case "biw":
+          generalWarnings.value.set(key, value);
+          break;
+
+        case "kat":
+          generalWarnings.value.set(key, value);
+          break;
+        default:
+          generalWarnings.value.set(key, value);
+          break;
+      }
+
     }).catch(err => {
       console.log(err)
     });
   }
-  allWarnings.value = warningDetails
-}
 
+  generalWarnings.value.forEach((value, key) => {
+    if (value.info[0].headline.toLowerCase().includes("corona" || "covid")) {
+      coronaWarnings.value.set(key, value)
+      generalWarnings.value.delete(key)
+    }
+  })
+}
 
 function addInfo() {
   info.onAdd = function (map) {
@@ -144,7 +177,6 @@ async function addCounties(mapDataURL) {
   ).addTo(map);
   overlayMaps.Landkreise = countiesMap;
   addLayerControl()
-  console.log(Object.keys(countiesMap._layers)[0])
 }
 
 async function addCovidData(mapData) {
@@ -171,19 +203,27 @@ function highlightFeature(e) {
     layer.bringToFront();
   }
   info.update(layer.feature.properties);
+  lastMunicipality = {
+    name: layer.feature.properties.GEN,
+    bez: layer.feature.properties.BEZ,
+    population: layer.feature.properties.destatis.population
+  };
+
   updateCurrentMunicipality(layer.feature.properties);
 }
 
 function resetHighlight(e) {
   countiesMap.resetStyle(e.target);
   info.update();
-  updateCurrentMunicipality()
 }
 
+
 function updateCurrentMunicipality(props) {
-  currentMunicipality.value.name = (props ? props.GEN : "");
-  currentMunicipality.value.bez = (props ? props.BEZ : "");
-  currentMunicipality.value.population = (props ? props.destatis.population : 0);
+  currentMunicipality.value = {
+    name: (props ? props.GEN : ""),
+    bez: (props ? props.BEZ : ""),
+    population: (props ? props.destatis.population : 0),
+  };
 }
 
 
@@ -300,34 +340,46 @@ onBeforeMount(() => {
                 </tr>
                 <tr class="border-y border-y-gray-600">
                   <th>Allgemeine Notfalltips</th>
-                  <td>name</td>
+                  <td>{{ currentMunicipality.allgNotfall }}</td>
                 </tr>
               </table>
             </div>
 
             <div class="sidepanel-tab-content" data-tab-content="tab-2">
               <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
-              <div class="mt-5">
-                <Warning v-for="warn in allWarnings.values()" :warning="warn"
+
+              <div v-if="coronaWarnings.size > 0" class="mt-5">
+                <Warning v-for="warn in generalWarnings.values()" :warning="warn"
                          class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+              </div>
+              <div v-else>
+                asdf
               </div>
             </div>
 
             <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
               <h2 class="text-2xl text-center mb-3">Covid-19</h2>
 
-              <div class="mt-5">
-                <Warning v-for="warn in allWarnings.values()" :warning="warn"
+              <div v-if="coronaWarnings.size > 0" class="mt-5">
+                <Warning v-for="warn in coronaWarnings.values()" :warning="warn"
                          class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+              </div>
+              <div v-else>
+                asdf
               </div>
             </div>
 
             <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
               <h2 class="text-2xl text-center">Unwetterwarnungen</h2>
-
-              <div class="mt-5">
-                <Warning v-for="warn in allWarnings.values()" :warning="warn"
+              <div v-if="weatherWarnings.size > 0" class="mt-5">
+                <Warning v-for="warn in weatherWarnings.values()" :warning="warn"
                          class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+              </div>
+              <div v-else class="flex items-center justify-center flex-col items-stretch h-auto max-h-screen">
+                <div class="text-center">
+                  <div>Es liegen keine Warnmeldungen vor</div>
+                  <span class=" material-symbols-sharp text-5xl">thunderstorm</span>
+                </div>
               </div>
             </div>
           </div>
