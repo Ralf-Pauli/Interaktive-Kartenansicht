@@ -15,35 +15,41 @@
       </button>
     </div>
     <div v-show="warning.visible" class="flex flex-col gap-2.5">
-        <div class="bg-ninaLightOrange rounded py-1 px-2 font-bold text-black text-sm">
-          Warnstufe: {{ warning.severity }}
+      <div class="bg-ninaLightOrange rounded py-1 px-2 font-bold text-black text-sm">
+        Warnstufe: {{ warning.severity }}
+      </div>
+
+      <div>
+        <div class="flex gap-1 flex-wrap justify-start justify-items-center ">
+          <span class="material-symbols-sharp ">Accessibility</span>
+          <div class="flex-auto self-center text-sm font-bold">Handlungsempfehlung</div>
+        </div>
+        <div class="text-xs pl-1.5" v-html="warning.info[0].instruction"></div>
+      </div>
+
+
+      <div>
+        <div class="flex gap-1 flex-wrap justify-start justify-items-center ">
+          <span class="material-symbols-sharp ">exclamation</span>
+          <div class="flex-auto self-center text-sm font-bold">Weitere Informationen</div>
+        </div>
+        <div class="text-xs pl-1.5">
+          <div v-html="warning.info[0].contact"></div>
+          <div  v-for="web in warning.info[0].web">
+            <a v-bind:href="web">{{ web }}</a>
+          </div>
+
+
         </div>
 
-        <div>
-          <div class="flex gap-1 flex-wrap justify-start justify-items-center ">
-            <span class="material-symbols-sharp ">Accessibility</span>
-            <div class="flex-auto self-center text-sm font-bold">Handlungsempfehlung</div>
-          </div>
-          <div>
 
-          </div>
-        </div>
-
-
-        <div>
-          <div class="flex gap-1 flex-wrap justify-start justify-items-center ">
-            <span class="material-symbols-sharp ">exclamation</span>
-            <div class="flex-auto self-center text-sm font-bold">Weitere Informationen</div>
-          </div>
-        </div>
-
-        <div>
-          <div class="flex gap-1 flex-wrap justify-start justify-items-center ">
-            <span class="material-symbols-sharp">map</span>
-            <div class="flex-auto self-center text-sm font-bold">Betroffene Region(en)</div>
-          </div>
+        <div class="flex gap-1 flex-wrap justify-start justify-items-center ">
+          <span class="material-symbols-sharp">map</span>
+          <div class="flex-auto self-center text-sm font-bold">Betroffene Region(en)</div>
         </div>
       </div>
+
+    </div>
   </div>
 </template>
 

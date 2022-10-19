@@ -56,6 +56,7 @@ onMounted(() => {
   map.doubleClickZoom.disable();
 });
 
+
 async function getWarnings() {
   let responses;
   try {
@@ -87,8 +88,13 @@ async function setWarningDetails() {
       return res.json();
     }).then(value => {
       value.severity = warnings.get(value.identifier).severity;
-      delete value.identifier
-
+      // if (value.info[0].contact !== undefined){
+      //   value.info[0].contact = value.info[0].contact.replace((/<br\s*\/?>/gi, "\n"));
+      // }
+      if (value.info[0].web !== undefined) {
+        value.info[0].web = value.info[0].web.split(/\r\n|\r|\n/g);
+        console.log(value.info[0].web)
+      }
       switch (key.substring(0, 3)) {
         case "dwd":
           weatherWarnings.value.set(key, value);
@@ -113,7 +119,6 @@ async function setWarningDetails() {
           generalWarnings.value.set(key, value);
           break;
       }
-
     }).catch(err => {
       console.log(err)
     });
@@ -126,6 +131,7 @@ async function setWarningDetails() {
     }
   })
 }
+
 
 function addInfo() {
   info.onAdd = function (map) {
@@ -259,6 +265,7 @@ function style(feature) {
   };
 }
 
+
 function addLayerControl() {
   layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
 }
@@ -364,6 +371,7 @@ onBeforeMount(() => {
                 <Warning v-for="warn in coronaWarnings.values()" :warning="warn"
                          class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
+
               <div v-else>
                 asdf
               </div>
@@ -374,6 +382,7 @@ onBeforeMount(() => {
               <div v-if="weatherWarnings.size > 0" class="mt-5">
                 <Warning v-for="warn in weatherWarnings.values()" :warning="warn"
                          class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+
               </div>
               <div v-else class="flex items-center justify-center flex-col items-stretch h-auto max-h-screen">
                 <div class="text-center">
@@ -381,7 +390,9 @@ onBeforeMount(() => {
                   <span class=" material-symbols-sharp text-5xl">thunderstorm</span>
                 </div>
               </div>
+
             </div>
+
           </div>
         </div>
       </div>
@@ -393,6 +404,7 @@ onBeforeMount(() => {
     </div>
   </div>
 </template>
+
 <style>
 .info {
   padding: 6px 8px;
