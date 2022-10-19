@@ -35,8 +35,8 @@
         </div>
         <div class="text-xs pl-1.5">
           <div v-html="warning.info[0].contact"></div>
-          <div  v-for="web in warning.info[0].web">
-            <a v-bind:href="web">{{ web }}</a>
+          <div  v-for="link in warning.info[0].web">
+            <a v-bind:href="link">{{ link }}</a>
           </div>
 
 

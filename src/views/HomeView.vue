@@ -92,8 +92,14 @@ async function setWarningDetails() {
       //   value.info[0].contact = value.info[0].contact.replace((/<br\s*\/?>/gi, "\n"));
       // }
       if (value.info[0].web !== undefined) {
-        value.info[0].web = value.info[0].web.split(/\r\n|\r|\n/g);
-        console.log(value.info[0].web)
+        value.info[0].web = value.info[0].web.split("\n");
+        value.info[0].web.forEach(link => {
+          if (link.contains("https://")){
+            link = "https://" + link;
+          } else if (link.contains("http://")) {
+
+          }
+        })
       }
       switch (key.substring(0, 3)) {
         case "dwd":
@@ -274,7 +280,7 @@ function addSidePanel() {
   sidePanel = L.control.sidepanel('sidePanel', {
     panelPosition: 'right',
     hasTabs: true,
-    tabsPosition: 'right',
+    tabsPosition: 'top',
     pushControls: true,
     darkMode: true,
     startTab: 'tab-1'
