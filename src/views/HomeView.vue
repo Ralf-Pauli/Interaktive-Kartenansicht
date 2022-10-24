@@ -61,7 +61,7 @@ async function getWarnings() {
   let responses;
   try {
     responses = await Promise.allSettled(["katwarn", "biwapp", "mowas", "dwd", "lhp"].map(async source => [
-      await fetch(proxyURL + baseURL + `/${source}/mapData.json`).then(res => res.json()),
+      await fetch(proxyURL + baseURL + `/${source}/mapData.json`, {cache: "reload"}).then(res => res.json()),
     ]));
   } catch (e) {
     console.log(e)
@@ -88,18 +88,13 @@ async function setWarningDetails() {
       return res.json();
     }).then(value => {
       value.severity = warnings.get(value.identifier).severity;
-      // if (value.info[0].contact !== undefined){
-      //   value.info[0].contact = value.info[0].contact.replace((/<br\s*\/?>/gi, "\n"));
-      // }
       if (value.info[0].web !== undefined) {
-        value.info[0].web = value.info[0].web.split("\n");
-        value.info[0].web.forEach(link => {
-          if (link.contains("https://")){
-            link = "https://" + link;
-          } else if (link.contains("http://")) {
-
+        value.info[0].web = value.info[0].web.split("\n")
+        for (let i = 0; i < value.info[0].web.length; i++) {
+          if (!value.info[0].web[i].includes("https://") && !value.info[0].web[i].includes("http://")) {
+            value.info[0].web[i] = "https://" + value.info[0].web[i];
           }
-        })
+        }
       }
       switch (key.substring(0, 3)) {
         case "dwd":
@@ -280,10 +275,10 @@ function addSidePanel() {
   sidePanel = L.control.sidepanel('sidePanel', {
     panelPosition: 'right',
     hasTabs: true,
-    tabsPosition: 'top',
+    tabsPosition: 'right',
     pushControls: true,
     darkMode: true,
-    startTab: 'tab-1'
+    startTab: 'tab-2'
   }).addTo(map);
 }
 
@@ -310,11 +305,11 @@ onBeforeMount(() => {
           <ul class="sidepanel-tabs">
 
 
-            <li class="sidepanel-tab">
-              <a class="sidebar-tab-link" data-tab-link="tab-1" href="#" role="tab">
-                <span class="material-symbols-sharp">info</span>
-              </a>
-            </li>
+<!--            <li class="sidepanel-tab">-->
+<!--              <a class="sidebar-tab-link" data-tab-link="tab-1" href="#" role="tab">-->
+<!--                <span class="material-symbols-sharp">info</span>-->
+<!--              </a>-->
+<!--            </li>-->
 
             <li class="sidepanel-tab">
               <a class="sidebar-tab-link" data-tab-link="tab-2" href="#" role="tab">
@@ -339,24 +334,24 @@ onBeforeMount(() => {
         </nav>
         <div class="sidepanel-content-wrapper">
           <div class="sidepanel-content w-full h-full">
-            <div class="sidepanel-tab-content" data-tab-content="tab-1">
-              <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>
-              <h3 class="text-base font-bold mb-2 border-collapse">{{ currentMunicipality.name }}</h3>
-              <table class="w-full table-fixed text-left  border-y-gray-600">
-                <tr class="border-y border-y-gray-600">
-                  <th>Bezeichnung</th>
-                  <td>{{ currentMunicipality.bez }}</td>
-                </tr>
-                <tr class="border-y border-y-gray-600">
-                  <th>Einwohner</th>
-                  <td>{{ currentMunicipality.population }}</td>
-                </tr>
-                <tr class="border-y border-y-gray-600">
-                  <th>Allgemeine Notfalltips</th>
-                  <td>{{ currentMunicipality.allgNotfall }}</td>
-                </tr>
-              </table>
-            </div>
+<!--            <div class="sidepanel-tab-content" data-tab-content="tab-1">-->
+<!--              <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>-->
+<!--              <h3 class="text-base font-bold mb-2 border-collapse">{{ currentMunicipality.name }}</h3>-->
+<!--              <table class="w-full table-fixed text-left  border-y-gray-600">-->
+<!--                <tr class="border-y border-y-gray-600">-->
+<!--                  <th>Bezeichnung</th>-->
+<!--                  <td>{{ currentMunicipality.bez }}</td>-->
+<!--                </tr>-->
+<!--                <tr class="border-y border-y-gray-600">-->
+<!--                  <th>Einwohner</th>-->
+<!--                  <td>{{ currentMunicipality.population }}</td>-->
+<!--                </tr>-->
+<!--                <tr class="border-y border-y-gray-600">-->
+<!--                  <th>Allgemeine Notfalltips</th>-->
+<!--                  <td>{{ currentMunicipality.allgNotfall }}</td>-->
+<!--                </tr>-->
+<!--              </table>-->
+<!--            </div>-->
 
             <div class="sidepanel-tab-content" data-tab-content="tab-2">
               <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
@@ -366,7 +361,7 @@ onBeforeMount(() => {
                          class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
               <div v-else>
-                asdf
+
               </div>
             </div>
 

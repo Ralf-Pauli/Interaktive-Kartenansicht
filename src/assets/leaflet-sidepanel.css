@@ -55,7 +55,7 @@
   z-index: 1000;
 }
 .sidepanel.sidepanel-dark .sidepanel-inner-wrapper {
-  background-color: #000000;
+  background-color: black;
 }
 
 .sidepanel-content-wrapper {
