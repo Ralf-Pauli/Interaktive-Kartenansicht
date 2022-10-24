@@ -1,22 +1,20 @@
 <template>
-  <div>
-    <div class="flex-1 space-y-6 py-1">
-      <div class="h-2 bg-slate-700 rounded"></div>
+  <div class="flex animate-pulse space-x-4">
+    <div class="flex-1 space-y-3 divide-y-2 py-1">
+      <div class="h-2 rounded bg-slate-700"></div>
+      <div class="h-1 rounded bg-slate-700"></div>
       <div class="space-y-3">
-        <div class="grid grid-cols-3 gap-4">
-          <div class="h-2 bg-slate-700 rounded col-span-2"></div>
-          <div class="h-2 bg-slate-700 rounded col-span-1"></div>
-        </div>
-        <div class="h-2 bg-slate-700 rounded"></div>
+        <div class="divide-y-2 rounded bg-slate-700"></div>
       </div>
     </div>
+    <div class="h-10 w-10 rounded-full bg-slate-700"></div>
   </div>
 </template>
 
 <script>
 export default {
   name: "LoadingWarning"
-}
+};
 </script>
 
 <style scoped>

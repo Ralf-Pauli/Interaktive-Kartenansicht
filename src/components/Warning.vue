@@ -10,11 +10,11 @@
         </div>
       </div>
       <button class="self-center mt-1" @click="warning.visible = !warning.visible">
-        <span :class="warning.visible ? 'rotate-180': 'rotate-0'"
-              class="m-0 p-0 material-symbols-sharp transform transition-transform duration-500 ease-in-out ">expand_more</span>
+        <span :class="warning.visible ? 'rotate-180' : 'rotate-0'"
+          class="m-0 p-0 material-symbols-sharp transform transition-transform duration-500 ease-in-out ">expand_more</span>
       </button>
     </div>
-    <div v-show="warning.visible" class="flex flex-col gap-2.5">
+    <div v-show="warning.visible" class="flex flex-col gap-4">
       <div class="bg-ninaLightOrange rounded py-1 px-2 font-bold text-black text-sm">
         Warnstufe: {{ warning.severity }}
       </div>
@@ -40,14 +40,15 @@
           </div>
         </div>
 
-        <div class="flex flex-col gap-1">
-          <div class="flex gap-1 flex-wrap justify-start justify-items-center ">
-            <span class="material-symbols-sharp">map</span>
-            <div class="flex-auto self-center text-sm font-bold">Betroffene Region(en)</div>
-          </div>
-          <div class="text-xs pl-1.5 text-gray-400">
-            <div>{{ warning.info[0].area[0].areaDesc }}</div>
-          </div>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <div class="flex gap-1 flex-wrap justify-start justify-items-center ">
+          <span class="material-symbols-sharp">map</span>
+          <div class="flex-auto self-center text-sm font-bold">Betroffene Region(en)</div>
+        </div>
+        <div class="text-xs pl-1.5 text-gray-400">
+          <div>{{ warning.info[0].area[0].areaDesc }}</div>
         </div>
       </div>
 
@@ -57,7 +58,7 @@
 </template>
 
 <script setup>
-const props = defineProps(["warning"])
+const props = defineProps(["warning"]);
 </script>
 
 <style scoped>
