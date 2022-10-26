@@ -1,40 +1,47 @@
 <script setup>
-import { onBeforeMount, onMounted, ref } from 'vue';
+import {onBeforeMount, onMounted, ref} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 import "@/assets/leaflet-sidepanel.css";
 import "@/assets/leaflet-sidepanel.min";
 import Warning from "../components/Warning.vue";
 import LoadingWarning from '../components/LoadingWarning.vue';
+import NoWarningsFound from "@/components/NoWarningsFound.vue";
+import SidePanelTab from "@/components/SidePanelTab.vue";
+import SidePanelTabContent from "@/components/SidePanelTabContent.vue";
 
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
 const mapDataURL = "https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/main/landkreise.geojson";
 
 let mapData,
-  countiesMap;
+    countiesMap;
 
 let map,
-  osm;
+    osm;
 
 let colors = [],
-  conditions = [];
+    conditions = [];
 
 let layerControl,
-  baseMaps = {},
-  overlayMaps = {};
+    baseMaps = {},
+    overlayMaps = {};
 
-let info = L.control({ position: "bottomright" }),
-  legend = L.control({ position: "bottomleft" }),
-  sidePanel;
+let info = L.control({position: "bottomright"}),
+    legend = L.control({position: "bottomleft"}),
+    sidePanel;
 
 
 let warnings = new Map(),
-  coronaWarnings = ref(new Map()),
-  weatherWarnings = ref(new Map()),
-  generalWarnings = ref(new Map()),
-  floodWarnings = ref(new Map()),
-  currentMunicipality = ref({ name: "Hover over a Landkreis", bez: "Kreis", population: 0, allgNotfall: "Renn" });
+    coronaWarnings = ref(new Map()),
+    weatherWarnings = ref(new Map()),
+    generalWarnings = ref(new Map()),
+    floodWarnings = ref(new Map()),
+    allWarnings = new ref([]),
+    currentMunicipality = ref({name: "Hover over a Landkreis", bez: "Kreis", population: 0, allgNotfall: "Renn"});
+
+let symbolList = ["warning", "coronavirus", "thunderstorm"]
+let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"]
 
 let isLoading = ref(false);
 let lastMunicipality = {};
@@ -66,7 +73,7 @@ async function getWarnings() {
   try {
     isLoading.value = true;
     responses = await Promise.allSettled(["katwarn", "biwapp", "mowas", "dwd", "lhp"].map(async source => [
-      await fetch(proxyURL + baseURL + `/${source}/mapData.json`, { cache: "reload" }).then(res => res.json()),
+      await fetch(proxyURL + baseURL + `/${source}/mapData.json`, {cache: "reload"}).then(res => res.json()),
     ]));
   } catch (e) {
     console.log(e);
@@ -126,6 +133,7 @@ async function setWarningDetails() {
           generalWarnings.value.set(key, value);
           break;
       }
+      allWarnings = [generalWarnings, coronaWarnings, weatherWarnings];
     }).catch(err => {
       console.log(err);
     });
@@ -148,7 +156,7 @@ function addInfo() {
   };
 
   info.update = function (props) {
-    this._div.innerHTML = '<h4>Deutschland Landkreise</h4>' + (props ? '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE', { maximumFractionDigits: 2 }).format(props.cases7Per100k) : 'Hover over a Bundesland');
+    this._div.innerHTML = '<h4>Deutschland Landkreise</h4>' + (props ? '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE', {maximumFractionDigits: 2}).format(props.cases7Per100k) : 'Hover over a Bundesland');
   };
 
   info.addTo(map);
@@ -157,8 +165,8 @@ function addInfo() {
 function addLegend() {
   legend.onAdd = function (map) {
     let div = L.DomUtil.create('div', 'infoLegend'),
-      labels = [],
-      stringConditions = [];
+        labels = [],
+        stringConditions = [];
 
     fetch(proxyURL + encodeURIComponent(baseURL + '/appdata/covid/covidmap/DE/covidmap.json')).then(value => value.json()).then(value => {
       value.mapLegend.forEach(legendData => {
@@ -183,10 +191,10 @@ async function addCounties(mapDataURL) {
   mapData = await fetch(proxyURL + encodeURIComponent(mapDataURL)).then(value => value.json());
   await addCovidData(mapData);
   countiesMap = L.geoJSON(mapData,
-    {
-      onEachFeature: onEachFeature,
-      style: style
-    }
+      {
+        onEachFeature: onEachFeature,
+        style: style
+      }
   ).addTo(map);
   overlayMaps.Landkreise = countiesMap;
   addLayerControl();
@@ -250,13 +258,13 @@ function onEachFeature(feature, layer) {
 
 function getColor(d) {
   return d > conditions[0] ? colors[0] :
-    d > conditions[1] ? colors[1] :
-      d > conditions[2] ? colors[2] :
-        d > conditions[3] ? colors[3] :
-          d > conditions[4] ? colors[4] :
-            d > conditions[5] ? colors[5] :
-              d > conditions[6] ? colors[6] :
-                colors[7];
+      d > conditions[1] ? colors[1] :
+          d > conditions[2] ? colors[2] :
+              d > conditions[3] ? colors[3] :
+                  d > conditions[4] ? colors[4] :
+                      d > conditions[5] ? colors[5] :
+                          d > conditions[6] ? colors[6] :
+                              colors[7];
 
 }
 
@@ -317,47 +325,53 @@ onBeforeMount(() => {
             <!--              </a>-->
             <!--            </li>-->
 
-            <li class="sidepanel-tab">
-              <a class="sidebar-tab-link" data-tab-link="tab-2" href="#" role="tab">
-                <span class="material-symbols-sharp">warning</span>
-              </a>
-            </li>
+            <SidePanelTab v-for="(symbol,index) in symbolList" :symbol="symbol" :tab-number="`tab-${index}`"/>
 
-            <li class="sidepanel-tab">
-              <a class="sidebar-tab-link" data-tab-link="tab-3" href="#" role="tab">
-                <span class="material-symbols-sharp">coronavirus</span>
-              </a>
-            </li>
+            <!--            <li class="sidepanel-tab">-->
+            <!--              <a class="sidebar-tab-link" data-tab-link="tab-2" href="#" role="tab">-->
+            <!--                <span class="material-symbols-sharp">warning</span>-->
+            <!--              </a>-->
+            <!--            </li>-->
 
-            <li class="sidepanel-tab">
-              <a class="sidebar-tab-link" data-tab-link="tab-4" href="#" role="tab">
-                <span class="material-symbols-sharp">thunderstorm</span>
-              </a>
-            </li>
+            <!--            <li class="sidepanel-tab">-->
+            <!--              <a class="sidebar-tab-link" data-tab-link="tab-3" href="#" role="tab">-->
+            <!--                <span class="material-symbols-sharp">coronavirus</span>-->
+            <!--              </a>-->
+            <!--            </li>-->
+
+            <!--            <li class="sidepanel-tab">-->
+            <!--              <a class="sidebar-tab-link" data-tab-link="tab-4" href="#" role="tab">-->
+            <!--                <span class="material-symbols-sharp">thunderstorm</span>-->
+            <!--              </a>-->
+            <!--            </li>-->
 
             <!-- [...] -->
           </ul>
         </nav>
         <div class="sidepanel-content-wrapper">
           <div class="sidepanel-content w-full h-full">
-            <!--            <div class="sidepanel-tab-content" data-tab-content="tab-1">-->
-            <!--              <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>-->
-            <!--              <h3 class="text-base font-bold mb-2 border-collapse">{{ currentMunicipality.name }}</h3>-->
-            <!--              <table class="w-full table-fixed text-left  border-y-gray-600">-->
-            <!--                <tr class="border-y border-y-gray-600">-->
-            <!--                  <th>Bezeichnung</th>-->
-            <!--                  <td>{{ currentMunicipality.bez }}</td>-->
-            <!--                </tr>-->
-            <!--                <tr class="border-y border-y-gray-600">-->
-            <!--                  <th>Einwohner</th>-->
-            <!--                  <td>{{ currentMunicipality.population }}</td>-->
-            <!--                </tr>-->
-            <!--                <tr class="border-y border-y-gray-600">-->
-            <!--                  <th>Allgemeine Notfalltips</th>-->
-            <!--                  <td>{{ currentMunicipality.allgNotfall }}</td>-->
-            <!--                </tr>-->
-            <!--              </table>-->
-            <!--            </div>-->
+            <!--            <SidePanelTabContent v-for="(index, value) in allWarnings" :key="`tab-${index}`" :is-loading="isLoading"-->
+            <!--                                 :tab-number="index" :title="titles[index]" :warnings="value"/>-->
+
+<!--            <div class="sidepanel-tab-content" data-tab-content="tab-1">-->
+<!--              <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>-->
+<!--              <h3 class="text-base font-bold mb-2 border-collapse">{{ currentMunicipality.name }}</h3>-->
+<!--              <table class="w-full table-fixed text-left  border-y-gray-600">-->
+<!--                <tr class="border-y border-y-gray-600">-->
+<!--                  <th>Bezeichnung</th>-->
+<!--                  <td>{{ currentMunicipality.bez }}</td>-->
+<!--                </tr>-->
+<!--                <tr class="border-y border-y-gray-600">-->
+<!--                  <th>Einwohner</th>-->
+<!--                  <td>{{ currentMunicipality.population }}</td>-->
+<!--                </tr>-->
+<!--                <tr class="border-y border-y-gray-600">-->
+<!--                  <th>Allgemeine Notfalltips</th>-->
+<!--                  <td>{{ currentMunicipality.allgNotfall }}</td>-->
+<!--                </tr>-->
+<!--              </table>-->
+<!--            </div>-->
+
 
             <div class="sidepanel-tab-content" data-tab-content="tab-2">
               <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
@@ -368,7 +382,7 @@ onBeforeMount(() => {
 
               <div v-else-if="coronaWarnings.size > 0" class="mt-5">
                 <Warning v-for="warn in generalWarnings.values()" :warning="warn"
-                  class="flex flex-col mb-2 pb-2 gap-2 border-b" />
+                         class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
 
               <div v-else>
@@ -380,18 +394,19 @@ onBeforeMount(() => {
               <h2 class="text-2xl text-center mb-3">Covid-19</h2>
 
               <div v-if="isLoading">
-                <LoadingWarning></LoadingWarning>
+                <LoadingWarning/>
               </div>
 
               <div v-else-if="coronaWarnings.size > 0" class="mt-5">
                 <Warning v-for="warn in coronaWarnings.values()" :warning="warn"
-                  class="flex flex-col mb-2 pb-2 gap-2 border-b" />
+                         class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
 
               <div v-else>
 
               </div>
             </div>
+
 
             <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
               <h2 class="text-2xl text-center">Unwetterwarnungen</h2>
@@ -401,15 +416,13 @@ onBeforeMount(() => {
 
               <div v-else-if="weatherWarnings.size > 0" class="mt-5">
                 <Warning v-for="warn in weatherWarnings.values()" :warning="warn"
-                  class="flex flex-col mb-2 pb-2 gap-2 border-b" />
-              </div>
-              
-              <div v-else class="flex items-center justify-center flex-col items-stretch h-auto max-h-screen">
-
+                         class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
               </div>
 
+              <div v-else>
+                <NoWarningsFound symbol="warning" warnType="Unwetterwarnung"/>
+              </div>
             </div>
-
           </div>
         </div>
       </div>
