@@ -4,11 +4,7 @@ import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 import "@/assets/leaflet-sidepanel.css";
 import "@/assets/leaflet-sidepanel.min";
-import Warning from "../components/Warning.vue";
-import LoadingWarning from '../components/LoadingWarning.vue';
-import NoWarningsFound from "@/components/NoWarningsFound.vue";
-import SidePanelTab from "@/components/SidePanelTab.vue";
-import SidePanelTabContent from "@/components/SidePanelTabContent.vue";
+import SidePanel from "@/components/SidePanel.vue"
 
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
@@ -40,7 +36,6 @@ let warnings = new Map(),
     allWarnings = new ref([]),
     currentMunicipality = ref({name: "Hover over a Landkreis", bez: "Kreis", population: 0, allgNotfall: "Renn"});
 
-let symbolList = ["warning", "coronavirus", "thunderstorm"]
 let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"]
 
 let isLoading = ref(false);
@@ -307,131 +302,14 @@ onBeforeMount(() => {
     map.remove();
   }
 });
+
 </script>
 
 <template>
   <div id="map" class=" z-10 h-full">
-
-    <!--  <Sidebar :map="map"/>-->
-    <div id="sidePanel" aria-hidden="false" aria-label="side panel" class="sidepanel">
-      <div class="sidepanel-inner-wrapper">
-        <nav aria-label="sidepanel tab navigation" class="sidepanel-tabs-wrapper">
-          <ul class="sidepanel-tabs">
-
-
-            <!--            <li class="sidepanel-tab">-->
-            <!--              <a class="sidebar-tab-link" data-tab-link="tab-1" href="#" role="tab">-->
-            <!--                <span class="material-symbols-sharp">info</span>-->
-            <!--              </a>-->
-            <!--            </li>-->
-
-            <SidePanelTab v-for="(symbol,index) in symbolList" :symbol="symbol" :tab-number="`tab-${index}`"/>
-
-            <!--            <li class="sidepanel-tab">-->
-            <!--              <a class="sidebar-tab-link" data-tab-link="tab-2" href="#" role="tab">-->
-            <!--                <span class="material-symbols-sharp">warning</span>-->
-            <!--              </a>-->
-            <!--            </li>-->
-
-            <!--            <li class="sidepanel-tab">-->
-            <!--              <a class="sidebar-tab-link" data-tab-link="tab-3" href="#" role="tab">-->
-            <!--                <span class="material-symbols-sharp">coronavirus</span>-->
-            <!--              </a>-->
-            <!--            </li>-->
-
-            <!--            <li class="sidepanel-tab">-->
-            <!--              <a class="sidebar-tab-link" data-tab-link="tab-4" href="#" role="tab">-->
-            <!--                <span class="material-symbols-sharp">thunderstorm</span>-->
-            <!--              </a>-->
-            <!--            </li>-->
-
-            <!-- [...] -->
-          </ul>
-        </nav>
-        <div class="sidepanel-content-wrapper">
-          <div class="sidepanel-content w-full h-full">
-            <!--            <SidePanelTabContent v-for="(index, value) in allWarnings" :key="`tab-${index}`" :is-loading="isLoading"-->
-            <!--                                 :tab-number="index" :title="titles[index]" :warnings="value"/>-->
-
-<!--            <div class="sidepanel-tab-content" data-tab-content="tab-1">-->
-<!--              <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>-->
-<!--              <h3 class="text-base font-bold mb-2 border-collapse">{{ currentMunicipality.name }}</h3>-->
-<!--              <table class="w-full table-fixed text-left  border-y-gray-600">-->
-<!--                <tr class="border-y border-y-gray-600">-->
-<!--                  <th>Bezeichnung</th>-->
-<!--                  <td>{{ currentMunicipality.bez }}</td>-->
-<!--                </tr>-->
-<!--                <tr class="border-y border-y-gray-600">-->
-<!--                  <th>Einwohner</th>-->
-<!--                  <td>{{ currentMunicipality.population }}</td>-->
-<!--                </tr>-->
-<!--                <tr class="border-y border-y-gray-600">-->
-<!--                  <th>Allgemeine Notfalltips</th>-->
-<!--                  <td>{{ currentMunicipality.allgNotfall }}</td>-->
-<!--                </tr>-->
-<!--              </table>-->
-<!--            </div>-->
-
-
-            <div class="sidepanel-tab-content" data-tab-content="tab-2">
-              <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
-
-              <div v-if="isLoading">
-                <LoadingWarning></LoadingWarning>
-              </div>
-
-              <div v-else-if="coronaWarnings.size > 0" class="mt-5">
-                <Warning v-for="warn in generalWarnings.values()" :warning="warn"
-                         class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
-              </div>
-
-              <div v-else>
-
-              </div>
-            </div>
-
-            <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
-              <h2 class="text-2xl text-center mb-3">Covid-19</h2>
-
-              <div v-if="isLoading">
-                <LoadingWarning/>
-              </div>
-
-              <div v-else-if="coronaWarnings.size > 0" class="mt-5">
-                <Warning v-for="warn in coronaWarnings.values()" :warning="warn"
-                         class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
-              </div>
-
-              <div v-else>
-
-              </div>
-            </div>
-
-
-            <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
-              <h2 class="text-2xl text-center">Unwetterwarnungen</h2>
-              <div v-if="isLoading">
-                <LoadingWarning></LoadingWarning>
-              </div>
-
-              <div v-else-if="weatherWarnings.size > 0" class="mt-5">
-                <Warning v-for="warn in weatherWarnings.values()" :warning="warn"
-                         class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
-              </div>
-
-              <div v-else>
-                <NoWarningsFound symbol="warning" warnType="Unwetterwarnung"/>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="sidepanel-toggle-container">
-        <button ref="sidebarBtn" aria-label="toggle side panel" class="sidepanel-toggle-button" type="button"></button>
-      </div>
-    </div>
+    <SidePanel :all-warnings="allWarnings" :is-loading="isLoading"/>
   </div>
+
 </template>
 
 <style>
