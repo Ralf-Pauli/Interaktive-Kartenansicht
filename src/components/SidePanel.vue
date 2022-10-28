@@ -1,121 +1,117 @@
 <template>
-  <div id="map" class=" z-10 h-full">
-
-    <!--  <Sidebar :map="map"/>-->
-    <div id="sidePanel" aria-hidden="false" aria-label="side panel" class="sidepanel">
-      <div class="sidepanel-inner-wrapper">
-        <nav aria-label="sidepanel tab navigation" class="sidepanel-tabs-wrapper">
-          <ul class="sidepanel-tabs">
+  <div id="sidePanel" aria-hidden="false" aria-label="side panel" class="sidepanel">
+    <div class="sidepanel-inner-wrapper">
+      <nav aria-label="sidepanel tab navigation" class="sidepanel-tabs-wrapper">
+        <ul class="sidepanel-tabs">
 
 
-            <!--            <li class="sidepanel-tab">-->
-            <!--              <a class="sidebar-tab-link" data-tab-link="tab-1" href="#" role="tab">-->
-            <!--                <span class="material-symbols-sharp">info</span>-->
-            <!--              </a>-->
-            <!--            </li>-->
+          <!--            <li class="sidepanel-tab">-->
+          <!--              <a class="sidebar-tab-link" data-tab-link="tab-1" href="#" role="tab">-->
+          <!--                <span class="material-symbols-sharp">info</span>-->
+          <!--              </a>-->
+          <!--            </li>-->
 
-<!--            <SidePanelTab v-for="(symbol,index) in symbolList" :tab-number="index" :symbol="symbol" :title="titles[index]"  />-->
+          <!--            <SidePanelTab v-for="(symbol,index) in symbolList" :tab-number="index" :symbol="symbol" :title="titles[index]"  />-->
 
-            <li class="sidepanel-tab">
-              <a class="sidebar-tab-link" data-tab-link="tab-2" href="#" role="tab">
-                <span class="material-symbols-sharp">warning</span>
-              </a>
-            </li>
+          <li class="sidepanel-tab">
+            <a class="sidebar-tab-link" data-tab-link="tab-2" href="#" role="tab">
+              <span class="material-symbols-sharp">warning</span>
+            </a>
+          </li>
 
-            <li class="sidepanel-tab">
-              <a class="sidebar-tab-link" data-tab-link="tab-3" href="#" role="tab">
-                <span class="material-symbols-sharp">coronavirus</span>
-              </a>
-            </li>
+          <li class="sidepanel-tab">
+            <a class="sidebar-tab-link" data-tab-link="tab-3" href="#" role="tab">
+              <span class="material-symbols-sharp">coronavirus</span>
+            </a>
+          </li>
 
-            <li class="sidepanel-tab">
-              <a class="sidebar-tab-link" data-tab-link="tab-4" href="#" role="tab">
-                <span class="material-symbols-sharp">thunderstorm</span>
-              </a>
-            </li>
+          <li class="sidepanel-tab">
+            <a class="sidebar-tab-link" data-tab-link="tab-4" href="#" role="tab">
+              <span class="material-symbols-sharp">thunderstorm</span>
+            </a>
+          </li>
 
-            <!-- [...] -->
-          </ul>
-        </nav>
-        <div class="sidepanel-content-wrapper">
-          <div class="sidepanel-content w-full h-full">
-            <!--            <div class="sidepanel-tab-content" data-tab-content="tab-1">-->
-            <!--              <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>-->
-            <!--              <h3 class="text-base font-bold mb-2 border-collapse">{{ currentMunicipality.name }}</h3>-->
-            <!--              <table class="w-full table-fixed text-left  border-y-gray-600">-->
-            <!--                <tr class="border-y border-y-gray-600">-->
-            <!--                  <th>Bezeichnung</th>-->
-            <!--                  <td>{{ currentMunicipality.bez }}</td>-->
-            <!--                </tr>-->
-            <!--                <tr class="border-y border-y-gray-600">-->
-            <!--                  <th>Einwohner</th>-->
-            <!--                  <td>{{ currentMunicipality.population }}</td>-->
-            <!--                </tr>-->
-            <!--                <tr class="border-y border-y-gray-600">-->
-            <!--                  <th>Allgemeine Notfalltips</th>-->
-            <!--                  <td>{{ currentMunicipality.allgNotfall }}</td>-->
-            <!--                </tr>-->
-            <!--              </table>-->
-            <!--            </div>-->
+          <!-- [...] -->
+        </ul>
+      </nav>
+      <div class="sidepanel-content-wrapper">
+        <div class="sidepanel-content w-full h-full">
+          <!--            <div class="sidepanel-tab-content" data-tab-content="tab-1">-->
+          <!--              <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>-->
+          <!--              <h3 class="text-base font-bold mb-2 border-collapse">{{ currentMunicipality.name }}</h3>-->
+          <!--              <table class="w-full table-fixed text-left  border-y-gray-600">-->
+          <!--                <tr class="border-y border-y-gray-600">-->
+          <!--                  <th>Bezeichnung</th>-->
+          <!--                  <td>{{ currentMunicipality.bez }}</td>-->
+          <!--                </tr>-->
+          <!--                <tr class="border-y border-y-gray-600">-->
+          <!--                  <th>Einwohner</th>-->
+          <!--                  <td>{{ currentMunicipality.population }}</td>-->
+          <!--                </tr>-->
+          <!--                <tr class="border-y border-y-gray-600">-->
+          <!--                  <th>Allgemeine Notfalltips</th>-->
+          <!--                  <td>{{ currentMunicipality.allgNotfall }}</td>-->
+          <!--                </tr>-->
+          <!--              </table>-->
+          <!--            </div>-->
 
-            <div class="sidepanel-tab-content" data-tab-content="tab-2">
-              <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
+          <div class="sidepanel-tab-content" data-tab-content="tab-2">
+            <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
 
-              <div v-if="isLoading">
-                <LoadingWarning></LoadingWarning>
-              </div>
-
-              <div v-else-if="coronaWarnings.size > 0" class="mt-5">
-                <Warning v-for="warn in generalWarnings.values()" :warning="warn"
-                         class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
-              </div>
-
-              <div v-else>
-
-              </div>
+            <div v-if="isLoading">
+              <LoadingWarning></LoadingWarning>
             </div>
 
-            <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
-              <h2 class="text-2xl text-center mb-3">Covid-19</h2>
-
-              <div v-if="isLoading">
-                <LoadingWarning></LoadingWarning>
-              </div>
-
-              <div v-else-if="coronaWarnings.size > 0" class="mt-5">
-                <Warning v-for="warn in coronaWarnings.values()" :warning="warn"
-                         class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
-              </div>
-
-              <div v-else>
-
-              </div>
+            <div v-else-if="coronaWarnings.size > 0" class="mt-5">
+              <Warning v-for="warn in generalWarnings.values()" :warning="warn"
+                       class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
             </div>
 
-            <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
-              <h2 class="text-2xl text-center">Unwetterwarnungen</h2>
-              <div v-if="isLoading">
-                <LoadingWarning></LoadingWarning>
-              </div>
+            <div v-else>
 
-              <div v-else-if="weatherWarnings.size > 0" class="mt-5">
-                <Warning v-for="warn in weatherWarnings.values()" :warning="warn"
-                         class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
-              </div>
+            </div>
+          </div>
 
-              <div v-else class="flex items-center justify-center flex-col items-stretch h-auto max-h-screen">
+          <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
+            <h2 class="text-2xl text-center mb-3">Covid-19</h2>
 
-              </div>
+            <div v-if="isLoading">
+              <LoadingWarning></LoadingWarning>
+            </div>
+
+            <div v-else-if="coronaWarnings.size > 0" class="mt-5">
+              <Warning v-for="warn in coronaWarnings.values()" :warning="warn"
+                       class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+            </div>
+
+            <div v-else>
+
+            </div>
+          </div>
+
+          <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
+            <h2 class="text-2xl text-center">Unwetterwarnungen</h2>
+            <div v-if="isLoading">
+              <LoadingWarning></LoadingWarning>
+            </div>
+
+            <div v-else-if="weatherWarnings.size > 0" class="mt-5">
+              <Warning v-for="warn in weatherWarnings.values()" :warning="warn"
+                       class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+            </div>
+
+            <div v-else class="flex items-center justify-center flex-col items-stretch h-auto max-h-screen">
 
             </div>
 
           </div>
+
         </div>
       </div>
+    </div>
 
-      <div class="sidepanel-toggle-container">
-        <button ref="sidebarBtn" aria-label="toggle side panel" class="sidepanel-toggle-button" type="button"></button>
-      </div>
+    <div class="sidepanel-toggle-container">
+      <button ref="sidebarBtn" aria-label="toggle side panel" class="sidepanel-toggle-button" type="button"></button>
     </div>
   </div>
 </template>
@@ -125,7 +121,8 @@
 import LoadingWarning from "./LoadingWarning.vue"
 import Warning from "./Warning.vue"
 import {onMounted, ref} from "vue";
-import SidePanelTab from "@/components/SidePanelTab.vue";
+
+let geoWarn = [[], [], []];
 
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
@@ -136,12 +133,13 @@ onMounted(() => {
   getWarnings();
 })
 
+
 let warnings = new Map(),
     coronaWarnings = ref(new Map()),
     weatherWarnings = ref(new Map()),
     generalWarnings = ref(new Map()),
-    floodWarnings = ref(new Map()),
     allWarnings = new ref([]);
+
 
 let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"]
 
@@ -197,10 +195,6 @@ async function setWarningDetails() {
           generalWarnings.value.set(key, value);
           break;
 
-        case "lhp":
-          floodWarnings.value.set(key, value);
-          break;
-
         case "biw":
           generalWarnings.value.set(key, value);
           break;
@@ -208,11 +202,13 @@ async function setWarningDetails() {
         case "kat":
           generalWarnings.value.set(key, value);
           break;
+
         default:
           generalWarnings.value.set(key, value);
           break;
       }
-      allWarnings = [generalWarnings, coronaWarnings, weatherWarnings];
+      allWarnings = [generalWarnings.value, coronaWarnings.value, weatherWarnings.value];
+
     }).catch(err => {
       console.log(err);
     });
@@ -224,7 +220,26 @@ async function setWarningDetails() {
       generalWarnings.value.delete(key);
     }
   });
+  await getWarningGeoJSON();
 }
+
+async function getWarningGeoJSON() {
+  // warningGeoJSONs
+  for (let index in allWarnings) {
+    let geoJSONS = []
+    for (let warning of allWarnings[index]) {
+      try {
+        geoJSONS.push(await fetch(proxyURL + baseURL + `/warnings/${warning[0]}.geojson`).then(res => res.json()));
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    geoWarn[index].push(geoJSONS)
+  }
+  emits.bind("geoWarn", geoWarn);
+}
+
+
 </script>
 
 <style scoped>

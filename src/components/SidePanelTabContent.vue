@@ -1,5 +1,5 @@
 <template>
-  <div :data-tab-content="`tab-${tabNumber}`" class="sidepanel-tab-content">
+  <div class="sidepanel-tab-content" :data-tab-content="`tab-${tabNumber}`"  >
     <h2 class="text-2xl text-center mb-3">{{ title }}</h2>
 
     <div v-if="isLoading">
@@ -18,12 +18,13 @@
 </template>
 
 <script setup>
-import LoadingWarning from "@/components/LoadingWarning.vue";
-import Warning from "@/components/Warning.vue";
-import NoWarningsFound from "@/components/NoWarningsFound.vue";
-
+import LoadingWarning from "./LoadingWarning.vue";
+import Warning from "./Warning.vue";
+import NoWarningsFound from "./NoWarningsFound.vue";
 
 const props = defineProps(["tabNumber", "title", "warnings", "isLoading"]);
+
+// :data-tab-content="`tab-${tabNumber}`"
 </script>
 
 <style scoped>

@@ -12,7 +12,10 @@ const mapDataURL = "https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/m
 
 let mapData,
     countiesMap,
-    coronaMap;
+    coronaMap,
+    coronaWarningsMap,
+    weahterWarningsMap,
+    generalWarningsMap;
 
 let map,
     osm;
@@ -32,11 +35,10 @@ let info = L.control({position: "bottomright"}),
 
 // let currentMunicipality = ref({name: "Hover over a Landkreis", bez: "Kreis", population: 0, allgNotfall: "Renn"});
 
-let lastMunicipality = {};
+// let lastMunicipality = {};
 
 onMounted(() => {
   map = L.map("map").setView([51.1642292, 10.4541194], 6);
-
   osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" >OpenStreetMap</a>'
@@ -46,10 +48,8 @@ onMounted(() => {
   addSidePanel();
   addLegend();
 
-
   // baseMaps.OpenStreetMap = osm;
   map.doubleClickZoom.disable();
-
 
   map.on('baselayerchange', function (e) {
     currentLayer = e.layer;
@@ -100,7 +100,7 @@ function addLegend() {
 
 
 async function addCounties(mapDataURL) {
-  mapData = await fetch(proxyURL + encodeURIComponent(mapDataURL)).then(value => value.json());
+  mapData = await fetch(proxyURL + mapDataURL).then(value => value.json());
   await addCovidData(mapData);
 
   countiesMap = L.geoJSON(mapData, {
@@ -113,12 +113,17 @@ async function addCounties(mapDataURL) {
     style: coronaStyle
   }).addTo(map);
 
-  baseMaps.Corona = coronaMap;
+  generalWarningsMap = ref(L.geoJSON().addTo(map));
+  coronaWarningsMap = ref(L.geoJSON().addTo(map));
+  weahterWarningsMap = ref(L.geoJSON().addTo(map));
+
   baseMaps.Landkreise = countiesMap;
+  baseMaps.Corona = coronaMap;
 
 
   addLayerControl();
-  currentLayer = baseMaps[Object.keys(baseMaps).slice(-1)];
+  baseMaps[Object.keys(baseMaps)[0]].bringToFront()
+  currentLayer = baseMaps[Object.keys(baseMaps)[0]];
 }
 
 async function addCovidData(mapData) {
@@ -150,7 +155,7 @@ function highlightFeature(e) {
   //   bez: layer.feature.properties.BEZ,
   //   population: layer.feature.properties.destatis.population
   // };
-  console.log(layer.feature.properties.BEZ + " " + layer.feature.properties.GEN)
+  // console.log(layer.feature.properties.BEZ + " " + layer.feature.properties.GEN)
 
   // updateCurrentMunicipality(layer.feature.properties);
 }
@@ -238,7 +243,7 @@ function toggleSidebar(e) {
 
 onBeforeMount(() => {
   if (map) {
-    map.remove();
+    map.value.remove();
   }
 });
 
@@ -246,7 +251,7 @@ onBeforeMount(() => {
 
 <template>
   <div id="map" class=" z-10 h-full">
-    <SidePanel/>
+    <SidePanel />
   </div>
 
 </template>
