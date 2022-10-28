@@ -11,7 +11,8 @@ const baseURL = "https://nina.api.proxy.bund.dev/api31";
 const mapDataURL = "https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/main/landkreise.geojson";
 
 let mapData,
-    countiesMap;
+    countiesMap,
+    coronaMap;
 
 let map,
     osm;
@@ -21,24 +22,16 @@ let colors = [],
 
 let layerControl,
     baseMaps = {},
-    overlayMaps = {};
+    overlayMaps = {},
+    currentLayer;
 
 let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
     sidePanel;
 
 
-let warnings = new Map(),
-    coronaWarnings = ref(new Map()),
-    weatherWarnings = ref(new Map()),
-    generalWarnings = ref(new Map()),
-    floodWarnings = ref(new Map()),
-    allWarnings = new ref([]),
-    currentMunicipality = ref({name: "Hover over a Landkreis", bez: "Kreis", population: 0, allgNotfall: "Renn"});
+// let currentMunicipality = ref({name: "Hover over a Landkreis", bez: "Kreis", population: 0, allgNotfall: "Renn"});
 
-let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"]
-
-let isLoading = ref(false);
 let lastMunicipality = {};
 
 onMounted(() => {
@@ -54,94 +47,18 @@ onMounted(() => {
   addLegend();
 
 
-  baseMaps.OpenStreetMap = osm;
+  // baseMaps.OpenStreetMap = osm;
   map.doubleClickZoom.disable();
+
+
+  map.on('baselayerchange', function (e) {
+    currentLayer = e.layer;
+  });
+
 });
 
 
-getWarnings();
 addCounties(mapDataURL);
-
-
-async function getWarnings() {
-  let responses;
-  try {
-    isLoading.value = true;
-    responses = await Promise.allSettled(["katwarn", "biwapp", "mowas", "dwd", "lhp"].map(async source => [
-      await fetch(proxyURL + baseURL + `/${source}/mapData.json`, {cache: "reload"}).then(res => res.json()),
-    ]));
-  } catch (e) {
-    console.log(e);
-  }
-  isLoading.value = false;
-
-  responses.forEach(response => {
-    if (response.value[0].length !== 0) {
-      response.value[0].forEach(warning => {
-        let id = warning.id;
-        delete warning.id;
-        warnings.set(id, warning);
-      });
-    }
-  });
-  await setWarningDetails();
-}
-
-async function setWarningDetails() {
-  for (let key of warnings.keys()) {
-    await fetch(proxyURL + baseURL + `/warnings/${key}.json`).then(res => {
-      if (!res.ok) {
-        throw new Error("Error: " + res.status);
-      }
-      return res.json();
-    }).then(value => {
-      value.severity = warnings.get(value.identifier).severity;
-      if (value.info[0].web !== undefined) {
-        value.info[0].web = value.info[0].web.split("\n");
-        for (let i = 0; i < value.info[0].web.length; i++) {
-          if (!value.info[0].web[i].includes("https://") && !value.info[0].web[i].includes("http://")) {
-            value.info[0].web[i] = "https://" + value.info[0].web[i];
-          }
-        }
-      }
-      switch (key.substring(0, 3)) {
-        case "dwd":
-          weatherWarnings.value.set(key, value);
-          break;
-
-        case "mow":
-          generalWarnings.value.set(key, value);
-          break;
-
-        case "lhp":
-          floodWarnings.value.set(key, value);
-          break;
-
-        case "biw":
-          generalWarnings.value.set(key, value);
-          break;
-
-        case "kat":
-          generalWarnings.value.set(key, value);
-          break;
-        default:
-          generalWarnings.value.set(key, value);
-          break;
-      }
-      allWarnings = [generalWarnings, coronaWarnings, weatherWarnings];
-    }).catch(err => {
-      console.log(err);
-    });
-  }
-
-  generalWarnings.value.forEach((value, key) => {
-    if (value.info[0].headline.toLowerCase().includes("corona" || "covid")) {
-      coronaWarnings.value.set(key, value);
-      generalWarnings.value.delete(key);
-    }
-  });
-}
-
 
 function addInfo() {
   info.onAdd = function (map) {
@@ -185,14 +102,23 @@ function addLegend() {
 async function addCounties(mapDataURL) {
   mapData = await fetch(proxyURL + encodeURIComponent(mapDataURL)).then(value => value.json());
   await addCovidData(mapData);
-  countiesMap = L.geoJSON(mapData,
-      {
-        onEachFeature: onEachFeature,
-        style: style
-      }
-  ).addTo(map);
-  overlayMaps.Landkreise = countiesMap;
+
+  countiesMap = L.geoJSON(mapData, {
+    onEachFeature: onEachFeature,
+    style: style
+  }).addTo(map);
+
+  coronaMap = L.geoJSON(mapData, {
+    onEachFeature: onEachFeature,
+    style: coronaStyle
+  }).addTo(map);
+
+  baseMaps.Corona = coronaMap;
+  baseMaps.Landkreise = countiesMap;
+
+
   addLayerControl();
+  currentLayer = baseMaps[Object.keys(baseMaps).slice(-1)];
 }
 
 async function addCovidData(mapData) {
@@ -219,28 +145,29 @@ function highlightFeature(e) {
     layer.bringToFront();
   }
   info.update(layer.feature.properties);
-  lastMunicipality = {
-    name: layer.feature.properties.GEN,
-    bez: layer.feature.properties.BEZ,
-    population: layer.feature.properties.destatis.population
-  };
+  // lastMunicipality = {
+  //   name: layer.feature.properties.GEN,
+  //   bez: layer.feature.properties.BEZ,
+  //   population: layer.feature.properties.destatis.population
+  // };
+  console.log(layer.feature.properties.BEZ + " " + layer.feature.properties.GEN)
 
-  updateCurrentMunicipality(layer.feature.properties);
+  // updateCurrentMunicipality(layer.feature.properties);
 }
 
 function resetHighlight(e) {
-  countiesMap.resetStyle(e.target);
+  currentLayer.resetStyle(e.target);
   info.update();
 }
 
 
-function updateCurrentMunicipality(props) {
-  currentMunicipality.value = {
-    name: (props ? props.GEN : ""),
-    bez: (props ? props.BEZ : ""),
-    population: (props ? props.destatis.population : 0),
-  };
-}
+// function updateCurrentMunicipality(props) {
+//   currentMunicipality.value = {
+//     name: (props ? props.GEN : ""),
+//     bez: (props ? props.BEZ : ""),
+//     population: (props ? props.destatis.population : 0),
+//   };
+// }
 
 
 function onEachFeature(feature, layer) {
@@ -263,7 +190,19 @@ function getColor(d) {
 
 }
 
+
 function style(feature) {
+  return {
+    fillColor: "rgba(255, 0, 0, 0)",
+    weight: 2,
+    opacity: 1,
+    color: 'black',
+    dashArray: '3',
+    fillOpacity: 0.7
+  };
+}
+
+function coronaStyle(feature) {
   return {
     fillColor: getColor(feature.properties.cases7Per100k),
     weight: 2,
@@ -271,13 +210,12 @@ function style(feature) {
     color: 'black',
     dashArray: '3',
     fillOpacity: 0.7
-
   };
 }
 
 
 function addLayerControl() {
-  layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+  layerControl = L.control.layers(baseMaps, null).addTo(map);
 }
 
 function addSidePanel() {
@@ -297,6 +235,7 @@ function toggleSidebar(e) {
   sButton.click();
 }
 
+
 onBeforeMount(() => {
   if (map) {
     map.remove();
@@ -307,7 +246,7 @@ onBeforeMount(() => {
 
 <template>
   <div id="map" class=" z-10 h-full">
-    <SidePanel :all-warnings="allWarnings" :is-loading="isLoading"/>
+    <SidePanel/>
   </div>
 
 </template>
