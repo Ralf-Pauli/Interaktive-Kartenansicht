@@ -1,5 +1,5 @@
 <script setup>
-import {onBeforeMount, onMounted, ref, watch, watchEffect} from 'vue';
+import {onBeforeMount, onMounted, ref, watch} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 import "@/assets/leaflet-sidepanel.css";
@@ -14,9 +14,8 @@ let mapData,
     countiesMap,
     coronaMap,
     warningGeo = ref(),
-    coronaWarningsMap,
-    weahterWarningsMap,
-    generalWarningsMap;
+    allWarnings = ref(),
+    warningMaps = [[], [], []]
 
 let map,
     osm;
@@ -46,7 +45,8 @@ onMounted(() => {
   map = L.map("map").setView([51.1642292, 10.4541194], 6);
   osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" >OpenStreetMap</a>'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" >OpenStreetMap</a>',
+    zIndex: 1
   }).addTo(map);
 
   addInfo();
@@ -55,9 +55,9 @@ onMounted(() => {
 
   // baseMaps.OpenStreetMap = osm;
   map.doubleClickZoom.disable();
-
   map.on('baselayerchange', function (e) {
     currentLayer = e.layer;
+    currentLayer.bringToBack();
   });
 
   watch(warningGeo, () => {
@@ -114,24 +114,22 @@ async function addCounties(mapDataURL) {
 
   countiesMap = L.geoJSON(mapData, {
     onEachFeature: onEachFeature,
-    style: style
+    style: style,
+    zIndex: 2
   }).addTo(map);
 
   coronaMap = L.geoJSON(mapData, {
     onEachFeature: onEachFeature,
-    style: coronaStyle
+    style: coronaStyle,
+    zIndex: 2
   });
-
-  generalWarningsMap = ref(L.geoJSON().addTo(map));
-  coronaWarningsMap = ref(L.geoJSON().addTo(map));
-  weahterWarningsMap = ref(L.geoJSON().addTo(map));
 
   baseMaps.Landkreise = countiesMap;
   baseMaps.Corona = coronaMap;
 
 
   addLayerControl();
-  baseMaps[Object.keys(baseMaps)[0]].bringToFront()
+  // baseMaps[Object.keys(baseMaps)[0]].bringToFront()
   currentLayer = baseMaps[Object.keys(baseMaps)[0]];
 }
 
@@ -156,7 +154,7 @@ function highlightFeature(e) {
     fillOpacity: 0.7
   });
   if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-    layer.bringToFront();
+    // layer.bringToFront();
   }
   info.update(layer.feature.properties);
   // lastMunicipality = {
@@ -269,23 +267,33 @@ function addWarningGeoToMap() {
               mouseover: function () {
                 layer.setStyle({
                   weight: 3,
+                  opacity: 1,
                   color: 'black',
                   dashArray: '',
-                  fillOpacity: 0.7
+                  fillOpacity: 0.7,
                 });
                 if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                   layer.bringToFront();
                 }
-              }, mouseout: resetHighlight, click: toggleSidebar
-            });
+              }, mouseout: function (feature, layer) {
+                warn.resetStyle(layer)
+              }, click: function (feature, layer) {
+                toggleSidebar()
+                let currentWarning;
+                allWarnings.value.forEach(warnType => {
+                  if (warnType.has(feature.target.feature.properties.warnId)) {
+                    currentWarning = warnType.get(feature.target.feature.properties.warnId)
+                  }
+                })
+              }
+            })
           }
-        }
-
+        },
+        zIndex: 3
       })
-
-      warningLayer.addLayer(warn).addTo(map)
+      warningLayer.addLayer(warn).addTo(map);
     }
-    layerControl.addOverlay(warningLayer,titles[index])
+    layerControl.addOverlay(warningLayer, titles[index])
   }
 }
 
@@ -295,12 +303,11 @@ onBeforeMount(() => {
   }
 });
 
-
 </script>
 
 <template>
   <div id="map" class=" z-10 h-full">
-    <SidePanel @update:warningGeo="warningGeo = $event"/>
+    <SidePanel @update:allWarnings="allWarnings = $event" @update:warningGeo="warningGeo = $event"/>
   </div>
 
 </template>

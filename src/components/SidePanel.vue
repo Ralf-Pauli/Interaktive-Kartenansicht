@@ -124,25 +124,23 @@ import {onMounted, ref} from "vue";
 
 let warningGeo = [[], [], []];
 
-const proxyURL = "https://corsproxy.io/?";
-const baseURL = "https://nina.api.proxy.bund.dev/api31";
-
-let symbolList = ["warning", "coronavirus", "thunderstorm"]
-
-let props = defineProps(["warningGeo"])
-let emit = defineEmits(["update:warningGeo"])
-onMounted(() => {
-  getWarnings();
-})
-
-
 let warnings = new Map(),
     coronaWarnings = ref(new Map()),
     weatherWarnings = ref(new Map()),
     generalWarnings = ref(new Map()),
     allWarnings = new ref([]);
 
+const proxyURL = "https://corsproxy.io/?";
+const baseURL = "https://nina.api.proxy.bund.dev/api31";
 
+let symbolList = ["warning", "coronavirus", "thunderstorm"]
+
+let props = defineProps(["warningGeo", "allWarnings"])
+let emit = defineEmits(["update:warningGeo", "update:allWarnings"])
+
+onMounted(() => {
+  getWarnings();
+})
 
 let isLoading = ref(false);
 
@@ -221,6 +219,7 @@ async function setWarningDetails() {
       generalWarnings.value.delete(key);
     }
   });
+  emit("update:allWarnings", allWarnings);
   await getWarningGeoJSON();
 }
 
