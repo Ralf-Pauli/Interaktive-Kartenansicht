@@ -122,13 +122,15 @@ import LoadingWarning from "./LoadingWarning.vue"
 import Warning from "./Warning.vue"
 import {onMounted, ref} from "vue";
 
-let geoWarn = [[], [], []];
+let warningGeo = [[], [], []];
 
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
 
 let symbolList = ["warning", "coronavirus", "thunderstorm"]
 
+let props = defineProps(["warningGeo"])
+let emit = defineEmits(["update:warningGeo"])
 onMounted(() => {
   getWarnings();
 })
@@ -141,7 +143,6 @@ let warnings = new Map(),
     allWarnings = new ref([]);
 
 
-let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"]
 
 let isLoading = ref(false);
 
@@ -234,9 +235,10 @@ async function getWarningGeoJSON() {
         console.log(e)
       }
     }
-    geoWarn[index].push(geoJSONS)
+    warningGeo[index].push(geoJSONS)
   }
-  emits.bind("geoWarn", geoWarn);
+  emit("update:warningGeo", warningGeo);
+  // props.warningGeo.value = warningGeo;
 }
 
 

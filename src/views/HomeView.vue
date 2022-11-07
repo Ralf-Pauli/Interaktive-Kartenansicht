@@ -1,5 +1,5 @@
 <script setup>
-import {onBeforeMount, onMounted, ref} from 'vue';
+import {onBeforeMount, onMounted, ref, watch, watchEffect} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 import "@/assets/leaflet-sidepanel.css";
@@ -13,6 +13,7 @@ const mapDataURL = "https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/m
 let mapData,
     countiesMap,
     coronaMap,
+    warningGeo = ref(),
     coronaWarningsMap,
     weahterWarningsMap,
     generalWarningsMap;
@@ -31,6 +32,10 @@ let layerControl,
 let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
     sidePanel;
+
+let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"],
+    warningGeoLayer = [],
+    warningColors = ["#FB8C00", "#ff5900", "darkblue"]
 
 
 // let currentMunicipality = ref({name: "Hover over a Landkreis", bez: "Kreis", population: 0, allgNotfall: "Renn"});
@@ -54,6 +59,10 @@ onMounted(() => {
   map.on('baselayerchange', function (e) {
     currentLayer = e.layer;
   });
+
+  watch(warningGeo, () => {
+    addWarningGeoToMap()
+  })
 
 });
 
@@ -111,7 +120,7 @@ async function addCounties(mapDataURL) {
   coronaMap = L.geoJSON(mapData, {
     onEachFeature: onEachFeature,
     style: coronaStyle
-  }).addTo(map);
+  });
 
   generalWarningsMap = ref(L.geoJSON().addTo(map));
   coronaWarningsMap = ref(L.geoJSON().addTo(map));
@@ -240,6 +249,45 @@ function toggleSidebar(e) {
   sButton.click();
 }
 
+function addWarningGeoToMap() {
+  for (let index in warningGeo.value) {
+    let warningLayer = L.layerGroup();
+    for (let warning of warningGeo.value[index]) {
+      // warningLayer.addLayer(value)
+      let warn = L.geoJSON(warning, {
+        style: {
+          fillColor: warningColors[index],
+          weight: 2,
+          opacity: 1,
+          color: 'black',
+          dashArray: '3',
+          fillOpacity: 0.7
+        },
+        onEachFeature: function (feature, layer) {
+          if (layer.feature.geometry.type === "MultiPolygon" || layer.feature.geometry.type === "Polygon") {
+            layer.on({
+              mouseover: function () {
+                layer.setStyle({
+                  weight: 3,
+                  color: 'black',
+                  dashArray: '',
+                  fillOpacity: 0.7
+                });
+                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                  layer.bringToFront();
+                }
+              }, mouseout: resetHighlight, click: toggleSidebar
+            });
+          }
+        }
+
+      })
+
+      warningLayer.addLayer(warn).addTo(map)
+    }
+    layerControl.addOverlay(warningLayer,titles[index])
+  }
+}
 
 onBeforeMount(() => {
   if (map) {
@@ -247,11 +295,12 @@ onBeforeMount(() => {
   }
 });
 
+
 </script>
 
 <template>
   <div id="map" class=" z-10 h-full">
-    <SidePanel />
+    <SidePanel @update:warningGeo="warningGeo = $event"/>
   </div>
 
 </template>
