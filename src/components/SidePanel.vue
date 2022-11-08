@@ -56,7 +56,7 @@
           <!--            </div>-->
 
           <div class="sidepanel-tab-content" data-tab-content="tab-2">
-            <h2 class="text-2xl text-center mb-3">Warnmeldungen</h2>
+            <h2 class=" text-2xl text-center mb-3">Warnmeldungen</h2>
 
             <div v-if="isLoading">
               <LoadingWarning></LoadingWarning>

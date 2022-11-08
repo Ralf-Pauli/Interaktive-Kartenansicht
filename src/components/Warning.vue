@@ -2,7 +2,7 @@
   <div class="flex gap-4 warning">
     <div class="grid grid-cols-5 auto grid-rows-1 auto-cols-auto">
       <div class="col-span-4 self-center text-sm font-bold">
-        <div>
+        <div class="headline">
           {{ warning.info[0].headline }}
         </div>
         <div class="text-xs pt-1 font-extralight">

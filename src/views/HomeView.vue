@@ -46,14 +46,13 @@ onMounted(() => {
   osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" >OpenStreetMap</a>',
-    zIndex: 1
+    zIndex: 1,
   }).addTo(map);
 
   addInfo();
   addSidePanel();
   addLegend();
 
-  // baseMaps.OpenStreetMap = osm;
   map.doubleClickZoom.disable();
   map.on('baselayerchange', function (e) {
     currentLayer = e.layer;
@@ -63,7 +62,6 @@ onMounted(() => {
   watch(warningGeo, () => {
     addWarningGeoToMap()
   })
-
 });
 
 
@@ -124,6 +122,7 @@ async function addCounties(mapDataURL) {
     zIndex: 2
   });
 
+  baseMaps.Empty = L.geoJSON(null, {style: style});
   baseMaps.Landkreise = countiesMap;
   baseMaps.Corona = coronaMap;
 
@@ -227,7 +226,7 @@ function coronaStyle(feature) {
 
 
 function addLayerControl() {
-  layerControl = L.control.layers(baseMaps, null).addTo(map);
+  layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
 }
 
 function addSidePanel() {
@@ -251,7 +250,6 @@ function addWarningGeoToMap() {
   for (let index in warningGeo.value) {
     let warningLayer = L.layerGroup();
     for (let warning of warningGeo.value[index]) {
-      // warningLayer.addLayer(value)
       let warn = L.geoJSON(warning, {
         style: {
           fillColor: warningColors[index],
@@ -278,22 +276,56 @@ function addWarningGeoToMap() {
               }, mouseout: function (feature, layer) {
                 warn.resetStyle(layer)
               }, click: function (feature, layer) {
-                toggleSidebar()
+                if (!document.getElementById("sidePanel").classList.contains("opened")) {
+                  toggleSidebar()
+                }
                 let currentWarning;
                 allWarnings.value.forEach(warnType => {
                   if (warnType.has(feature.target.feature.properties.warnId)) {
                     currentWarning = warnType.get(feature.target.feature.properties.warnId)
+                    findWarning(currentWarning);
                   }
                 })
               }
             })
           }
-        },
-        zIndex: 3
+        }
       })
       warningLayer.addLayer(warn).addTo(map);
     }
     layerControl.addOverlay(warningLayer, titles[index])
+  }
+}
+
+let previousWarning;
+
+function findWarning(warning) {
+  for (let element of document.getElementsByClassName("headline")) {
+    if (element.innerHTML.includes(warning.info[0].headline)) {
+      for (let tab of document.getElementsByClassName("sidepanel-tab-content")) {
+        for (let child of tab.children) {
+          if (child.innerHTML.includes(element.innerHTML)) {
+            let hTab = tab.attributes.getNamedItem("data-tab-content").value;
+            for (let tabLink of document.getElementsByClassName("sidebar-tab-link")) {
+              tabLink.classList.remove("active")
+              if (tabLink.attributes.getNamedItem("data-tab-link").value === hTab) {
+                tabLink.classList.add("active");
+              }
+            }
+            // set active for sidepanel-tab-content
+          }
+        }
+      }
+
+
+      if (element !== previousWarning) {
+        if (previousWarning !== undefined) {
+          previousWarning.style.color = "white";
+        }
+      }
+      element.style.color = "red";
+      previousWarning = element;
+    }
   }
 }
 

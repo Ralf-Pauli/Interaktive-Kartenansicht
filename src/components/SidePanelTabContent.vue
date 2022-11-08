@@ -1,6 +1,6 @@
 <template>
   <div class="sidepanel-tab-content" :data-tab-content="`tab-${tabNumber}`"  >
-    <h2 class="text-2xl text-center mb-3">{{ title }}</h2>
+    <h2 class="headline text-2xl text-center mb-3 ">{{ title }}</h2>
 
     <div v-if="isLoading">
       <LoadingWarning></LoadingWarning>
