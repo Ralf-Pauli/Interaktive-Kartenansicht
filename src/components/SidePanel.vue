@@ -62,9 +62,9 @@
               <LoadingWarning></LoadingWarning>
             </div>
 
-            <div v-else-if="coronaWarnings.size > 0" class="mt-5">
+            <div v-else-if="coronaWarnings.size > 0" class="mt-5 flex flex-col">
               <Warning v-for="warn in generalWarnings.values()" :warning="warn"
-                       class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+                       class="flex flex-col mb-2 pb-2 gap-2 border-b "/>
             </div>
 
             <div v-else>
@@ -79,7 +79,7 @@
               <LoadingWarning></LoadingWarning>
             </div>
 
-            <div v-else-if="coronaWarnings.size > 0" class="mt-5">
+            <div v-else-if="coronaWarnings.size > 0" class="mt-5 flex flex-col">
               <Warning v-for="warn in coronaWarnings.values()" :warning="warn"
                        class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
             </div>
@@ -95,7 +95,7 @@
               <LoadingWarning></LoadingWarning>
             </div>
 
-            <div v-else-if="weatherWarnings.size > 0" class="mt-5">
+            <div v-else-if="weatherWarnings.size > 0" class="mt-5 flex flex-col">
               <Warning v-for="warn in weatherWarnings.values()" :warning="warn"
                        class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
             </div>

@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-const props = defineProps(["warning"]);
+const props = defineProps(["warning","current"]);
 </script>
 
 <style scoped>

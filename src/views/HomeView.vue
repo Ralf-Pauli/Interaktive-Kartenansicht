@@ -34,8 +34,10 @@ let info = L.control({position: "bottomright"}),
 
 let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"],
     warningGeoLayer = [],
-    warningColors = ["#FB8C00", "#ff5900", "darkblue"]
+    warningColors = ["#FB8C00", "#ff5900", "darkblue"],
+    previousWarning;
 
+let styles = ["text-ninaOrange"];
 
 // let currentMunicipality = ref({name: "Hover over a Landkreis", bez: "Kreis", population: 0, allgNotfall: "Renn"});
 
@@ -61,11 +63,15 @@ onMounted(() => {
 
   watch(warningGeo, () => {
     addWarningGeoToMap()
+    previousWarning = document.getElementsByClassName("warning")[0];
   })
+
+  addCounties(mapDataURL);
+  // osm.on("click", function (e) {
+  //   previousWarning.classList.remove(styles)
+  // })
 });
 
-
-addCounties(mapDataURL);
 
 function addInfo() {
   info.onAdd = function (map) {
@@ -126,8 +132,8 @@ async function addCounties(mapDataURL) {
   baseMaps.Landkreise = countiesMap;
   baseMaps.Corona = coronaMap;
 
-
   addLayerControl();
+
   // baseMaps[Object.keys(baseMaps)[0]].bringToFront()
   currentLayer = baseMaps[Object.keys(baseMaps)[0]];
 }
@@ -244,6 +250,8 @@ function addSidePanel() {
 function toggleSidebar(e) {
   let sButton = document.getElementsByClassName("sidepanel-toggle-button")[0];
   sButton.click();
+
+  previousWarning.classList.remove(styles)
 }
 
 function addWarningGeoToMap() {
@@ -297,7 +305,6 @@ function addWarningGeoToMap() {
   }
 }
 
-let previousWarning;
 
 function findWarning(warning) {
   for (let element of document.getElementsByClassName("headline")) {
@@ -306,25 +313,27 @@ function findWarning(warning) {
         for (let child of tab.children) {
           if (child.innerHTML.includes(element.innerHTML)) {
             let hTab = tab.attributes.getNamedItem("data-tab-content").value;
+            // change Tab
             for (let tabLink of document.getElementsByClassName("sidebar-tab-link")) {
-              tabLink.classList.remove("active")
               if (tabLink.attributes.getNamedItem("data-tab-link").value === hTab) {
-                tabLink.classList.add("active");
+                tabLink.click()
               }
             }
-            // set active for sidepanel-tab-content
           }
         }
       }
-
-
       if (element !== previousWarning) {
         if (previousWarning !== undefined) {
-          previousWarning.style.color = "white";
+          previousWarning.classList.remove(styles);
         }
       }
-      element.style.color = "red";
+      element.classList.add(styles);
       previousWarning = element;
+    }
+  }
+  for (let element of document.getElementsByClassName("warning")) {
+    if (element.innerHTML.includes(warning.info[0].headline)) {
+      element.classList.add("order-first");
     }
   }
 }
