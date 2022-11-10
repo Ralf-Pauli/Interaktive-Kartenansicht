@@ -7,12 +7,9 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "NoWarningsFound",
-  props: ["symbol",
-    "warnType"]
-}
+<script setup>
+let props = defineProps(["symbol", "warnType"])
+
 </script>
 
 <style scoped>

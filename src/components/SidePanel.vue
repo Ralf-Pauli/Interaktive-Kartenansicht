@@ -36,24 +36,6 @@
       </nav>
       <div class="sidepanel-content-wrapper">
         <div class="sidepanel-content w-full h-full">
-          <!--            <div class="sidepanel-tab-content" data-tab-content="tab-1">-->
-          <!--              <h2 class="text-2xl text-center mb-6">Allgemeine Informationen</h2>-->
-          <!--              <h3 class="text-base font-bold mb-2 border-collapse">{{ currentMunicipality.name }}</h3>-->
-          <!--              <table class="w-full table-fixed text-left  border-y-gray-600">-->
-          <!--                <tr class="border-y border-y-gray-600">-->
-          <!--                  <th>Bezeichnung</th>-->
-          <!--                  <td>{{ currentMunicipality.bez }}</td>-->
-          <!--                </tr>-->
-          <!--                <tr class="border-y border-y-gray-600">-->
-          <!--                  <th>Einwohner</th>-->
-          <!--                  <td>{{ currentMunicipality.population }}</td>-->
-          <!--                </tr>-->
-          <!--                <tr class="border-y border-y-gray-600">-->
-          <!--                  <th>Allgemeine Notfalltips</th>-->
-          <!--                  <td>{{ currentMunicipality.allgNotfall }}</td>-->
-          <!--                </tr>-->
-          <!--              </table>-->
-          <!--            </div>-->
 
           <div class="sidepanel-tab-content" data-tab-content="tab-2">
             <h2 class=" text-2xl text-center mb-3">Warnmeldungen</h2>
@@ -61,14 +43,13 @@
             <div v-if="isLoading">
               <LoadingWarning></LoadingWarning>
             </div>
-
             <div v-else-if="coronaWarnings.size > 0" class="mt-5 flex flex-col">
-              <Warning v-for="warn in generalWarnings.values()" :warning="warn"
-                       class="flex flex-col mb-2 pb-2 gap-2 border-b "/>
+                            <Warning v-for="warn in generalWarnings.values()" :warning="warn"
+                                     class="flex flex-col mb-2 pb-2 gap-2 border-b "/>
             </div>
 
             <div v-else>
-
+              <NoWarningsFound :symbol="symbolList[0]" :warn-type="titles[0]"/>
             </div>
           </div>
 
@@ -121,6 +102,7 @@
 import LoadingWarning from "./LoadingWarning.vue"
 import Warning from "./Warning.vue"
 import {onMounted, ref} from "vue";
+import NoWarningsFound from "@/components/NoWarningsFound.vue";
 
 let warningGeo = [[], [], []];
 
@@ -134,6 +116,7 @@ const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
 
 let symbolList = ["warning", "coronavirus", "thunderstorm"]
+let titles = ["Allgemeinen Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"];
 
 let props = defineProps(["warningGeo", "allWarnings"])
 let emit = defineEmits(["update:warningGeo", "update:allWarnings"])
@@ -239,8 +222,6 @@ async function getWarningGeoJSON() {
   emit("update:warningGeo", warningGeo);
   // props.warningGeo.value = warningGeo;
 }
-
-
 </script>
 
 <style scoped>

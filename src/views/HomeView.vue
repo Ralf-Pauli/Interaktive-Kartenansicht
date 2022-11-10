@@ -5,6 +5,7 @@ import L from 'leaflet';
 import "@/assets/leaflet-sidepanel.css";
 import "@/assets/leaflet-sidepanel.min";
 import SidePanel from "@/components/SidePanel.vue"
+import "leaflet-easybutton"
 
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
@@ -30,31 +31,30 @@ let layerControl,
 
 let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
-    sidePanel;
+    sidePanel,
+    themeSwitch = L.control({position: "topleft"});
 
 let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"],
-    warningGeoLayer = [],
     warningColors = ["#FB8C00", "#ff5900", "darkblue"],
     previousWarning;
 
 let styles = ["text-ninaOrange"];
 
-// let currentMunicipality = ref({name: "Hover over a Landkreis", bez: "Kreis", population: 0, allgNotfall: "Renn"});
-
-// let lastMunicipality = {};
 
 onMounted(() => {
   map = L.map("map").setView([51.1642292, 10.4541194], 6);
   osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" >OpenStreetMap</a>',
-    zIndex: 1,
-  }).addTo(map);
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" >OpenStreetMap</a>',
+        zIndex: 1,
+        className: "map-tiles"
+      },
+  ).addTo(map);
 
   addInfo();
   addSidePanel();
   addLegend();
-
+  addThemeButton()
   map.doubleClickZoom.disable();
   map.on('baselayerchange', function (e) {
     currentLayer = e.layer;
@@ -67,15 +67,14 @@ onMounted(() => {
   })
 
   addCounties(mapDataURL);
-  // osm.on("click", function (e) {
-  //   previousWarning.classList.remove(styles)
-  // })
+
+
 });
 
 
 function addInfo() {
   info.onAdd = function (map) {
-    this._div = L.DomUtil.create('div', 'info');
+    this._div = L.DomUtil.create('div', 'info bg-white dark:bg-black text-white');
     this.update();
     return this._div;
   };
@@ -83,6 +82,7 @@ function addInfo() {
   info.update = function (props) {
     this._div.innerHTML = '<h4>Deutschland Landkreise</h4>' + (props ? '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE', {maximumFractionDigits: 2}).format(props.cases7Per100k) : 'Hover over a Bundesland');
   };
+
 
   info.addTo(map);
 }
@@ -111,6 +111,11 @@ function addLegend() {
   legend.addTo(map);
 }
 
+function addThemeButton() {
+
+
+}
+
 
 async function addCounties(mapDataURL) {
   mapData = await fetch(proxyURL + mapDataURL).then(value => value.json());
@@ -119,13 +124,13 @@ async function addCounties(mapDataURL) {
   countiesMap = L.geoJSON(mapData, {
     onEachFeature: onEachFeature,
     style: style,
-    zIndex: 2
+    zIndex: 2,
   }).addTo(map);
 
   coronaMap = L.geoJSON(mapData, {
     onEachFeature: onEachFeature,
     style: coronaStyle,
-    zIndex: 2
+    zIndex: 2,
   });
 
   baseMaps.Empty = L.geoJSON(null, {style: style});
@@ -176,16 +181,6 @@ function resetHighlight(e) {
   currentLayer.resetStyle(e.target);
   info.update();
 }
-
-
-// function updateCurrentMunicipality(props) {
-//   currentMunicipality.value = {
-//     name: (props ? props.GEN : ""),
-//     bez: (props ? props.BEZ : ""),
-//     population: (props ? props.destatis.population : 0),
-//   };
-// }
-
 
 function onEachFeature(feature, layer) {
   if (layer.feature.geometry.type === "MultiPolygon" || layer.feature.geometry.type === "Polygon") {
@@ -250,7 +245,6 @@ function addSidePanel() {
 function toggleSidebar(e) {
   let sButton = document.getElementsByClassName("sidepanel-toggle-button")[0];
   sButton.click();
-
   previousWarning.classList.remove(styles)
 }
 
@@ -297,7 +291,7 @@ function addWarningGeoToMap() {
               }
             })
           }
-        }
+        },
       })
       warningLayer.addLayer(warn).addTo(map);
     }
@@ -332,6 +326,7 @@ function findWarning(warning) {
     }
   }
   for (let element of document.getElementsByClassName("warning")) {
+    element.classList.remove("order-first")
     if (element.innerHTML.includes(warning.info[0].headline)) {
       element.classList.add("order-first");
     }
