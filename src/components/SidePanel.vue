@@ -38,14 +38,14 @@
         <div class="sidepanel-content w-full h-full">
 
           <div class="sidepanel-tab-content" data-tab-content="tab-2">
-            <h2 class=" text-2xl text-center mb-3">Warnmeldungen</h2>
+            <h2 class=" text-2xl text-center font-bold mb-3">Warnmeldungen</h2>
 
             <div v-if="isLoading">
               <LoadingWarning></LoadingWarning>
             </div>
             <div v-else-if="coronaWarnings.size > 0" class="mt-5 flex flex-col">
-                            <Warning v-for="warn in generalWarnings.values()" :warning="warn"
-                                     class="flex flex-col mb-2 pb-2 gap-2 border-b "/>
+              <Warning v-for="warn in generalWarnings.values()" :warning="warn"
+                       class="flex flex-col mb-2 pb-2 gap-2 border-b "/>
             </div>
 
             <div v-else>
@@ -54,7 +54,7 @@
           </div>
 
           <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
-            <h2 class="text-2xl text-center mb-3">Covid-19</h2>
+            <h2 class="text-2xl text-center font-bold mb-3">Covid-19</h2>
 
             <div v-if="isLoading">
               <LoadingWarning></LoadingWarning>
@@ -66,12 +66,13 @@
             </div>
 
             <div v-else>
+              <NoWarningsFound :symbol="symbolList[1]" :warn-type="titles[1]"/>
 
             </div>
           </div>
 
           <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
-            <h2 class="text-2xl text-center">Unwetterwarnungen</h2>
+            <h2 class="text-2xl text-center font-bold">Unwetterwarnungen</h2>
             <div v-if="isLoading">
               <LoadingWarning></LoadingWarning>
             </div>
@@ -81,10 +82,9 @@
                        class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
             </div>
 
-            <div v-else class="flex items-center justify-center flex-col items-stretch h-auto max-h-screen">
-
+            <div v-else class="flex items-center justify-center flex-col ">
+              <NoWarningsFound :symbol="symbolList[2]" :warn-type="titles[2]"/>
             </div>
-
           </div>
 
         </div>
@@ -190,7 +190,6 @@ async function setWarningDetails() {
           break;
       }
       allWarnings = [generalWarnings.value, coronaWarnings.value, weatherWarnings.value];
-
     }).catch(err => {
       console.log(err);
     });

@@ -18,6 +18,7 @@ let mapData,
     allWarnings = ref(),
     warningMaps = [[], [], []]
 
+
 let map,
     osm;
 
@@ -42,6 +43,7 @@ let styles = ["text-ninaOrange"];
 
 
 onMounted(() => {
+
   map = L.map("map").setView([51.1642292, 10.4541194], 6);
   osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -61,20 +63,19 @@ onMounted(() => {
     currentLayer.bringToBack();
   });
 
-  watch(warningGeo, () => {
+  watch(warningGeo, async () => {
+    await layerControl;
     addWarningGeoToMap()
     previousWarning = document.getElementsByClassName("warning")[0];
   })
 
   addCounties(mapDataURL);
-
-
 });
 
 
 function addInfo() {
   info.onAdd = function (map) {
-    this._div = L.DomUtil.create('div', 'info bg-white dark:bg-black text-white');
+    this._div = L.DomUtil.create('div', 'info');
     this.update();
     return this._div;
   };
@@ -126,12 +127,12 @@ async function addCounties(mapDataURL) {
     style: style,
     zIndex: 2,
   }).addTo(map);
-
   coronaMap = L.geoJSON(mapData, {
     onEachFeature: onEachFeature,
     style: coronaStyle,
     zIndex: 2,
   });
+
 
   baseMaps.Empty = L.geoJSON(null, {style: style});
   baseMaps.Landkreise = countiesMap;
@@ -345,7 +346,6 @@ onBeforeMount(() => {
   <div id="map" class=" z-10 h-full">
     <SidePanel @update:allWarnings="allWarnings = $event" @update:warningGeo="warningGeo = $event"/>
   </div>
-
 </template>
 
 <style>

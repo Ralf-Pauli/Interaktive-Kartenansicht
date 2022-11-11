@@ -21,7 +21,15 @@
     order: 1;
 }
 
+#sidePanel {
+    opacity: 90%;
+}
 
-.leaflet-control-container> div > div{
-    
+.sidebar-tab-link:hover * {
+    color: #ff5900;
+}
+
+.leaflet-control-container > div > *, .leaflet-control-zoom-out, .leaflet-control-zoom-in {
+    opacity: 95%;
+    background: #F0F3EE;
 }
