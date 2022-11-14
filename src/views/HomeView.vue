@@ -14,6 +14,7 @@ const mapDataURL = "https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/m
 let mapData,
     countiesMap,
     coronaMap,
+    empty,
     warningGeo = ref(),
     allWarnings = ref(),
     warningMaps = [[], [], []]
@@ -42,8 +43,7 @@ let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"
 let styles = ["text-ninaOrange"];
 
 
-onMounted(() => {
-
+onMounted(async () => {
   map = L.map("map").setView([51.1642292, 10.4541194], 6);
   osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -52,6 +52,8 @@ onMounted(() => {
         className: "map-tiles"
       },
   ).addTo(map);
+
+  layerControl = L.control.layers(baseMaps, overlayMaps);
 
   addInfo();
   addSidePanel();
@@ -63,13 +65,13 @@ onMounted(() => {
     currentLayer.bringToBack();
   });
 
+
   watch(warningGeo, async () => {
-    await layerControl;
     addWarningGeoToMap()
     previousWarning = document.getElementsByClassName("warning")[0];
   })
 
-  addCounties(mapDataURL);
+  await addCounties(mapDataURL);
 });
 
 
@@ -81,7 +83,7 @@ function addInfo() {
   };
 
   info.update = function (props) {
-    this._div.innerHTML = '<h4>Deutschland Landkreise</h4>' + (props ? '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE', {maximumFractionDigits: 2}).format(props.cases7Per100k) : 'Hover over a Bundesland');
+    this._div.innerHTML = '<h4>Deutschland Landkreise</h4>' + (props ? '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE', {maximumFractionDigits: 2}).format(props.cases7Per100k) : 'Hover over a Landkreis');
   };
 
 
@@ -132,16 +134,17 @@ async function addCounties(mapDataURL) {
     style: coronaStyle,
     zIndex: 2,
   });
+  empty = L.geoJSON(null, {style: style});
 
+  layerControl.addBaseLayer(empty, "Empty");
+  layerControl.addBaseLayer(countiesMap, "Landkreise");
+  layerControl.addBaseLayer(coronaMap, "Corona");
 
-  baseMaps.Empty = L.geoJSON(null, {style: style});
-  baseMaps.Landkreise = countiesMap;
-  baseMaps.Corona = coronaMap;
+  layerControl.addTo(map)
 
-  addLayerControl();
-
-  // baseMaps[Object.keys(baseMaps)[0]].bringToFront()
-  currentLayer = baseMaps[Object.keys(baseMaps)[0]];
+  baseMaps = [empty, countiesMap, coronaMap]
+  baseMaps[Object.keys(baseMaps)[0]].bringToFront()
+  currentLayer = baseMaps[0];
 }
 
 async function addCovidData(mapData) {
@@ -227,9 +230,6 @@ function coronaStyle(feature) {
 }
 
 
-function addLayerControl() {
-  layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
-}
 
 function addSidePanel() {
   sidePanel = L.control.sidepanel('sidePanel', {
@@ -237,7 +237,7 @@ function addSidePanel() {
     hasTabs: true,
     tabsPosition: 'right',
     pushControls: true,
-    darkMode: true,
+    darkMode: false,
     startTab: 'tab-2'
   }).addTo(map);
 }
@@ -296,6 +296,7 @@ function addWarningGeoToMap() {
       })
       warningLayer.addLayer(warn).addTo(map);
     }
+
     layerControl.addOverlay(warningLayer, titles[index])
   }
 }
@@ -340,6 +341,8 @@ onBeforeMount(() => {
   }
 });
 
+//TODO remove legend and hover when not corona map
+
 </script>
 
 <template>
@@ -351,8 +354,6 @@ onBeforeMount(() => {
 <style>
 .info {
   padding: 6px 8px;
-  font: 14px/16px Arial, Helvetica, sans-serif;
-  background: rgba(255, 255, 255, 0.8);
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
 }
@@ -364,7 +365,6 @@ onBeforeMount(() => {
 
 .infoLegend {
   padding: 6px 8px;
-  background: rgba(255, 255, 255, 0.8);
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   border-radius: 5px
 }

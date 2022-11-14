@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --ninaOrange:#ff5900;
+    --ninaLightOrange: #FB8C00;
+}
+
 #app {
     height: 100vh;
     position: relative;
@@ -13,6 +18,13 @@
 /*    src: local('src/assets/fonts/bundessansweb-bold.woff');*/
 /*}*/
 
+body {
+    font-family: "Roboto", sans-serif;
+}
+*{
+    font-family: Roboto, sans-serif;
+}
+
 .leaflet-container {
     line-height: 1.5;
 }
@@ -22,14 +34,22 @@
 }
 
 #sidePanel {
-    opacity: 90%;
+    /*opacity: 100%;*/
+}
+
+.warning a {
+    color: var(--ninaLightOrange)
+}
+
+.warning a:hover {
+    color: var(--ninaOrange)
 }
 
 .sidebar-tab-link:hover * {
-    color: #ff5900;
+    color: var(--ninaOrange);
 }
 
 .leaflet-control-container > div > *, .leaflet-control-zoom-out, .leaflet-control-zoom-in {
-    opacity: 95%;
-    background: #F0F3EE;
+    /*opacity: 95%;*/
+    background: white;
 }
