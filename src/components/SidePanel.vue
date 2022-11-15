@@ -47,7 +47,6 @@
               <Warning v-for="warn in generalWarnings.values()" :warning="warn"
                        class="flex flex-col mb-2 pb-2 gap-2 border-b "/>
             </div>
-
             <div v-else>
               <NoWarningsFound :symbol="symbolList[0]" :warn-type="titles[0]"/>
             </div>

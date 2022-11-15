@@ -21,6 +21,7 @@
 body {
     font-family: "Roboto", sans-serif;
 }
+
 *{
     font-family: Roboto, sans-serif;
 }
@@ -52,4 +53,12 @@ body {
 .leaflet-control-container > div > *, .leaflet-control-zoom-out, .leaflet-control-zoom-in {
     /*opacity: 95%;*/
     background: white;
+}
+
+
+.focus * {
+    display: grid;
+    align-items: center;
+    width: 30px;
+    height: 30px;
 }

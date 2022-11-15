@@ -7,6 +7,7 @@ import "@/assets/leaflet-sidepanel.min";
 import SidePanel from "@/components/SidePanel.vue"
 import "leaflet-easybutton"
 
+
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
 const mapDataURL = "https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/main/landkreise.geojson";
@@ -16,9 +17,7 @@ let mapData,
     coronaMap,
     empty,
     warningGeo = ref(),
-    allWarnings = ref(),
-    warningMaps = [[], [], []]
-
+    allWarnings = ref();
 
 let map,
     osm;
@@ -34,13 +33,12 @@ let layerControl,
 let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
     sidePanel,
-    themeSwitch = L.control({position: "topleft"});
+    focusButton = L.control({position: "topleft"});
 
 let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"],
     warningColors = ["#FB8C00", "#ff5900", "darkblue"],
-    previousWarning;
-
-let styles = ["text-ninaOrange"];
+    previousWarning,
+    styles = ["text-ninaOrange"];
 
 
 onMounted(async () => {
@@ -58,7 +56,7 @@ onMounted(async () => {
   addInfo();
   addSidePanel();
   addLegend();
-  addThemeButton()
+  addFocusButton();
   map.doubleClickZoom.disable();
   map.on('baselayerchange', function (e) {
     currentLayer = e.layer;
@@ -85,7 +83,6 @@ function addInfo() {
   info.update = function (props) {
     this._div.innerHTML = '<h4>Deutschland Landkreise</h4>' + (props ? '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE', {maximumFractionDigits: 2}).format(props.cases7Per100k) : 'Hover over a Landkreis');
   };
-
 
   info.addTo(map);
 }
@@ -114,9 +111,26 @@ function addLegend() {
   legend.addTo(map);
 }
 
-function addThemeButton() {
+function addFocusButton() {
+  focusButton.onAdd = function (map) {
+    this._div = L.DomUtil.create('button', 'focus leaflet-bar');
+    this.update();
+    return this._div;
+  };
 
+  focusButton.update = function (props) {
+    this._div.innerHTML = '<span class="material-symbols-sharp">crop_free</span>'
+  };
 
+  focusButton.on("click", function (e) {
+    console.log("click")
+  })
+
+  onClick = function(event) {
+    button.onClick(event, newButton);
+  };
+
+  focusButton.addTo(map);
 }
 
 
@@ -171,14 +185,6 @@ function highlightFeature(e) {
     // layer.bringToFront();
   }
   info.update(layer.feature.properties);
-  // lastMunicipality = {
-  //   name: layer.feature.properties.GEN,
-  //   bez: layer.feature.properties.BEZ,
-  //   population: layer.feature.properties.destatis.population
-  // };
-  // console.log(layer.feature.properties.BEZ + " " + layer.feature.properties.GEN)
-
-  // updateCurrentMunicipality(layer.feature.properties);
 }
 
 function resetHighlight(e) {
@@ -228,7 +234,6 @@ function coronaStyle(feature) {
     fillOpacity: 0.7
   };
 }
-
 
 
 function addSidePanel() {
@@ -309,7 +314,6 @@ function findWarning(warning) {
         for (let child of tab.children) {
           if (child.innerHTML.includes(element.innerHTML)) {
             let hTab = tab.attributes.getNamedItem("data-tab-content").value;
-            // change Tab
             for (let tabLink of document.getElementsByClassName("sidebar-tab-link")) {
               if (tabLink.attributes.getNamedItem("data-tab-link").value === hTab) {
                 tabLink.click()
@@ -341,7 +345,9 @@ onBeforeMount(() => {
   }
 });
 
-//TODO remove legend and hover when not corona map
+// TODO remove legend and hover when not corona map
+// TODO focus on Germany button
+// TODO Theme Changer
 
 </script>
 
@@ -361,6 +367,7 @@ onBeforeMount(() => {
 .info h4 {
   margin: 0 0 5px;
   color: #777;
+  font-size: small;
 }
 
 .infoLegend {
@@ -375,4 +382,5 @@ onBeforeMount(() => {
   float: left;
   margin-right: 8px;
 }
+
 </style>
