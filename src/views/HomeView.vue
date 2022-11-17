@@ -33,16 +33,21 @@ let layerControl,
 let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
     sidePanel,
-    focusButton = L.control({position: "topleft"});
+    focusButton,
+    themeButton;
 
 let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"],
     warningColors = ["#FB8C00", "#ff5900", "darkblue"],
     previousWarning,
     styles = ["text-ninaOrange"];
 
+let center = [51.1642292, 10.4541194],
+    zoom = 6;
+
+let dark = false;
 
 onMounted(async () => {
-  map = L.map("map").setView([51.1642292, 10.4541194], 6);
+  map = L.map("map").setView(center, zoom);
   osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" >OpenStreetMap</a>',
@@ -56,13 +61,15 @@ onMounted(async () => {
   addInfo();
   addSidePanel();
   addLegend();
+
   addFocusButton();
+  addThemeButton()
+
   map.doubleClickZoom.disable();
   map.on('baselayerchange', function (e) {
     currentLayer = e.layer;
     currentLayer.bringToBack();
   });
-
 
   watch(warningGeo, async () => {
     addWarningGeoToMap()
@@ -112,25 +119,49 @@ function addLegend() {
 }
 
 function addFocusButton() {
-  focusButton.onAdd = function (map) {
-    this._div = L.DomUtil.create('button', 'focus leaflet-bar');
-    this.update();
-    return this._div;
-  };
-
-  focusButton.update = function (props) {
-    this._div.innerHTML = '<span class="material-symbols-sharp">crop_free</span>'
-  };
-
-  focusButton.on("click", function (e) {
-    console.log("click")
+  L.Control.FocusButton = L.Control.extend({
+    onAdd: function (map) {
+      this._div = L.DomUtil.create('button', 'customControl leaflet-bar');
+      this.update();
+      this._div.setAttribute("id", "focus")
+      return this._div;
+    },
+    update: function (props) {
+      this._div.innerHTML = '<span class="material-symbols-sharp">crop_free</span>'
+    }
   })
 
-  onClick = function(event) {
-    button.onClick(event, newButton);
-  };
+  focusButton = new L.Control.FocusButton({position: "topleft"}).addTo(map);
 
-  focusButton.addTo(map);
+  L.DomEvent.on(
+      document.getElementById("focus"),
+      "click", function (ev) {
+        map.flyTo(center, zoom, {duration: 1.5})
+      }
+  )
+}
+
+function addThemeButton() {
+  L.Control.ThemeButton = L.Control.extend({
+    onAdd: function (map) {
+      this._div = L.DomUtil.create('button', 'customControl leaflet-bar');
+      this.update();
+      this._div.setAttribute("id", "theme")
+      return this._div;
+    },
+    update: function (props) {
+      this._div.innerHTML = '<span v-if="dark" class="material-symbols-sharp">light_mode</span> <span v-else class="material-symbols-sharp ">dark_mode</span>';
+    }
+  })
+
+  themeButton = new L.Control.ThemeButton({position: "topleft"}).addTo(map);
+
+  L.DomEvent.on(
+      document.getElementById("theme"),
+      "click", function (ev) {
+        console.log(ev);
+      }
+  )
 }
 
 
@@ -252,6 +283,7 @@ function toggleSidebar(e) {
   let sButton = document.getElementsByClassName("sidepanel-toggle-button")[0];
   sButton.click();
   previousWarning.classList.remove(styles)
+
 }
 
 function addWarningGeoToMap() {
@@ -346,7 +378,6 @@ onBeforeMount(() => {
 });
 
 // TODO remove legend and hover when not corona map
-// TODO focus on Germany button
 // TODO Theme Changer
 
 </script>
