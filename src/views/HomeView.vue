@@ -73,7 +73,7 @@ onMounted(async () => {
 
   watch(warningGeo, async () => {
     addWarningGeoToMap()
-    previousWarning = document.getElementsByClassName("warning")[0];
+    // previousWarning = document.getElementsByClassName("warning")[0];
   })
 
   await addCounties(mapDataURL);
@@ -282,8 +282,7 @@ function addSidePanel() {
 function toggleSidebar(e) {
   let sButton = document.getElementsByClassName("sidepanel-toggle-button")[0];
   sButton.click();
-  previousWarning.classList.remove(styles)
-
+  // previousWarning.classList.remove(styles)
 }
 
 function addWarningGeoToMap() {
@@ -354,19 +353,23 @@ function findWarning(warning) {
           }
         }
       }
-      if (element !== previousWarning) {
-        if (previousWarning !== undefined) {
-          previousWarning.classList.remove(styles);
-        }
-      }
-      element.classList.add(styles);
-      previousWarning = element;
     }
   }
   for (let element of document.getElementsByClassName("warning")) {
     element.classList.remove("order-first")
-    if (element.innerHTML.includes(warning.info[0].headline)) {
+    element.children.item(0).children.item(0).children.item(0).classList.remove(styles)
+    // if (previousWarning !== undefined) {
+    //   previousWarning.children.item(0).children.item(1).click();
+    // }
+
+    if (element.id === warning.identifier) {
+      element.children.item(0).children.item(0).children.item(0).classList.add(styles);
       element.classList.add("order-first");
+      if (element.children.item(1).style.display === "none") {
+        element.children.item(0).children.item(1).click();
+        console.log(true)
+      }
+      previousWarning = element;
     }
   }
 }
