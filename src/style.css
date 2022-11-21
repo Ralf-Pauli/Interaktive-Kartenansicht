@@ -50,18 +50,22 @@ body {
     color: var(--ninaOrange);
 }
 
-.leaflet-control-container > div > *, .leaflet-control-zoom-out, .leaflet-control-zoom-in {
+
+
+.leaflet-control-container > div > *, .leaflet-control-zoom-out, .leaflet-control-zoom-in, #sidePanel > div > *  {
     /*opacity: 95%;*/
-    background: white;
+    @apply bg-white dark:bg-black text-black dark:text-white
 }
+
 .customControl{
     cursor: pointer;
     align-items: center;
     position: relative;
     display: inline-block;
+
 }
 
-.customControl * {
+.customControl *{
     display: grid;
     align-items: center;
     width: 30px;

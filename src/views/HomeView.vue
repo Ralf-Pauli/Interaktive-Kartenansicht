@@ -1,11 +1,12 @@
 <script setup>
-import {onBeforeMount, onMounted, ref, watch} from 'vue';
+import {nextTick, onBeforeMount, onMounted, ref, watch} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 import "@/assets/leaflet-sidepanel.css";
 import "@/assets/leaflet-sidepanel.min";
 import SidePanel from "@/components/SidePanel.vue"
 import "leaflet-easybutton"
+import {useDark, useToggle} from '@vueuse/core';
 
 
 const proxyURL = "https://corsproxy.io/?";
@@ -44,7 +45,9 @@ let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"
 let center = [51.1642292, 10.4541194],
     zoom = 6;
 
-let dark = false;
+const isDark = useDark();
+const toggleDark = useToggle(isDark);
+let icon = ref("light_mode");
 
 onMounted(async () => {
   map = L.map("map").setView(center, zoom);
@@ -121,47 +124,32 @@ function addLegend() {
 function addFocusButton() {
   L.Control.FocusButton = L.Control.extend({
     onAdd: function (map) {
-      this._div = L.DomUtil.create('button', 'customControl leaflet-bar');
-      this.update();
-      this._div.setAttribute("id", "focus")
+      this._div = document.getElementById("focus")
       return this._div;
-    },
-    update: function (props) {
-      this._div.innerHTML = '<span class="material-symbols-sharp">crop_free</span>'
     }
   })
 
   focusButton = new L.Control.FocusButton({position: "topleft"}).addTo(map);
-
-  L.DomEvent.on(
-      document.getElementById("focus"),
-      "click", function (ev) {
-        map.flyTo(center, zoom, {duration: 1.5})
-      }
-  )
 }
 
 function addThemeButton() {
   L.Control.ThemeButton = L.Control.extend({
     onAdd: function (map) {
-      this._div = L.DomUtil.create('button', 'customControl leaflet-bar');
-      this.update();
-      this._div.setAttribute("id", "theme")
+      this._div = document.getElementById("themeSwitch")
       return this._div;
-    },
-    update: function (props) {
-      this._div.innerHTML = '<span v-if="dark" class="material-symbols-sharp">light_mode</span> <span v-else class="material-symbols-sharp ">dark_mode</span>';
     }
   })
 
   themeButton = new L.Control.ThemeButton({position: "topleft"}).addTo(map);
+}
 
-  L.DomEvent.on(
-      document.getElementById("theme"),
-      "click", function (ev) {
-        console.log(ev);
-      }
-  )
+function switchTheme() {
+  icon.value = (icon.value === "light_mode" ? "dark_mode" : "light_mode")
+  toggleDark();
+}
+
+function resetFocus() {
+  map.flyTo(center, zoom, {duration: 1.5})
 }
 
 
@@ -388,6 +376,21 @@ onBeforeMount(() => {
 <template>
   <div id="map" class=" z-10 h-full">
     <SidePanel @update:allWarnings="allWarnings = $event" @update:warningGeo="warningGeo = $event"/>
+
+    <button id="focus" class=" customControl leaflet-bar"
+            @click="resetFocus">
+      <span class="material-symbols-sharp">
+        crop_free
+      </span>
+    </button>
+
+    <button id="themeSwitch" class=" customControl leaflet-bar"
+            @click="switchTheme">
+      <span class="material-symbols-sharp">
+        {{ icon }}
+      </span>
+    </button>
+
   </div>
 </template>
 

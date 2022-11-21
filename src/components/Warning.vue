@@ -24,7 +24,7 @@
           <span class="material-symbols-sharp ">Accessibility</span>
           <div class="flex-auto self-center text-sm font-bold">Handlungsempfehlung</div>
         </div>
-        <div class="text-gray-600 text-xs pl-1.5" v-html="warning.info[0].instruction"></div>
+        <div class="text-gray-400 text-xs pl-1.5" v-html="warning.info[0].instruction"></div>
       </div>
 
 
@@ -33,7 +33,7 @@
           <span class="material-symbols-sharp ">exclamation</span>
           <div class="flex-auto self-center text-sm font-bold">Weitere Informationen</div>
         </div>
-        <div class="text-xs pl-1.5 text-gray-600">
+        <div class="text-xs pl-1.5 text-gray-400">
           <div v-html="warning.info[0].contact"></div>
           <div v-for="link in warning.info[0].web">
             <a v-bind:href="link">{{ link }}</a>
@@ -47,7 +47,7 @@
           <span class="material-symbols-sharp">map</span>
           <div class="flex-auto self-center text-sm font-bold">Betroffene Region(en)</div>
         </div>
-        <div class="text-xs pl-1.5 text-gray-600">
+        <div class="text-xs pl-1.5 text-gray-400">
           <div>{{ warning.info[0].area[0].areaDesc }}</div>
         </div>
       </div>
