@@ -86,6 +86,8 @@ onMounted(async () => {
   })
 
   await addCounties(mapDataURL);
+  addSearch();
+
 });
 
 
@@ -163,10 +165,14 @@ function addSidePanel() {
 function addSearch() {
   searchControl = new L.Control.Search({
     layer: countiesMap,
+    propertyName: 'GEN',
+    marker: false,
+    delayType: 100,
     moveToLocation: function (latlng, title, map) {
-      //map.fitBounds( latlng.layer.getBounds() );
-      let zoom = map.getBoundsZoom(latlng.layer.getBounds());
-      map.setView(latlng, zoom); // access the zoom
+      map.fitBounds(latlng.layer.getBounds());
+      // let zoom = map.getBoundsZoom(latlng.layer.getBounds());
+      // map.setView(latlng, zoom); // access the zoom
+      // map.panTo(latlng, zoom)
     }
   });
 
@@ -176,18 +182,27 @@ function addSearch() {
 
     //map.removeLayer(this._markerSearch)
 
-    // e.layer.setStyle({fillColor: '#3f0', color: '#0f0'});
+    e.layer.setStyle({fillColor: '#3f0', color: '#0f0'});
     // if (e.layer._popup)
     //   e.layer.openPopup();
 
   }).on('search:collapsed', function (e) {
-
-    // countiesMap.eachLayer(function (layer) {	//restore feature color
-    //   countiesMap.resetStyle(layer);
-    // });
+    countiesMap.eachLayer(function (layer) {	//restore feature color
+      countiesMap.resetStyle(layer);
+    });
   });
 
   map.addControl(searchControl);
+  let searchButton =   document.getElementsByClassName("leaflet-control-search")[0];
+   let searchIcon = document.getElementsByClassName("search-button")[0];
+
+  searchButton.classList.add( "leaflet-bar", "leaflet-control")
+
+  searchIcon.classList.remove("search-button")
+  searchIcon.innerHTML = `<span class="material-symbols-sharp">search</span>`
+
+
+
 }
 
 function switchTheme() {
@@ -213,15 +228,6 @@ function toggleSidebar(e) {
 
 async function addCounties(mapDataURL) {
   mapData = await fetch(proxyURL + mapDataURL).then(value => value.json());
-  mapData.features.forEach(feature => {
-    searchData.push({
-      geometry: feature.geometry,
-      properties: {
-        AGS: feature.properties.AGS,
-        Name: feature.properties.GEN,
-      }
-    })
-  })
   await addCovidData(mapData);
 
   countiesMap = L.geoJSON(mapData, {
@@ -229,14 +235,13 @@ async function addCounties(mapDataURL) {
     style: style,
     zIndex: 2,
   }).addTo(map);
+
   coronaMap = L.geoJSON(mapData, {
     onEachFeature: onEachFeature,
     style: coronaStyle,
     zIndex: 2,
   });
   empty = L.geoJSON(null, {style: style});
-
-  addSearch();
 
   layerControl.addBaseLayer(empty, "Empty");
   layerControl.addBaseLayer(countiesMap, "Landkreise");

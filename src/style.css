@@ -50,12 +50,11 @@ body {
     color: var(--ninaOrange);
 }
 
-
-
-.leaflet-control-container > div > *, .leaflet-control-zoom-out, .leaflet-control-zoom-in  {
+.leaflet-control-container > div > *, .leaflet-control-zoom-out, .leaflet-control-zoom-in{
     /*opacity: 95%;*/
     @apply bg-white dark:bg-black text-black dark:text-white
 }
+
 
 .customControl{
     cursor: pointer;
