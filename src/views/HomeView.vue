@@ -2,12 +2,15 @@
 import {nextTick, onBeforeMount, onMounted, ref, watch} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
+
 import "@/assets/leaflet-sidepanel.css";
 import "@/assets/leaflet-sidepanel.min";
 import SidePanel from "@/components/SidePanel.vue"
-import "leaflet-easybutton"
+
 import {useDark, useToggle} from '@vueuse/core';
 
+import "leaflet-search";
+import "leaflet-search/dist/leaflet-search.min.css"
 
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
@@ -35,7 +38,8 @@ let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
     sidePanel,
     focusButton,
-    themeButton;
+    themeButton,
+    searchControl;
 
 let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"],
     warningColors = ["#FB8C00", "#ff5900", "darkblue"],
@@ -48,6 +52,8 @@ let center = [51.1642292, 10.4541194],
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 let icon = ref("light_mode");
+
+let searchData = [];
 
 onMounted(async () => {
   map = L.map("map").setView(center, zoom);
@@ -143,18 +149,79 @@ function addThemeButton() {
   themeButton = new L.Control.ThemeButton({position: "topleft"}).addTo(map);
 }
 
+function addSidePanel() {
+  sidePanel = L.control.sidepanel('sidePanel', {
+    panelPosition: 'right',
+    hasTabs: true,
+    tabsPosition: 'right',
+    pushControls: true,
+    darkMode: true,
+    startTab: 'tab-2'
+  }).addTo(map);
+}
+
+function addSearch() {
+  searchControl = new L.Control.Search({
+    layer: countiesMap,
+    moveToLocation: function (latlng, title, map) {
+      //map.fitBounds( latlng.layer.getBounds() );
+      let zoom = map.getBoundsZoom(latlng.layer.getBounds());
+      map.setView(latlng, zoom); // access the zoom
+    }
+  });
+
+  searchControl.on('search:locationfound', function (e) {
+
+    //console.log('search:locationfound', );
+
+    //map.removeLayer(this._markerSearch)
+
+    // e.layer.setStyle({fillColor: '#3f0', color: '#0f0'});
+    // if (e.layer._popup)
+    //   e.layer.openPopup();
+
+  }).on('search:collapsed', function (e) {
+
+    // countiesMap.eachLayer(function (layer) {	//restore feature color
+    //   countiesMap.resetStyle(layer);
+    // });
+  });
+
+  map.addControl(searchControl);
+}
+
 function switchTheme() {
   icon.value = (icon.value === "light_mode" ? "dark_mode" : "light_mode")
   toggleDark();
+  if (isDark._value) {
+    document.getElementById("sidePanel").classList.add("sidepanel-dark")
+  } else {
+    document.getElementById("sidePanel").classList.remove("sidepanel-dark")
+  }
 }
 
 function resetFocus() {
   map.flyTo(center, zoom, {duration: 1.5})
 }
 
+function toggleSidebar(e) {
+  let sButton = document.getElementsByClassName("sidepanel-toggle-button")[0];
+  sButton.click();
+  // previousWarning.classList.remove(styles)
+}
+
 
 async function addCounties(mapDataURL) {
   mapData = await fetch(proxyURL + mapDataURL).then(value => value.json());
+  mapData.features.forEach(feature => {
+    searchData.push({
+      geometry: feature.geometry,
+      properties: {
+        AGS: feature.properties.AGS,
+        Name: feature.properties.GEN,
+      }
+    })
+  })
   await addCovidData(mapData);
 
   countiesMap = L.geoJSON(mapData, {
@@ -168,6 +235,8 @@ async function addCounties(mapDataURL) {
     zIndex: 2,
   });
   empty = L.geoJSON(null, {style: style});
+
+  addSearch();
 
   layerControl.addBaseLayer(empty, "Empty");
   layerControl.addBaseLayer(countiesMap, "Landkreise");
@@ -191,6 +260,57 @@ async function addCovidData(mapData) {
   });
 }
 
+function addWarningGeoToMap() {
+  for (let index in warningGeo.value) {
+    let warningLayer = L.layerGroup();
+    for (let warning of warningGeo.value[index]) {
+      let warn = L.geoJSON(warning, {
+        style: {
+          fillColor: warningColors[index],
+          weight: 2,
+          opacity: 1,
+          color: 'black',
+          dashArray: '3',
+          fillOpacity: 0.7
+        },
+        onEachFeature: function (feature, layer) {
+          if (layer.feature.geometry.type === "MultiPolygon" || layer.feature.geometry.type === "Polygon") {
+            layer.on({
+              mouseover: function () {
+                layer.setStyle({
+                  weight: 3,
+                  opacity: 1,
+                  color: 'black',
+                  dashArray: '',
+                  fillOpacity: 0.7,
+                });
+                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                  layer.bringToFront();
+                }
+              }, mouseout: function (feature, layer) {
+                warn.resetStyle(layer)
+              }, click: function (feature, layer) {
+                if (!document.getElementById("sidePanel").classList.contains("opened")) {
+                  toggleSidebar()
+                }
+                let currentWarning;
+                allWarnings.value.forEach(warnType => {
+                  if (warnType.has(feature.target.feature.properties.warnId)) {
+                    currentWarning = warnType.get(feature.target.feature.properties.warnId)
+                    findWarning(currentWarning);
+                  }
+                })
+              }
+            })
+          }
+        },
+      })
+      warningLayer.addLayer(warn).addTo(map);
+    }
+
+    layerControl.addOverlay(warningLayer, titles[index])
+  }
+}
 
 function highlightFeature(e) {
   let layer = e.target;
@@ -254,78 +374,6 @@ function coronaStyle(feature) {
   };
 }
 
-
-function addSidePanel() {
-  sidePanel = L.control.sidepanel('sidePanel', {
-    panelPosition: 'right',
-    hasTabs: true,
-    tabsPosition: 'right',
-    pushControls: true,
-    darkMode: false,
-    startTab: 'tab-2'
-  }).addTo(map);
-}
-
-
-function toggleSidebar(e) {
-  let sButton = document.getElementsByClassName("sidepanel-toggle-button")[0];
-  sButton.click();
-  // previousWarning.classList.remove(styles)
-}
-
-function addWarningGeoToMap() {
-  for (let index in warningGeo.value) {
-    let warningLayer = L.layerGroup();
-    for (let warning of warningGeo.value[index]) {
-      let warn = L.geoJSON(warning, {
-        style: {
-          fillColor: warningColors[index],
-          weight: 2,
-          opacity: 1,
-          color: 'black',
-          dashArray: '3',
-          fillOpacity: 0.7
-        },
-        onEachFeature: function (feature, layer) {
-          if (layer.feature.geometry.type === "MultiPolygon" || layer.feature.geometry.type === "Polygon") {
-            layer.on({
-              mouseover: function () {
-                layer.setStyle({
-                  weight: 3,
-                  opacity: 1,
-                  color: 'black',
-                  dashArray: '',
-                  fillOpacity: 0.7,
-                });
-                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                  layer.bringToFront();
-                }
-              }, mouseout: function (feature, layer) {
-                warn.resetStyle(layer)
-              }, click: function (feature, layer) {
-                if (!document.getElementById("sidePanel").classList.contains("opened")) {
-                  toggleSidebar()
-                }
-                let currentWarning;
-                allWarnings.value.forEach(warnType => {
-                  if (warnType.has(feature.target.feature.properties.warnId)) {
-                    currentWarning = warnType.get(feature.target.feature.properties.warnId)
-                    findWarning(currentWarning);
-                  }
-                })
-              }
-            })
-          }
-        },
-      })
-      warningLayer.addLayer(warn).addTo(map);
-    }
-
-    layerControl.addOverlay(warningLayer, titles[index])
-  }
-}
-
-
 function findWarning(warning) {
   for (let element of document.getElementsByClassName("headline")) {
     if (element.innerHTML.includes(warning.info[0].headline)) {
@@ -368,9 +416,6 @@ onBeforeMount(() => {
   }
 });
 
-// TODO remove legend and hover when not corona map
-// TODO Theme Changer
-
 </script>
 
 <template>
@@ -395,29 +440,6 @@ onBeforeMount(() => {
 </template>
 
 <style>
-.info {
-  padding: 6px 8px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-  border-radius: 5px;
-}
 
-.info h4 {
-  margin: 0 0 5px;
-  color: #777;
-  font-size: small;
-}
-
-.infoLegend {
-  padding: 6px 8px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-  border-radius: 5px
-}
-
-.infoLegend i {
-  width: 30px;
-  height: 18px;
-  float: left;
-  margin-right: 8px;
-}
 
 </style>

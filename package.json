@@ -8,8 +8,10 @@
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
+    "@vueuse/core": "^9.5.0",
     "leaflet": "^1.9.1",
     "leaflet-easybutton": "^2.4.0",
+    "leaflet-search": "^3.0.4",
     "vue": "^3.2.38",
     "vue-router": "^4.1.5"
   },
