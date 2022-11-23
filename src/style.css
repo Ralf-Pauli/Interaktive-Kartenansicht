@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-    --ninaOrange:#ff5900;
+    --ninaOrange: #ff5900;
     --ninaLightOrange: #FB8C00;
 }
 
@@ -22,7 +22,7 @@ body {
     font-family: "Roboto", sans-serif;
 }
 
-*{
+* {
     font-family: Roboto, sans-serif;
 }
 
@@ -50,25 +50,45 @@ body {
     color: var(--ninaOrange);
 }
 
-.leaflet-control-container > div > *, .leaflet-control-zoom-out, .leaflet-control-zoom-in{
+.leaflet-control-container > div > *, .leaflet-control-zoom-out, .leaflet-control-zoom-in {
     /*opacity: 95%;*/
     @apply bg-white dark:bg-black text-black dark:text-white
 }
 
 
-.customControl{
+.customControl {
     cursor: pointer;
     align-items: center;
     position: relative;
     display: inline-block;
-
 }
 
-.customControl *{
+.customControl * {
     display: grid;
     align-items: center;
     width: 30px;
     height: 30px;
+}
+
+/*.customControl2 * {*/
+/*    display: flex;*/
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*    justify-content: center;*/
+/*    align-items: center;*/
+/*}*/
+
+/*.customControl2 {*/
+/*    cursor: pointer;*/
+/*    position: relative;*/
+/*    display: inline-block;*/
+/*}*/
+
+#search *{
+    display: grid;
+    align-items: center;
+    /*height: 30px;*/
+    padding: 2px;
 }
 
 .info {

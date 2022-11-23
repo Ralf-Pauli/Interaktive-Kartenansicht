@@ -1,5 +1,5 @@
 <script setup>
-import {nextTick, onBeforeMount, onMounted, ref, watch} from 'vue';
+import {computed, nextTick, onBeforeMount, onMounted, ref, watch} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 
@@ -38,8 +38,11 @@ let info = L.control({position: "bottomright"}),
     legend = L.control({position: "bottomleft"}),
     sidePanel,
     focusButton,
-    themeButton,
-    searchControl;
+    themeButton;
+
+let searchControl,
+    searchTerm = ref(""),
+    filteredCounties = ref([]);
 
 let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"],
     warningColors = ["#FB8C00", "#ff5900", "darkblue"],
@@ -163,46 +166,30 @@ function addSidePanel() {
 }
 
 function addSearch() {
-  searchControl = new L.Control.Search({
-    layer: countiesMap,
-    propertyName: 'GEN',
-    marker: false,
-    delayType: 100,
-    moveToLocation: function (latlng, title, map) {
-      map.fitBounds(latlng.layer.getBounds());
-      // let zoom = map.getBoundsZoom(latlng.layer.getBounds());
-      // map.setView(latlng, zoom); // access the zoom
-      // map.panTo(latlng, zoom)
+  L.Control.Search = L.Control.extend({
+    onAdd: function (map) {
+      this._div = document.getElementById("search")
+      return this._div;
     }
-  });
+  })
 
-  searchControl.on('search:locationfound', function (e) {
+  searchControl = new L.Control.Search({position: "topleft"}).addTo(map);
+}
 
-    //console.log('search:locationfound', );
+function searchCounties() {
+  if (searchTerm.value === "") {
+    return []
+  }
 
-    //map.removeLayer(this._markerSearch)
+  let matches = 0;
 
-    e.layer.setStyle({fillColor: '#3f0', color: '#0f0'});
-    // if (e.layer._popup)
-    //   e.layer.openPopup();
-
-  }).on('search:collapsed', function (e) {
-    countiesMap.eachLayer(function (layer) {	//restore feature color
-      countiesMap.resetStyle(layer);
-    });
-  });
-
-  map.addControl(searchControl);
-  let searchButton =   document.getElementsByClassName("leaflet-control-search")[0];
-   let searchIcon = document.getElementsByClassName("search-button")[0];
-
-  searchButton.classList.add( "leaflet-bar", "leaflet-control")
-
-  searchIcon.classList.remove("search-button")
-  searchIcon.innerHTML = `<span class="material-symbols-sharp">search</span>`
-
-
-
+  filteredCounties = searchData.filter(county => {
+    if (county.properties.name.toLowerCase().includes(searchTerm.value.toLowerCase()) && matches < 10) {
+      matches++;
+      console.log(county)
+      return county;
+    }
+  })
 }
 
 function switchTheme() {
@@ -229,6 +216,15 @@ function toggleSidebar(e) {
 async function addCounties(mapDataURL) {
   mapData = await fetch(proxyURL + mapDataURL).then(value => value.json());
   await addCovidData(mapData);
+  mapData.features.forEach(feature => {
+    searchData.push({
+      geometry: feature.geometry,
+      properties: {
+        name: feature.properties.GEN,
+        id: feature.properties.AGS,
+      }
+    })
+  })
 
   countiesMap = L.geoJSON(mapData, {
     onEachFeature: onEachFeature,
@@ -434,13 +430,26 @@ onBeforeMount(() => {
       </span>
     </button>
 
-    <button id="themeSwitch" class=" customControl leaflet-bar"
+    <button id="themeSwitch" class="customControl leaflet-bar"
             @click="switchTheme">
       <span class="material-symbols-sharp">
         {{ icon }}
       </span>
     </button>
 
+    <div id="search" class="leaflet-bar">
+      <input v-model="searchTerm"
+             autocomplete="off"
+             placeholder="Landkreis"
+             type="text"
+             v-on:input="searchCounties">
+
+      <ul v-if="filteredCounties.length > 0">
+        <li v-for="county in searchCounties" :key="county.properties.AGS">
+          {{ county }}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
