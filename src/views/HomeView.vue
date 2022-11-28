@@ -15,6 +15,7 @@ import "leaflet-search/dist/leaflet-search.min.css"
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
 const mapDataURL = "https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/main/landkreise.geojson";
+const swissMapDataURL = "https://raw.githubusercontent.com/cividi/ch-municipalities/main/data/gemeinden.geojson";
 
 let mapData,
     countiesMap,
@@ -44,13 +45,16 @@ let searchControl,
     searchTerm = ref(""),
     filteredCounties = ref([]);
 
-let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"],
+let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen", "Flutwarnungen"],
     warningColors = ["#FB8C00", "#ff5900", "darkblue"],
     previousWarning,
     styles = ["text-ninaOrange"];
 
 let center = [51.1642292, 10.4541194],
     zoom = 6;
+
+let swissMapData,
+    swissCountiesMap;
 
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
@@ -89,10 +93,10 @@ onMounted(async () => {
   })
 
   await addCounties(mapDataURL);
+  await addSwissCounties(swissMapDataURL)
+  layerControl.addTo(map)
   addSearch();
-
 });
-
 
 function addInfo() {
   info.onAdd = function (map) {
@@ -102,7 +106,16 @@ function addInfo() {
   };
 
   info.update = function (props) {
-    this._div.innerHTML = '<h4>Deutschland Landkreise</h4>' + (props ? '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE', {maximumFractionDigits: 2}).format(props.cases7Per100k) : 'Hover over a Landkreis');
+    if (props) {
+      if (props.GEN){
+        this._div.innerHTML =  '<h4>Landkreise</h4>' + '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE', {maximumFractionDigits: 2}).format(props.cases7Per100k)
+      } else  {
+        this._div.innerHTML =  '<h4>Landkreise</h4>' + '<b>' +props["gemeinde.NAME"]+ '</b><br />' + 'Kanton: ' + props["kanton.NAME"];
+      }
+    } else {
+      this._div.innerHTML =  '<h4>Landkreise</h4>' + '<b>'+ "Hover over a Landkreis" +'</b>';
+    }
+
   };
 
   info.addTo(map);
@@ -161,7 +174,7 @@ function addSidePanel() {
     tabsPosition: 'right',
     pushControls: true,
     darkMode: true,
-    startTab: 'tab-2'
+    startTab: 'tab-1'
   }).addTo(map);
 }
 
@@ -183,13 +196,13 @@ function searchCounties() {
 
   let matches = 0;
 
-  filteredCounties = searchData.filter(county => {
-    if (county.properties.name.toLowerCase().includes(searchTerm.value.toLowerCase()) && matches < 10) {
+  filteredCounties.value = searchData.filter(county => {
+    if (county.properties.name.toLowerCase().startsWith(searchTerm.value.toLowerCase()) && matches < 10) {
       matches++;
-      console.log(county)
       return county;
     }
   })
+  console.log(filteredCounties.value)
 }
 
 function switchTheme() {
@@ -214,6 +227,7 @@ function toggleSidebar(e) {
 
 
 async function addCounties(mapDataURL) {
+
   mapData = await fetch(proxyURL + mapDataURL).then(value => value.json());
   await addCovidData(mapData);
   mapData.features.forEach(feature => {
@@ -243,11 +257,20 @@ async function addCounties(mapDataURL) {
   layerControl.addBaseLayer(countiesMap, "Landkreise");
   layerControl.addBaseLayer(coronaMap, "Corona");
 
-  layerControl.addTo(map)
 
-  baseMaps = [empty, countiesMap, coronaMap]
+  baseMaps = [empty, countiesMap, coronaMap, swissCountiesMap]
   baseMaps[Object.keys(baseMaps)[0]].bringToFront()
   currentLayer = baseMaps[0];
+}
+
+async function addSwissCounties(mapDataURL) {
+  swissMapData = await fetch(proxyURL + mapDataURL).then(value => value.json());
+  swissCountiesMap = L.geoJSON(swissMapData, {
+    onEachFeature: onEachFeature,
+    style: style,
+    zIndex: 2,
+  }).addTo(map);
+  layerControl.addBaseLayer(swissCountiesMap, "Swiss Landkreise")
 }
 
 async function addCovidData(mapData) {
@@ -404,7 +427,6 @@ function findWarning(warning) {
       element.classList.add("order-first");
       if (element.children.item(1).style.display === "none") {
         element.children.item(0).children.item(1).click();
-        console.log(true)
       }
       previousWarning = element;
     }
@@ -445,8 +467,8 @@ onBeforeMount(() => {
              v-on:input="searchCounties">
 
       <ul v-if="filteredCounties.length > 0">
-        <li v-for="county in searchCounties" :key="county.properties.AGS">
-          {{ county }}
+        <li v-for="county in filteredCounties" :key="county.properties.AGS">
+          {{ county.properties.name }}
         </li>
       </ul>
     </div>

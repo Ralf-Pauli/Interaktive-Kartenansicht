@@ -14,20 +14,26 @@
           <!--            <SidePanelTab v-for="(symbol,index) in symbolList" :tab-number="index" :symbol="symbol" :title="titles[index]"  />-->
 
           <li class="sidepanel-tab">
-            <a class="sidebar-tab-link" data-tab-link="tab-2" href="#" role="tab">
+            <a class="sidebar-tab-link" data-tab-link="tab-1" href="#" role="tab">
               <span class="material-symbols-sharp">warning</span>
             </a>
           </li>
 
           <li class="sidepanel-tab">
-            <a class="sidebar-tab-link" data-tab-link="tab-3" href="#" role="tab">
+            <a class="sidebar-tab-link" data-tab-link="tab-2" href="#" role="tab">
               <span class="material-symbols-sharp">coronavirus</span>
             </a>
           </li>
 
           <li class="sidepanel-tab">
-            <a class="sidebar-tab-link" data-tab-link="tab-4" href="#" role="tab">
+            <a class="sidebar-tab-link" data-tab-link="tab-3" href="#" role="tab">
               <span class="material-symbols-sharp">thunderstorm</span>
+            </a>
+          </li>
+
+          <li class="sidepanel-tab">
+            <a class="sidebar-tab-link" data-tab-link="tab-4" href="#" role="tab">
+              <span class="material-symbols-sharp">flood</span>
             </a>
           </li>
 
@@ -37,7 +43,7 @@
       <div class="sidepanel-content-wrapper">
         <div class="sidepanel-content w-full h-full">
 
-          <div class="sidepanel-tab-content" data-tab-content="tab-2">
+          <div class="sidepanel-tab-content" data-tab-content="tab-1">
             <h2 class=" text-2xl text-center font-bold mb-3">Warnmeldungen</h2>
 
             <div v-if="isLoading">
@@ -52,7 +58,7 @@
             </div>
           </div>
 
-          <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
+          <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-2">
             <h2 class="text-2xl text-center font-bold mb-3">Covid-19</h2>
 
             <div v-if="isLoading">
@@ -70,7 +76,7 @@
             </div>
           </div>
 
-          <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
+          <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
             <h2 class="text-2xl text-center font-bold">Unwetterwarnungen</h2>
             <div v-if="isLoading">
               <LoadingWarning></LoadingWarning>
@@ -83,6 +89,22 @@
 
             <div v-else class="flex items-center justify-center flex-col ">
               <NoWarningsFound :symbol="symbolList[2]" :warn-type="titles[2]"/>
+            </div>
+          </div>
+
+          <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
+            <h2 class="text-2xl text-center font-bold">Unwetterwarnungen</h2>
+            <div v-if="isLoading">
+              <LoadingWarning></LoadingWarning>
+            </div>
+
+            <div v-else-if="floodWarnings.size > 0" class="mt-5 flex flex-col">
+              <Warning :id="warn.identifier" v-for="warn in floodWarnings.values()" :warning="warn"
+                       class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
+            </div>
+
+            <div v-else class="flex items-center justify-center flex-col ">
+              <NoWarningsFound :symbol="symbolList[3]" :warn-type="titles[3]"/>
             </div>
           </div>
 
@@ -103,19 +125,20 @@ import Warning from "./Warning.vue"
 import {onMounted, ref} from "vue";
 import NoWarningsFound from "@/components/NoWarningsFound.vue";
 
-let warningGeo = [[], [], []];
+let warningGeo = [[], [], [], []];
 
 let warnings = new Map(),
     coronaWarnings = ref(new Map()),
     weatherWarnings = ref(new Map()),
+    floodWarnings = ref(new Map()),
     generalWarnings = ref(new Map()),
     allWarnings = new ref([]);
 
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
 
-let symbolList = ["warning", "coronavirus", "thunderstorm"]
-let titles = ["Allgemeinen Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen"];
+let symbolList = ["warning", "coronavirus", "thunderstorm", "flood"]
+let titles = ["Allgemeinen Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen", "Flutwarnungen"];
 
 let props = defineProps(["warningGeo", "allWarnings"])
 let emit = defineEmits(["update:warningGeo", "update:allWarnings"])
@@ -172,23 +195,27 @@ async function setWarningDetails() {
           weatherWarnings.value.set(key, value);
           break;
 
-        case "mow":
-          generalWarnings.value.set(key, value);
-          break;
+        // case "mow":
+        //   generalWarnings.value.set(key, value);
+        //   break;
+        //
+        // case "biw":
+        //   generalWarnings.value.set(key, value);
+        //   break;
+        //
+        // case "kat":
+        //   generalWarnings.value.set(key, value);
+        //   break;
 
-        case "biw":
-          generalWarnings.value.set(key, value);
-          break;
-
-        case "kat":
-          generalWarnings.value.set(key, value);
+        case "lhp":
+          floodWarnings.value.set(key, value);
           break;
 
         default:
           generalWarnings.value.set(key, value);
           break;
       }
-      allWarnings = [generalWarnings.value, coronaWarnings.value, weatherWarnings.value];
+      allWarnings = [generalWarnings.value, coronaWarnings.value, weatherWarnings.value, floodWarnings.value];
     }).catch(err => {
       console.log(err);
     });
