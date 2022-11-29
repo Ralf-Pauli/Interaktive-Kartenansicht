@@ -113,3 +113,27 @@ body {
     float: left;
     margin-right: 8px;
 }
+
+:root {
+    --leaflet-tile-filter: brightness(0.6)  contrast(2) hue-rotate(200deg) saturate(0) brightness(0.5);
+    /*@apply animate-pulse*/
+}
+@keyframes pulse {
+    50% {
+        opacity: .5;
+    }
+}
+
+/*.animate-pulse {*/
+/*    animation: pulse 2s cubic-bezier(0.4, 0, 0.5, 1) infinite;*/
+/*}*/
+
+/*@media (prefers-color-scheme: dark) {*/
+/*    .leaflet-tile {*/
+/*        filter: var(--leaflet-tile-filter, none);*/
+/*    }*/
+
+/*    .leaflet-container {*/
+/*        background: #303030;*/
+/*    }*/
+/*}*/

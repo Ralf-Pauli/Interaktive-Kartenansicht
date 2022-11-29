@@ -107,13 +107,13 @@ function addInfo() {
 
   info.update = function (props) {
     if (props) {
-      if (props.GEN){
-        this._div.innerHTML =  '<h4>Landkreise</h4>' + '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE', {maximumFractionDigits: 2}).format(props.cases7Per100k)
-      } else  {
-        this._div.innerHTML =  '<h4>Landkreise</h4>' + '<b>' +props["gemeinde.NAME"]+ '</b><br />' + 'Kanton: ' + props["kanton.NAME"];
+      if (props.GEN) {
+        this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE', {maximumFractionDigits: 2}).format(props.cases7Per100k)
+      } else {
+        this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + props["gemeinde.NAME"] + '</b><br />' + 'Kanton: ' + props["kanton.NAME"];
       }
     } else {
-      this._div.innerHTML =  '<h4>Landkreise</h4>' + '<b>'+ "Hover over a Landkreis" +'</b>';
+      this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + "Hover over a Landkreis" + '</b>';
     }
 
   };
@@ -190,19 +190,42 @@ function addSearch() {
 }
 
 function searchCounties() {
-  if (searchTerm.value === "") {
-    return []
+  if (searchTerm.value.length === 0) {
+    return filteredCounties.value = [];
   }
 
   let matches = 0;
 
   filteredCounties.value = searchData.filter(county => {
-    if (county.properties.name.toLowerCase().startsWith(searchTerm.value.toLowerCase()) && matches < 10) {
+    if (county.properties.name.toLowerCase().startsWith(searchTerm.value.toLowerCase()) && matches <= 10) {
       matches++;
+      if (searchTerm.value.toLowerCase() === county.properties.name.toLowerCase()) {
+        console.log(searchTerm.value)
+        console.log(county)
+        filteredCounties.value = []
+        return
+      }
       return county;
     }
   })
-  console.log(filteredCounties.value)
+
+
+}
+
+function selectCounty(ev) {
+  // countiesMap.toGeoJSON().features.find(value => value.feature.properties.AGS === ev.target.id)
+  let county = countiesMap.getLayers().find(value => value.feature.properties.AGS === ev.target.id);
+  map.fitBounds(county.getBounds())
+  county.setStyle({
+    fillColor: "red",
+    weight: 2,
+    opacity: 1,
+    color: 'black',
+    dashArray: '3',
+    fillOpacity: 0.7
+  })
+  searchTerm.value = ev.target.innerText
+  filteredCounties.value = []
 }
 
 function switchTheme() {
@@ -460,14 +483,14 @@ onBeforeMount(() => {
     </button>
 
     <div id="search" class="leaflet-bar">
-      <input v-model="searchTerm"
+      <input id="searchInput" v-model="searchTerm"
              autocomplete="off"
              placeholder="Landkreis"
              type="text"
              v-on:input="searchCounties">
 
       <ul v-if="filteredCounties.length > 0">
-        <li v-for="county in filteredCounties" :key="county.properties.AGS">
+        <li v-for="county in filteredCounties" :id="county.properties.id" @click="selectCounty">
           {{ county.properties.name }}
         </li>
       </ul>
