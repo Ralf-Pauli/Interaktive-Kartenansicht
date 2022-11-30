@@ -60,7 +60,9 @@ const isDark = useDark();
 const toggleDark = useToggle(isDark);
 let icon = ref("light_mode");
 
-let searchData = [];
+let searchData = [],
+    selectedCountyIndex = ref("");
+
 
 onMounted(async () => {
   map = L.map("map").setView(center, zoom);
@@ -200,10 +202,8 @@ function searchCounties() {
     if (county.properties.name.toLowerCase().startsWith(searchTerm.value.toLowerCase()) && matches <= 10) {
       matches++;
       if (searchTerm.value.toLowerCase() === county.properties.name.toLowerCase()) {
-        console.log(searchTerm.value)
-        console.log(county)
         filteredCounties.value = []
-        return
+        return filteredCounties.value = [];
       }
       return county;
     }
@@ -462,6 +462,33 @@ onBeforeMount(() => {
   }
 });
 
+function selectNextCounty() {
+  document.getElementsByClassName("county").item(0).
+  if (selectedCountyIndex.value === "") {
+    selectedCountyIndex.value = 0;
+  } else {
+    selectedCountyIndex.value++;
+  }
+
+  if (selectedCountyIndex === filteredCounties.value.length) {
+    selectedCountyIndex = 0;
+  }
+
+}
+
+function selectPreviousCounty() {
+  if (selectedCountyIndex.value === "") {
+    selectedCountyIndex.value = filteredCounties.value.length - 1;
+  } else {
+    selectedCountyIndex.value--;
+  }
+
+  if (selectedCountyIndex < 0) {
+    selectedCountyIndex = filteredCounties.value.length - 1;
+  }
+}
+
+
 </script>
 
 <template>
@@ -487,10 +514,16 @@ onBeforeMount(() => {
              autocomplete="off"
              placeholder="Landkreis"
              type="text"
-             v-on:input="searchCounties">
+             v-on:input="searchCounties"
+             @keydown.down.exact="selectNextCounty"
+             @keydown.up.exact="selectPreviousCounty">
 
       <ul v-if="filteredCounties.length > 0">
-        <li v-for="county in filteredCounties" :id="county.properties.id" @click="selectCounty">
+        <li v-for="(county, index) in filteredCounties"
+            :id="county.properties.id"
+            :class="{'bg-slate-700 outline': index === selectedCountyIndex }"
+            class="cursor-pointer county"
+            @click="selectCounty">
           {{ county.properties.name }}
         </li>
       </ul>
