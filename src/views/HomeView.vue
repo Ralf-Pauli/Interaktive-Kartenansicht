@@ -11,6 +11,7 @@ import {useDark, useToggle} from '@vueuse/core';
 
 import "leaflet-search";
 import "leaflet-search/dist/leaflet-search.min.css"
+import {createSearch} from "@/utils/searchUtil";
 
 const proxyURL = "https://corsproxy.io/?";
 const baseURL = "https://nina.api.proxy.bund.dev/api31";
@@ -100,6 +101,7 @@ onMounted(async () => {
   addSearch();
 });
 
+// region Controls
 function addInfo() {
   info.onAdd = function (map) {
     this._div = L.DomUtil.create('div', 'info');
@@ -175,58 +177,11 @@ function addSidePanel() {
     hasTabs: true,
     tabsPosition: 'right',
     pushControls: true,
-    darkMode: true,
+    darkMode: isDark,
     startTab: 'tab-1'
   }).addTo(map);
 }
-
-function addSearch() {
-  L.Control.Search = L.Control.extend({
-    onAdd: function (map) {
-      this._div = document.getElementById("search")
-      return this._div;
-    }
-  })
-
-  searchControl = new L.Control.Search({position: "topleft"}).addTo(map);
-}
-
-function searchCounties() {
-  if (searchTerm.value.length === 0) {
-    return filteredCounties.value = [];
-  }
-
-  let matches = 0;
-
-  filteredCounties.value = searchData.filter(county => {
-    if (county.properties.name.toLowerCase().startsWith(searchTerm.value.toLowerCase()) && matches <= 10) {
-      matches++;
-      if (searchTerm.value.toLowerCase() === county.properties.name.toLowerCase()) {
-        filteredCounties.value = []
-        return filteredCounties.value = [];
-      }
-      return county;
-    }
-  })
-
-
-}
-
-function selectCounty(ev) {
-  // countiesMap.toGeoJSON().features.find(value => value.feature.properties.AGS === ev.target.id)
-  let county = countiesMap.getLayers().find(value => value.feature.properties.AGS === ev.target.id);
-  map.fitBounds(county.getBounds())
-  county.setStyle({
-    fillColor: "red",
-    weight: 2,
-    opacity: 1,
-    color: 'black',
-    dashArray: '3',
-    fillOpacity: 0.7
-  })
-  searchTerm.value = ev.target.innerText
-  filteredCounties.value = []
-}
+// endregion
 
 function switchTheme() {
   icon.value = (icon.value === "light_mode" ? "dark_mode" : "light_mode")
@@ -292,7 +247,7 @@ async function addSwissCounties(mapDataURL) {
     onEachFeature: onEachFeature,
     style: style,
     zIndex: 2,
-  }).addTo(map);
+  });
   layerControl.addBaseLayer(swissCountiesMap, "Swiss Landkreise")
 }
 
@@ -359,6 +314,7 @@ function addWarningGeoToMap() {
   }
 }
 
+
 function highlightFeature(e) {
   let layer = e.target;
   layer.setStyle({
@@ -395,7 +351,6 @@ function getColor(d) {
                       d > conditions[5] ? colors[5] :
                           d > conditions[6] ? colors[6] :
                               colors[7];
-
 }
 
 
@@ -439,11 +394,8 @@ function findWarning(warning) {
     }
   }
   for (let element of document.getElementsByClassName("warning")) {
-    element.classList.remove("order-first")
-    element.children.item(0).children.item(0).children.item(0).classList.remove(styles)
-    // if (previousWarning !== undefined) {
-    //   previousWarning.children.item(0).children.item(1).click();
-    // }
+    element.classList.remove("order-first");
+    element.children.item(0).children.item(0).children.item(0).classList.remove(styles);
 
     if (element.id === warning.identifier) {
       element.children.item(0).children.item(0).children.item(0).classList.add(styles);
@@ -456,14 +408,39 @@ function findWarning(warning) {
   }
 }
 
-onBeforeMount(() => {
-  if (map) {
-    map.value.remove();
-  }
-});
+// region Search Control
+function addSearch() {
+  L.Control.Search = L.Control.extend({
+    onAdd: function (map) {
+      this._div = document.getElementById("search")
+      return this._div;
+    }
+  })
 
-function selectNextCounty() {
-  document.getElementsByClassName("county").item(0).
+  searchControl = new L.Control.Search({position: "topleft"}).addTo(map);
+}
+
+function searchCounties() {
+  if (searchTerm.value.length === 0) {
+    return filteredCounties.value = [];
+  }
+
+  let matches = 0;
+
+  filteredCounties.value = searchData.filter(county => {
+    if (county.properties.name.toLowerCase().startsWith(searchTerm.value.toLowerCase()) && matches < 10) {
+      matches++;
+      if (searchTerm.value.toLowerCase() === county.properties.name.toLowerCase()) {
+        filteredCounties.value = []
+        return filteredCounties.value = [];
+      }
+      selectedCountyIndex.value = "";
+      return county;
+    }
+  })
+}
+
+function selectNextCounty(ev) {
   if (selectedCountyIndex.value === "") {
     selectedCountyIndex.value = 0;
   } else {
@@ -474,21 +451,62 @@ function selectNextCounty() {
     selectedCountyIndex = 0;
   }
 
+  if (selectedCountyIndex.value > filteredCounties.value.length - 1) {
+    selectedCountyIndex.value = filteredCounties.value.length - 1;
+  }
+
+  focusItem(ev);
 }
 
-function selectPreviousCounty() {
+function selectPreviousCounty(ev) {
   if (selectedCountyIndex.value === "") {
     selectedCountyIndex.value = filteredCounties.value.length - 1;
   } else {
     selectedCountyIndex.value--;
   }
 
-  if (selectedCountyIndex < 0) {
-    selectedCountyIndex = filteredCounties.value.length - 1;
+  if (selectedCountyIndex.value < 0) {
+    selectedCountyIndex.value = 0;
+    let inputField = document.getElementById("searchInput");
+    window.setTimeout(function () {
+      inputField.setSelectionRange(0, inputField.value.length)
+      inputField.focus()
+    }, 0);
+    return
+  }
+  focusItem(ev);
+}
+
+function focusItem(ev) {
+  if (filteredCounties.value.length > 0) {
+    let selectedCounty = document.getElementsByClassName("county").item(selectedCountyIndex.value);
+    selectedCounty.focus();
   }
 }
 
+function selectCounty(ev) {
+  // countiesMap.toGeoJSON().features.find(value => value.feature.properties.AGS === ev.target.id)
+  let county = countiesMap.getLayers().find(value => value.feature.properties.AGS === ev.target.id);
+  map.fitBounds(county.getBounds());
+  county.setStyle({
+    fillColor: "red",
+    weight: 2,
+    opacity: 1,
+    color: 'black',
+    dashArray: '3',
+    fillOpacity: 0.7
+  });
+  searchTerm.value = ev.target.innerText;
+  filteredCounties.value = [];
+}
 
+// endregion
+
+onBeforeMount(() => {
+  if (map) {
+    map.value.remove();
+  }
+});
 </script>
 
 <template>
@@ -521,9 +539,13 @@ function selectPreviousCounty() {
       <ul v-if="filteredCounties.length > 0">
         <li v-for="(county, index) in filteredCounties"
             :id="county.properties.id"
-            :class="{'bg-slate-700 outline': index === selectedCountyIndex }"
+            :class="{'selectedCounty': index === selectedCountyIndex }"
+            :tabindex="index"
             class="cursor-pointer county"
-            @click="selectCounty">
+            @click="selectCounty"
+            @keydown.down.exact="selectNextCounty"
+            @keydown.up.exact="selectPreviousCounty"
+            @keydown.enter.exact="selectCounty">
           {{ county.properties.name }}
         </li>
       </ul>

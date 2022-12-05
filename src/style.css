@@ -84,7 +84,7 @@ body {
 /*    display: inline-block;*/
 /*}*/
 
-#search *{
+#search * {
     display: grid;
     align-items: center;
     /*height: 30px;*/
@@ -115,9 +115,10 @@ body {
 }
 
 :root {
-    --leaflet-tile-filter: brightness(0.6)  contrast(2) hue-rotate(200deg) saturate(0) brightness(0.5);
+    --leaflet-tile-filter: brightness(0.6) contrast(2) hue-rotate(200deg) saturate(0) brightness(0.5);
     /*@apply animate-pulse*/
 }
+
 @keyframes pulse {
     50% {
         opacity: .5;
@@ -137,3 +138,23 @@ body {
 /*        background: #303030;*/
 /*    }*/
 /*}*/
+
+#search {
+    @apply text-black bg-white dark:text-white dark:bg-black pl-1
+}
+
+#searchInput {
+    @apply outline-0 text-black bg-white dark:text-white dark:bg-black
+}
+
+.selectedCounty {
+    @apply bg-ninaLightOrange outline-0 dark:text-black
+}
+
+.leaflet-control-zoom-in:hover, .leaflet-control-zoom-out:hover {
+    @apply dark:bg-black
+}
+
+.leaflet-control span:hover {
+    @apply dark:text-ninaLightOrange
+}
