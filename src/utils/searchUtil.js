@@ -1,6 +1,12 @@
 import L from "leaflet";
+import {getSearchData} from "@/utils/geoJsonHandler";
 
-export function createSearch() {
+let searchControl,
+    filteredCounties = [];
+
+let selectedCountyIndex;
+
+export function createSearch(map) {
     L.Control.Search = L.Control.extend({
         onAdd: function (map) {
             this._div = document.getElementById("search")
@@ -8,59 +14,59 @@ export function createSearch() {
         }
     })
 
-    return new L.Control.Search({position: "topleft"}).addTo(map);
+    searchControl = new L.Control.Search({position: "topleft"}).addTo(map);
 }
 
-export function searchCounties() {
-    if (searchTerm.value.length === 0) {
-        return filteredCounties.value = [];
+export function searchCounties(searchTerm) {
+    if (searchTerm.length === 0) {
+        return filteredCounties = [];
     }
 
     let matches = 0;
 
-    filteredCounties.value = searchData.filter(county => {
-        if (county.properties.name.toLowerCase().startsWith(searchTerm.value.toLowerCase()) && matches < 10) {
+    filteredCounties = getSearchData().filter(county => {
+        if (county.properties.name.toLowerCase().startsWith(searchTerm.toLowerCase()) && matches < 10) {
             matches++;
-            if (searchTerm.value.toLowerCase() === county.properties.name.toLowerCase()) {
-                filteredCounties.value = []
-                return filteredCounties.value = [];
+            if (searchTerm.toLowerCase() === county.properties.name.toLowerCase()) {
+                filteredCounties = []
+                return filteredCounties = [];
             }
-            selectedCountyIndex.value = "";
+            selectedCountyIndex = "";
             return county;
         }
     })
 }
 
 export function selectNextCounty(ev) {
-    if (selectedCountyIndex.value === "") {
-        selectedCountyIndex.value = 0;
+    if (selectedCountyIndex === "") {
+        selectedCountyIndex = 0;
     } else {
-        selectedCountyIndex.value++;
+        selectedCountyIndex++;
     }
 
-    if (selectedCountyIndex === filteredCounties.value.length) {
+    if (selectedCountyIndex === filteredCounties.length) {
         selectedCountyIndex = 0;
     }
 
-    if (selectedCountyIndex.value > filteredCounties.value.length - 1) {
-        selectedCountyIndex.value = filteredCounties.value.length - 1;
+    if (selectedCountyIndex > filteredCounties.length - 1) {
+        selectedCountyIndex = filteredCounties.length - 1;
     }
 
     focusItem(ev);
 }
 
 export function selectPreviousCounty(ev) {
-    if (selectedCountyIndex.value === "") {
-        selectedCountyIndex.value = filteredCounties.value.length - 1;
+    if (selectedCountyIndex === "") {
+        selectedCountyIndex = filteredCounties.length - 1;
     } else {
-        selectedCountyIndex.value--;
+        selectedCountyIndex--;
     }
 
-    if (selectedCountyIndex.value < 0) {
-        selectedCountyIndex.value = 0;
+    if (selectedCountyIndex < 0) {
+        selectedCountyIndex = 0;
         let inputField = document.getElementById("searchInput");
         window.setTimeout(function () {
-            inputField.setSelectionRange(0, inputField.value.length)
+            inputField.setSelectionRange(0, inputField.length)
             inputField.focus()
         }, 0);
         return
@@ -69,24 +75,32 @@ export function selectPreviousCounty(ev) {
 }
 
 export function focusItem(ev) {
-    if (filteredCounties.value.length > 0) {
-        let selectedCounty = document.getElementsByClassName("county").item(selectedCountyIndex.value);
+    if (filteredCounties.length > 0) {
+        let selectedCounty = document.getElementsByClassName("county").item(selectedCountyIndex);
         selectedCounty.focus();
     }
 }
 
-export function selectCounty(ev) {
-    // countiesMap.toGeoJSON().features.find(value => value.feature.properties.AGS === ev.target.id)
-    let county = countiesMap.getLayers().find(value => value.feature.properties.AGS === ev.target.id);
-    map.fitBounds(county.getBounds());
-    county.setStyle({
-        fillColor: "red",
-        weight: 2,
-        opacity: 1,
-        color: 'black',
-        dashArray: '3',
-        fillOpacity: 0.7
-    });
-    searchTerm.value = ev.target.innerText;
-    filteredCounties.value = [];
+// export function selectCounty(ev) {
+//     // countiesMap.toGeoJSON().features.find(value => value.feature.properties.AGS === ev.target.id)
+//     let county = countiesMap.getLayers().find(value => value.feature.properties.AGS === ev.target.id);
+//     map.fitBounds(county.getBounds());
+//     county.setStyle({
+//         fillColor: "red",
+//         weight: 2,
+//         opacity: 1,
+//         color: 'black',
+//         dashArray: '3',
+//         fillOpacity: 0.7
+//     });
+//     searchTerm = ev.target.innerText;
+//     filteredCounties = [];
+// }
+
+export function getSelectedCountyIndex() {
+    return selectedCountyIndex
+}
+
+export  function getFilteredCounties() {
+    return filteredCounties;
 }
