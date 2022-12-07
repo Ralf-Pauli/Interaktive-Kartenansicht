@@ -2,7 +2,6 @@ import L from "leaflet";
 
 let center = [51.1642292, 10.4541194],
     zoom = 6;
-
 export function createMap() {
     let map = L.map("map").setView(center, zoom);
     let osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -15,3 +14,4 @@ export function createMap() {
 
     return map;
 }
+

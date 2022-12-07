@@ -17,25 +17,25 @@ export function createSearch(map) {
     searchControl = new L.Control.Search({position: "topleft"}).addTo(map);
 }
 
-export function searchCounties(searchTerm) {
-    if (searchTerm.length === 0) {
-        return filteredCounties = [];
-    }
-
-    let matches = 0;
-
-    filteredCounties = getSearchData().filter(county => {
-        if (county.properties.name.toLowerCase().startsWith(searchTerm.toLowerCase()) && matches < 10) {
-            matches++;
-            if (searchTerm.toLowerCase() === county.properties.name.toLowerCase()) {
-                filteredCounties = []
-                return filteredCounties = [];
-            }
-            selectedCountyIndex = "";
-            return county;
-        }
-    })
-}
+// export function searchCounties(searchTerm) {
+//     if (searchTerm.length === 0) {
+//         return filteredCounties = [];
+//     }
+//
+//     let matches = 0;
+//
+//     filteredCounties = getSearchData().filter(county => {
+//         if (county.properties.name.toLowerCase().startsWith(searchTerm.toLowerCase()) && matches < 10) {
+//             matches++;
+//             if (searchTerm.toLowerCase() === county.properties.name.toLowerCase()) {
+//                 filteredCounties = []
+//                 return filteredCounties = [];
+//             }
+//             selectedCountyIndex = "";
+//             return county;
+//         }
+//     })
+// }
 
 export function selectNextCounty(ev) {
     if (selectedCountyIndex === "") {
@@ -74,12 +74,12 @@ export function selectPreviousCounty(ev) {
     focusItem(ev);
 }
 
-export function focusItem(ev) {
-    if (filteredCounties.length > 0) {
-        let selectedCounty = document.getElementsByClassName("county").item(selectedCountyIndex);
-        selectedCounty.focus();
-    }
-}
+// export function focusItem(ev) {
+//     if (filteredCounties.length > 0) {
+//         let selectedCounty = document.getElementsByClassName("county").item(selectedCountyIndex);
+//         selectedCounty.focus();
+//     }
+// }
 
 // export function selectCounty(ev) {
 //     // countiesMap.toGeoJSON().features.find(value => value.feature.properties.AGS === ev.target.id)
@@ -97,9 +97,9 @@ export function focusItem(ev) {
 //     filteredCounties = [];
 // }
 
-export function getSelectedCountyIndex() {
-    return selectedCountyIndex
-}
+// export function getSelectedCountyIndex() {
+//     return selectedCountyIndex
+// }
 
 export  function getFilteredCounties() {
     return filteredCounties;

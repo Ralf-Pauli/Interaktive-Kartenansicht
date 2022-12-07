@@ -1,5 +1,5 @@
 <script setup>
-import {computed, nextTick, onBeforeMount, onMounted, ref, watch} from 'vue';
+import {onBeforeMount, onMounted, ref, watch} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 
@@ -14,16 +14,19 @@ import "leaflet-search/dist/leaflet-search.min.css"
 import "@/utils/mapControls";
 import {createMap} from "@/utils/mapManagement";
 import * as mapControls from "@/utils/mapControls";
-import {addCounties, addSwissCounties, addWarningGeoToMap} from "@/utils/geoJsonHandler";
-import {getCurrentLayer, setCurrentLayer} from "@/utils/styling";
-import {getLayerControl} from "@/utils/mapControls";
 import {
-  createSearch, getFilteredCounties,
-  getSelectedCountyIndex,
-  searchCounties,
-  selectNextCounty,
-  selectPreviousCounty
-} from "@/utils/searchUtil";
+  addCounties,
+  addSwissCounties,
+  addWarningGeoToMap,
+  getCountiesMap,
+  getSearchData,
+  setAllWarnings
+} from "@/utils/geoJsonHandler";
+import {getCurrentLayer, setCurrentLayer} from "@/utils/styling";
+import {getLayerControl, resetFocus, switchTheme} from "@/utils/mapControls";
+import {createSearch} from "@/utils/searchUtil";
+import {getIcon} from "@/utils/mapControls";
+
 
 let map;
 
@@ -33,22 +36,14 @@ let info,
     focusButton,
     themeButton;
 
-let countiesMap,
-    warningGeo = ref(),
-    allWarnings = ref();
+let warningGeo = ref();
 
 let searchTerm = ref("");
 
+let filteredCounties = ref([]),
+    selectedCountyIndex = ref("");
 
-let styles = ["text-ninaOrange"];
-
-let center = [51.1642292, 10.4541194],
-    zoom = 6;
-
-const isDark = useDark();
-const toggleDark = useToggle(isDark);
-let icon = ref("light_mode");
-
+let loading = ref(true);
 
 onMounted(async () => {
   map = createMap();
@@ -76,129 +71,90 @@ onMounted(async () => {
 
   getLayerControl().addTo(map)
   createSearch(map);
+  loading.value = false;
 });
 
-function switchTheme() {
-  icon.value = (icon.value === "light_mode" ? "dark_mode" : "light_mode")
-  toggleDark();
-  if (isDark._value) {
-    document.getElementById("sidePanel").classList.add("sidepanel-dark")
+
+function searchCounties() {
+  if (searchTerm.value.length === 0) {
+    return filteredCounties.value = [];
+  }
+  console.log(searchTerm.value)
+  let matches = 0;
+
+  filteredCounties.value = getSearchData().filter(county => {
+    if (county.properties.name.toLowerCase().startsWith(searchTerm.value.toLowerCase()) && matches < 10) {
+      matches++;
+      if (searchTerm.value.toLowerCase() === county.properties.name.toLowerCase()) {
+        filteredCounties.value = []
+        return filteredCounties.value = [];
+      }
+      selectedCountyIndex.value = "";
+      return county;
+    }
+  })
+  console.log(filteredCounties.value)
+}
+
+function selectNextCounty(ev) {
+  if (selectedCountyIndex.value === "") {
+    selectedCountyIndex.value = 0;
   } else {
-    document.getElementById("sidePanel").classList.remove("sidepanel-dark")
+    selectedCountyIndex.value++;
+  }
+
+  if (selectedCountyIndex === filteredCounties.value.length) {
+    selectedCountyIndex = 0;
+  }
+
+  if (selectedCountyIndex.value > filteredCounties.value.length - 1) {
+    selectedCountyIndex.value = filteredCounties.value.length - 1;
+  }
+
+  focusItem(ev);
+}
+
+function selectPreviousCounty(ev) {
+  if (selectedCountyIndex.value === "") {
+    selectedCountyIndex.value = filteredCounties.value.length - 1;
+  } else {
+    selectedCountyIndex.value--;
+  }
+
+  if (selectedCountyIndex.value < 0) {
+    selectedCountyIndex.value = 0;
+    let inputField = document.getElementById("searchInput");
+    window.setTimeout(function () {
+      inputField.setSelectionRange(0, inputField.value.length)
+      inputField.focus()
+    }, 0);
+    return
+  }
+  focusItem(ev);
+}
+
+function focusItem(ev) {
+  if (filteredCounties.value.length > 0) {
+    let selectedCounty = document.getElementsByClassName("county").item(selectedCountyIndex.value);
+    selectedCounty.focus();
   }
 }
 
-function resetFocus() {
-  map.flyTo(center, zoom, {duration: 1.5})
+function selectCounty(ev) {
+  // countiesMap.toGeoJSON().features.find(value => value.feature.properties.AGS === ev.target.id)
+  let county = getCountiesMap().getLayers().find(value => value.feature.properties.AGS === ev.target.id);
+  map.fitBounds(county.getBounds());
+  county.setStyle({
+    fillColor: "red",
+    weight: 2,
+    opacity: 1,
+    color: 'black',
+    dashArray: '3',
+    fillOpacity: 0.7
+  });
+  searchTerm.value = ev.target.innerText;
+  filteredCounties.value = [];
 }
-
-
-function findWarning(warning) {
-  for (let element of document.getElementsByClassName("headline")) {
-    if (element.innerHTML.includes(warning.info[0].headline)) {
-      for (let tab of document.getElementsByClassName("sidepanel-tab-content")) {
-        for (let child of tab.children) {
-          if (child.innerHTML.includes(element.innerHTML)) {
-            let hTab = tab.attributes.getNamedItem("data-tab-content").value;
-            for (let tabLink of document.getElementsByClassName("sidebar-tab-link")) {
-              if (tabLink.attributes.getNamedItem("data-tab-link").value === hTab) {
-                tabLink.click()
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  for (let element of document.getElementsByClassName("warning")) {
-    element.classList.remove("order-first");
-    element.children.item(0).children.item(0).children.item(0).classList.remove(styles);
-
-    if (element.id === warning.identifier) {
-      element.children.item(0).children.item(0).children.item(0).classList.add(styles);
-      element.classList.add("order-first");
-      if (element.children.item(1).style.display === "none") {
-        element.children.item(0).children.item(1).click();
-      }
-    }
-  }
-}
-
-
-// function searchCounties() {
-//   if (searchTerm.value.length === 0) {
-//     return filteredCounties.value = [];
-//   }
-//
-//   let matches = 0;
-//
-//   filteredCounties.value = searchData.filter(county => {
-//     if (county.properties.name.toLowerCase().startsWith(searchTerm.value.toLowerCase()) && matches < 10) {
-//       matches++;
-//       if (searchTerm.value.toLowerCase() === county.properties.name.toLowerCase()) {
-//         filteredCounties.value = []
-//         return filteredCounties.value = [];
-//       }
-//       selectedCountyIndex.value = "";
-//       return county;
-//     }
-//   })
-// }
-//
-// function selectNextCounty(ev) {
-//   if (selectedCountyIndex.value === "") {
-//     selectedCountyIndex.value = 0;
-//   } else {
-//     selectedCountyIndex.value++;
-//   }
-//
-//   if (selectedCountyIndex === filteredCounties.value.length) {
-//     selectedCountyIndex = 0;
-//   }
-//
-//   if (selectedCountyIndex.value > filteredCounties.value.length - 1) {
-//     selectedCountyIndex.value = filteredCounties.value.length - 1;
-//   }
-//
-//   focusItem(ev);
-// }
-//
-// function selectPreviousCounty(ev) {
-//   if (selectedCountyIndex.value === "") {
-//     selectedCountyIndex.value = filteredCounties.value.length - 1;
-//   } else {
-//     selectedCountyIndex.value--;
-//   }
-//
-//   if (selectedCountyIndex.value < 0) {
-//     selectedCountyIndex.value = 0;
-//     let inputField = document.getElementById("searchInput");
-//     window.setTimeout(function () {
-//       inputField.setSelectionRange(0, inputField.value.length)
-//       inputField.focus()
-//     }, 0);
-//     return
-//   }
-//   focusItem(ev);
-// }
-
-
-
-// function selectCounty(ev) {
-//   // countiesMap.toGeoJSON().features.find(value => value.feature.properties.AGS === ev.target.id)
-//   let county = countiesMap.getLayers().find(value => value.feature.properties.AGS === ev.target.id);
-//   map.fitBounds(county.getBounds());
-//   county.setStyle({
-//     fillColor: "red",
-//     weight: 2,
-//     opacity: 1,
-//     color: 'black',
-//     dashArray: '3',
-//     fillOpacity: 0.7
-//   });
-//   searchTerm.value = ev.target.innerText;
-//   filteredCounties.value = [];
-// }
 
 
 onBeforeMount(() => {
@@ -209,20 +165,26 @@ onBeforeMount(() => {
 </script>
 
 <template>
+  <div v-if="loading" class="absolute h-full w-full bg-white loadingScreen">
+    <iframe
+        class="w-full h-full"
+        src="https://www.openstreetmap.org/export/embed.html?bbox=-0.06591796875000001%2C44.762336674810996%2C15.490722656250002%2C56.78884524518923&amp;layer=mapnik"></iframe>
+  </div>
   <div id="map" class=" z-10 h-full">
-    <SidePanel @update:allWarnings="allWarnings = $event" @update:warningGeo="warningGeo = $event"/>
+    <SidePanel @update:allWarnings="setAllWarnings($event)" @update:warningGeo="warningGeo = $event"/>
 
     <button id="focus" class=" customControl leaflet-bar"
-            @click="resetFocus">
+            @click="resetFocus(map)">
       <span class="material-symbols-sharp">
         crop_free
       </span>
     </button>
 
-    <button id="themeSwitch" class="customControl leaflet-bar"
+    <button id="themeSwitch"
+            class="customControl leaflet-bar"
             @click="switchTheme">
       <span class="material-symbols-sharp">
-        {{ icon }}
+        {{ getIcon() }}
       </span>
     </button>
 
@@ -232,14 +194,14 @@ onBeforeMount(() => {
              autocomplete="off"
              placeholder="Landkreis"
              type="text"
-             v-on:input="searchCounties(searchTerm)"
+             v-on:input="searchCounties"
              @keydown.down.exact="selectNextCounty"
              @keydown.up.exact="selectPreviousCounty">
 
-      <ul v-if="getFilteredCounties().length > 0">
-        <li v-for="(county, index) in getFilteredCounties()"
+      <ul v-if="filteredCounties.length > 0">
+        <li v-for="(county, index) in filteredCounties"
             :id="county.properties.id"
-            :class="{'selectedCounty': index === getSelectedCountyIndex() }"
+            :class="{'selectedCounty': index === selectedCountyIndex.value }"
             :tabindex="index"
             class="cursor-pointer county"
             @keydown.down.exact="selectNextCounty"
@@ -251,7 +213,6 @@ onBeforeMount(() => {
     </div>
   </div>
 </template>
-<!--            @click="selectCounty"-->
 
 <style>
 

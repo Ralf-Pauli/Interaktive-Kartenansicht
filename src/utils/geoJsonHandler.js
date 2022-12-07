@@ -8,11 +8,13 @@ export const proxyURL = "https://corsproxy.io/?",
     swissMapDataURL = "https://raw.githubusercontent.com/cividi/ch-municipalities/main/data/gemeinden.geojson";
 
 let baseMaps = Array();
-
+let countiesMap;
 let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen", "Flutwarnungen"],
     warningColors = ["#FB8C00", "#ff5900", "darkblue"];
+let styles = ["text-ninaOrange"];
 
 let searchData = [];
+let allWarnings;
 
 export async function addCounties(map) {
     let mapData = await fetch(proxyURL + germanMapDataURL).then(value => value.json());
@@ -27,7 +29,7 @@ export async function addCounties(map) {
         })
     })
 
-    let countiesMap = L.geoJSON(mapData, {
+    countiesMap = L.geoJSON(mapData, {
         onEachFeature: onEachFeature,
         style: style,
         zIndex: 2,
@@ -123,7 +125,7 @@ function click(feature) {
         toggleSidebar()
     }
     let currentWarning;
-    allWarnings.value.forEach(warnType => {
+    allWarnings.forEach(warnType => {
         if (warnType.has(feature.target.feature.properties.warnId)) {
             currentWarning = warnType.get(feature.target.feature.properties.warnId)
             findWarning(currentWarning);
@@ -131,6 +133,45 @@ function click(feature) {
     })
 }
 
-export function getSearchData(){
+function findWarning(warning) {
+    for (let element of document.getElementsByClassName("headline")) {
+        if (element.innerHTML.includes(warning.info[0].headline)) {
+            for (let tab of document.getElementsByClassName("sidepanel-tab-content")) {
+                for (let child of tab.children) {
+                    if (child.innerHTML.includes(element.innerHTML)) {
+                        let hTab = tab.attributes.getNamedItem("data-tab-content").value;
+                        for (let tabLink of document.getElementsByClassName("sidebar-tab-link")) {
+                            if (tabLink.attributes.getNamedItem("data-tab-link").value === hTab) {
+                                tabLink.click()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    for (let element of document.getElementsByClassName("warning")) {
+        element.classList.remove("order-first");
+        element.children.item(0).children.item(0).children.item(0).classList.remove(styles);
+
+        if (element.id === warning.identifier) {
+            element.children.item(0).children.item(0).children.item(0).classList.add(styles);
+            element.classList.add("order-first");
+            if (element.children.item(1).style.display === "none") {
+                element.children.item(0).children.item(1).click();
+            }
+        }
+    }
+}
+
+export function getSearchData() {
     return searchData;
+}
+
+export function getCountiesMap() {
+    return countiesMap;
+}
+
+export function setAllWarnings(warnings) {
+    allWarnings = warnings;
 }

@@ -1,5 +1,5 @@
 import L from "leaflet";
-import {useDark} from "@vueuse/core";
+import {useDark, useToggle} from "@vueuse/core";
 import {baseURL, proxyURL} from "@/utils/geoJsonHandler";
 
 export let colors = Array(),
@@ -7,6 +7,14 @@ export let colors = Array(),
 
 let info = L.control({position: "bottomright"}),
     layerControl;
+
+let icon = "light_mode";
+
+const isDark = useDark();
+const toggleDark = useToggle(isDark);
+
+let center = [51.1642292, 10.4541194],
+    zoom = 6;
 
 export function createInfo(map) {
     info.onAdd = function (map) {
@@ -89,7 +97,7 @@ export function createSidePanel(map) {
         hasTabs: true,
         tabsPosition: 'right',
         pushControls: true,
-        darkMode: useDark(),
+        darkMode: false,
         startTab: 'tab-1'
     }).addTo(map);
 }
@@ -102,6 +110,24 @@ export function toggleSidebar(e) {
     let sButton = document.getElementsByClassName("sidepanel-toggle-button")[0];
     sButton.click();
     // previousWarning.classList.remove(styles)
+}
+
+export function switchTheme(map) {
+    icon = (icon === "light_mode" ? "dark_mode" : "light_mode")
+    toggleDark();
+    if (isDark._value) {
+        document.getElementById("sidePanel").classList.add("sidepanel-dark")
+    } else {
+        document.getElementById("sidePanel").classList.remove("sidepanel-dark")
+    }
+}
+
+export function getIcon() {
+    return icon;
+}
+
+export function resetFocus(map) {
+    map.flyTo(center, zoom, {duration: 1.5})
 }
 
 export function getInfo() {
