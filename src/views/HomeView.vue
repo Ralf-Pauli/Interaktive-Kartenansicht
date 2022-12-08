@@ -2,13 +2,9 @@
 import {onBeforeMount, onMounted, ref, watch} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
-
 import "@/assets/leaflet-sidepanel.css";
 import "@/assets/leaflet-sidepanel.min";
 import SidePanel from "@/components/SidePanel.vue"
-
-import {useDark, useToggle} from '@vueuse/core';
-
 import "leaflet-search";
 import "leaflet-search/dist/leaflet-search.min.css"
 import "@/utils/mapControls";
@@ -23,7 +19,7 @@ import {
   setAllWarnings
 } from "@/utils/geoJsonHandler";
 import {getCurrentLayer, setCurrentLayer} from "@/utils/styling";
-import {getLayerControl, resetFocus, switchTheme} from "@/utils/mapControls";
+import {getLayerControl,  switchTheme} from "@/utils/mapControls";
 import {createSearch} from "@/utils/searchUtil";
 import {getIcon} from "@/utils/mapControls";
 
@@ -45,6 +41,7 @@ let filteredCounties = ref([]),
 
 let loading = ref(true);
 
+
 onMounted(async () => {
   map = createMap();
 
@@ -61,6 +58,12 @@ onMounted(async () => {
     setCurrentLayer(e.layer)
     getCurrentLayer().bringToBack();
   });
+
+  document.getElementById("focus").onclick = function () {
+    let center = [51.1642292, 10.4541194],
+        zoom = 6;
+    map.flyTo(center, zoom, {duration: 1.5})
+  }
 
   watch(warningGeo, async () => {
     addWarningGeoToMap(map, warningGeo)
@@ -165,16 +168,15 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div v-if="loading" class="absolute h-full w-full bg-white loadingScreen">
+  <div v-if="loading" class="absolute animate-pulse h-full w-full loadingScreen">
     <iframe
         class="w-full h-full"
-        src="https://www.openstreetmap.org/export/embed.html?bbox=-0.06591796875000001%2C44.762336674810996%2C15.490722656250002%2C56.78884524518923&amp;layer=mapnik"></iframe>
+        src="https://www.openstreetmap.org/export/embed.html?bbox=2.6806640625%2C44.902577996288876%2C18.237304687500004%2C56.69244163539978&amp;layer=mapnik"></iframe>
   </div>
-  <div id="map" class=" z-10 h-full">
+  <div id="map" class="z-10  h-full">
     <SidePanel @update:allWarnings="setAllWarnings($event)" @update:warningGeo="warningGeo = $event"/>
 
-    <button id="focus" class=" customControl leaflet-bar"
-            @click="resetFocus(map)">
+    <button id="focus" class="customControl leaflet-bar">
       <span class="material-symbols-sharp">
         crop_free
       </span>

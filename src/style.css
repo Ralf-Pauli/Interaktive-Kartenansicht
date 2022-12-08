@@ -12,16 +12,6 @@
     position: relative;
 }
 
-/*@font-face {*/
-/*    font-family: "Bundes Sans";*/
-/*    src: local('src/assets/fonts/bundessansweb-regular.woff');*/
-/*    src: local('src/assets/fonts/bundessansweb-bold.woff');*/
-/*}*/
-
-body {
-    font-family: "Roboto", sans-serif;
-}
-
 * {
     font-family: Roboto, sans-serif;
 }
@@ -55,7 +45,6 @@ body {
     @apply bg-white dark:bg-black text-black dark:text-white
 }
 
-
 .customControl {
     cursor: pointer;
     align-items: center;
@@ -69,20 +58,6 @@ body {
     width: 30px;
     height: 30px;
 }
-
-/*.customControl2 * {*/
-/*    display: flex;*/
-/*    width: 100%;*/
-/*    height: 100%;*/
-/*    justify-content: center;*/
-/*    align-items: center;*/
-/*}*/
-
-/*.customControl2 {*/
-/*    cursor: pointer;*/
-/*    position: relative;*/
-/*    display: inline-block;*/
-/*}*/
 
 #search * {
     display: grid;
@@ -119,25 +94,9 @@ body {
     /*@apply animate-pulse*/
 }
 
-@keyframes pulse {
-    50% {
-        opacity: .5;
-    }
+.dark-tiles {
+    filter: var(--leaflet-tile-filter, none);
 }
-
-/*.animate-pulse {*/
-/*    animation: pulse 2s cubic-bezier(0.4, 0, 0.5, 1) infinite;*/
-/*}*/
-
-/*@media (prefers-color-scheme: dark) {*/
-/*    .leaflet-tile {*/
-/*        filter: var(--leaflet-tile-filter, none);*/
-/*    }*/
-
-/*    .leaflet-container {*/
-/*        background: #303030;*/
-/*    }*/
-/*}*/
 
 #search {
     @apply text-black bg-white dark:text-white dark:bg-black pl-1
@@ -156,9 +115,14 @@ body {
 }
 
 .leaflet-control span:hover {
-    @apply dark:text-ninaLightOrange
+    @apply text-ninaLightOrange
 }
 
 .loadingScreen {
     z-index: 10000;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+    @apply accent-ninaLightOrange
 }

@@ -13,8 +13,7 @@ let icon = "light_mode";
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
-let center = [51.1642292, 10.4541194],
-    zoom = 6;
+
 
 export function createInfo(map) {
     info.onAdd = function (map) {
@@ -112,13 +111,19 @@ export function toggleSidebar(e) {
     // previousWarning.classList.remove(styles)
 }
 
-export function switchTheme(map) {
+export function switchTheme() {
     icon = (icon === "light_mode" ? "dark_mode" : "light_mode")
     toggleDark();
     if (isDark._value) {
         document.getElementById("sidePanel").classList.add("sidepanel-dark")
+        for (let element of document.getElementsByClassName("leaflet-tile")) {
+            element.classList.add("dark-tiles")
+        }
     } else {
         document.getElementById("sidePanel").classList.remove("sidepanel-dark")
+        for (let element of document.getElementsByClassName("leaflet-tile")) {
+            element.classList.remove("dark-tiles")
+        }
     }
 }
 
@@ -126,9 +131,9 @@ export function getIcon() {
     return icon;
 }
 
-export function resetFocus(map) {
-    map.flyTo(center, zoom, {duration: 1.5})
-}
+// export function resetFocus(map) {
+//     map.flyTo(center, zoom, {duration: 1.5})
+// }
 
 export function getInfo() {
     return info;
