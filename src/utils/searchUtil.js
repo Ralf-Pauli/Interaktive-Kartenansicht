@@ -37,42 +37,42 @@ export function createSearch(map) {
 //     })
 // }
 
-export function selectNextCounty(ev) {
-    if (selectedCountyIndex === "") {
-        selectedCountyIndex = 0;
-    } else {
-        selectedCountyIndex++;
-    }
-
-    if (selectedCountyIndex === filteredCounties.length) {
-        selectedCountyIndex = 0;
-    }
-
-    if (selectedCountyIndex > filteredCounties.length - 1) {
-        selectedCountyIndex = filteredCounties.length - 1;
-    }
-
-    focusItem(ev);
-}
-
-export function selectPreviousCounty(ev) {
-    if (selectedCountyIndex === "") {
-        selectedCountyIndex = filteredCounties.length - 1;
-    } else {
-        selectedCountyIndex--;
-    }
-
-    if (selectedCountyIndex < 0) {
-        selectedCountyIndex = 0;
-        let inputField = document.getElementById("searchInput");
-        window.setTimeout(function () {
-            inputField.setSelectionRange(0, inputField.length)
-            inputField.focus()
-        }, 0);
-        return
-    }
-    focusItem(ev);
-}
+// export function selectNextCounty(ev) {
+//     if (selectedCountyIndex === "") {
+//         selectedCountyIndex = 0;
+//     } else {
+//         selectedCountyIndex++;
+//     }
+//
+//     if (selectedCountyIndex === filteredCounties.length) {
+//         selectedCountyIndex = 0;
+//     }
+//
+//     if (selectedCountyIndex > filteredCounties.length - 1) {
+//         selectedCountyIndex = filteredCounties.length - 1;
+//     }
+//
+//     focusItem(ev);
+// }
+//
+// export function selectPreviousCounty(ev) {
+//     if (selectedCountyIndex === "") {
+//         selectedCountyIndex = filteredCounties.length - 1;
+//     } else {
+//         selectedCountyIndex--;
+//     }
+//
+//     if (selectedCountyIndex < 0) {
+//         selectedCountyIndex = 0;
+//         let inputField = document.getElementById("searchInput");
+//         window.setTimeout(function () {
+//             inputField.setSelectionRange(0, inputField.length)
+//             inputField.focus()
+//         }, 0);
+//         return
+//     }
+//     focusItem(ev);
+// }
 
 // export function focusItem(ev) {
 //     if (filteredCounties.length > 0) {
@@ -101,6 +101,6 @@ export function selectPreviousCounty(ev) {
 //     return selectedCountyIndex
 // }
 
-export  function getFilteredCounties() {
-    return filteredCounties;
-}
+// export  function getFilteredCounties() {
+//     return filteredCounties;
+// }

@@ -50,7 +50,7 @@
               <LoadingWarning></LoadingWarning>
             </div>
             <div v-else-if="coronaWarnings.size > 0" class="mt-5 flex flex-col">
-              <Warning :id="warn.identifier" v-for="(warn) in generalWarnings.values()" :warning="warn"
+              <Warning v-for="(warn) in generalWarnings.values()" :id="warn.identifier" :warning="warn"
                        class="flex flex-col mb-2 pb-2 gap-2 border-b "/>
             </div>
             <div v-else>
@@ -66,7 +66,7 @@
             </div>
 
             <div v-else-if="coronaWarnings.size > 0" class="mt-5 flex flex-col">
-              <Warning :id="warn.identifier" v-for="(warn) in coronaWarnings.values()" :warning="warn"
+              <Warning v-for="(warn) in coronaWarnings.values()" :id="warn.identifier" :warning="warn"
                        class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
             </div>
 
@@ -83,7 +83,7 @@
             </div>
 
             <div v-else-if="weatherWarnings.size > 0" class="mt-5 flex flex-col">
-              <Warning :id="warn.identifier" v-for="warn in weatherWarnings.values()" :warning="warn"
+              <Warning v-for="warn in weatherWarnings.values()" :id="warn.identifier" :warning="warn"
                        class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
             </div>
 
@@ -99,7 +99,7 @@
             </div>
 
             <div v-else-if="floodWarnings.size > 0" class="mt-5 flex flex-col">
-              <Warning :id="warn.identifier" v-for="warn in floodWarnings.values()" :warning="warn"
+              <Warning v-for="warn in floodWarnings.values()" :id="warn.identifier" :warning="warn"
                        class="flex flex-col mb-2 pb-2 gap-2 border-b"/>
             </div>
 
@@ -135,7 +135,7 @@ let warnings = new Map(),
     allWarnings = new ref([]);
 
 const proxyURL = "https://corsproxy.io/?";
-const baseURL = "https://nina.api.proxy.bund.dev/api31";
+const baseURL = "https://nina.sapi.proxy.bund.dev/api31";
 
 let symbolList = ["warning", "coronavirus", "thunderstorm", "flood"]
 let titles = ["Allgemeinen Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen", "Flutwarnungen"];
@@ -156,96 +156,95 @@ async function getWarnings() {
     responses = await Promise.allSettled(["katwarn", "biwapp", "mowas", "dwd", "lhp"].map(async source => [
       await fetch(proxyURL + baseURL + `/${source}/mapData.json`, {cache: "reload"}).then(res => res.json()),
     ]));
-  } catch (e) {
-    console.log(e);
-  }
-  isLoading.value = false;
 
-  responses.forEach(response => {
-    if (response.value[0].length !== 0) {
-      response.value[0].forEach(warning => {
-        let id = warning.id;
-        delete warning.id;
-        warnings.set(id, warning);
-      });
-    }
-  });
-  await setWarningDetails();
+    isLoading.value = false;
+
+    responses.forEach(response => {
+      if (response.value[0].length !== 0) {
+        response.value[0].forEach(warning => {
+          let id = warning.id;
+          delete warning.id;
+          warnings.set(id, warning);
+        });
+      }
+
+    });
+    await setWarningDetails();
+  } catch (e) {
+
+
+    console.log("Warnungen konnten nicht abgerufen werden")
+  }
 }
 
 async function setWarningDetails() {
-  for (let key of warnings.keys()) {
-    await fetch(proxyURL + baseURL + `/warnings/${key}.json`).then(res => {
-      if (!res.ok) {
-        throw new Error("Error: " + res.status);
-      }
-      return res.json();
-    }).then(value => {
-      value.severity = warnings.get(value.identifier).severity;
-      if (value.info[0].web !== undefined) {
-        value.info[0].web = value.info[0].web.split("\n");
-        for (let i = 0; i < value.info[0].web.length; i++) {
-          if (!value.info[0].web[i].includes("https://") && !value.info[0].web[i].includes("http://")) {
-            value.info[0].web[i] = "https://" + value.info[0].web[i];
+  try {
+    for (let key of warnings.keys()) {
+      await fetch(proxyURL + baseURL + `/warnings/${key}.json`).then(res => {
+        if (!res.ok) {
+          throw new Error("Error: " + res.status);
+        }
+        return res.json();
+      }).then(value => {
+        value.severity = warnings.get(value.identifier).severity;
+        if (value.info[0].web !== undefined) {
+          value.info[0].web = value.info[0].web.split("\n");
+          for (let i = 0; i < value.info[0].web.length; i++) {
+            if (!value.info[0].web[i].includes("https://") && !value.info[0].web[i].includes("http://")) {
+              value.info[0].web[i] = "https://" + value.info[0].web[i];
+            }
           }
         }
-      }
-      switch (key.substring(0, 3)) {
-        case "dwd":
-          weatherWarnings.value.set(key, value);
-          break;
+        switch (key.substring(0, 3)) {
+          case "dwd":
+            weatherWarnings.value.set(key, value);
+            break;
 
-        // case "mow":
-        //   generalWarnings.value.set(key, value);
-        //   break;
-        //
-        // case "biw":
-        //   generalWarnings.value.set(key, value);
-        //   break;
-        //
-        // case "kat":
-        //   generalWarnings.value.set(key, value);
-        //   break;
+          case "lhp":
+            floodWarnings.value.set(key, value);
+            break;
 
-        case "lhp":
-          floodWarnings.value.set(key, value);
-          break;
-
-        default:
-          generalWarnings.value.set(key, value);
-          break;
-      }
-      allWarnings = [generalWarnings.value, coronaWarnings.value, weatherWarnings.value, floodWarnings.value];
-    }).catch(err => {
-      console.log(err);
-    });
-  }
-
-  generalWarnings.value.forEach((value, key) => {
-    if (value.info[0].headline.toLowerCase().includes("corona" || "covid")) {
-      coronaWarnings.value.set(key, value);
-      generalWarnings.value.delete(key);
+          default:
+            generalWarnings.value.set(key, value);
+            break;
+        }
+        allWarnings = [generalWarnings.value, coronaWarnings.value, weatherWarnings.value, floodWarnings.value];
+      }).catch(err => {
+        console.log(err);
+      });
     }
-  });
-  emit("update:allWarnings", allWarnings);
-  await getWarningGeoJSON();
+
+    generalWarnings.value.forEach((value, key) => {
+      if (value.info[0].headline.toLowerCase().includes("corona" || "covid")) {
+        coronaWarnings.value.set(key, value);
+        generalWarnings.value.delete(key);
+      }
+    });
+    emit("update:allWarnings", allWarnings);
+    await getWarningGeoJSON();
+  } catch (e) {
+    console.log("Es konnten keine Warnungs Details konnten abgerufen werden")
+  }
 }
 
 async function getWarningGeoJSON() {
   // warningGeoJSONs
-  for (let index in allWarnings) {
-    let geoJSONS = []
-    for (let warning of allWarnings[index]) {
-      try {
-        geoJSONS.push(await fetch(proxyURL + baseURL + `/warnings/${warning[0]}.geojson`).then(res => res.json()));
-      } catch (e) {
-        console.log(e)
+  try {
+    for (let index in allWarnings) {
+      let geoJSONS = []
+      for (let warning of allWarnings[index]) {
+        try {
+          geoJSONS.push(await fetch(proxyURL + baseURL + `/warnings/${warning[0]}.geojson`).then(res => res.json()));
+        } catch (e) {
+          console.log(e)
+        }
       }
+      warningGeo[index].push(geoJSONS)
     }
-    warningGeo[index].push(geoJSONS)
+    emit("update:warningGeo", warningGeo);
+  } catch (e) {
+    console.log("Warnungs GeoJsons konnten nicht abegrufen werden")
   }
-  emit("update:warningGeo", warningGeo);
-  // props.warningGeo.value = warningGeo;
 }
 </script>
 

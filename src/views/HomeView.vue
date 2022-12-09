@@ -8,7 +8,7 @@ import SidePanel from "@/components/SidePanel.vue"
 import "leaflet-search";
 import "leaflet-search/dist/leaflet-search.min.css"
 import "@/utils/mapControls";
-import {createMap} from "@/utils/mapManagement";
+import {createMap, getErrors} from "@/utils/mapManagement";
 import * as mapControls from "@/utils/mapControls";
 import {
   addCounties,
@@ -19,9 +19,11 @@ import {
   setAllWarnings
 } from "@/utils/geoJsonHandler";
 import {getCurrentLayer, setCurrentLayer} from "@/utils/styling";
-import {getLayerControl,  switchTheme} from "@/utils/mapControls";
+import {getLayerControl, switchTheme} from "@/utils/mapControls";
 import {createSearch} from "@/utils/searchUtil";
 import {getIcon} from "@/utils/mapControls";
+import {useDark} from "@vueuse/core";
+import ErrorMessage from "@/components/ErrorMessage.vue";
 
 
 let map;
@@ -144,7 +146,6 @@ function focusItem(ev) {
 }
 
 function selectCounty(ev) {
-  // countiesMap.toGeoJSON().features.find(value => value.feature.properties.AGS === ev.target.id)
   let county = getCountiesMap().getLayers().find(value => value.feature.properties.AGS === ev.target.id);
   map.fitBounds(county.getBounds());
   county.setStyle({
@@ -203,7 +204,7 @@ onBeforeMount(() => {
       <ul v-if="filteredCounties.length > 0">
         <li v-for="(county, index) in filteredCounties"
             :id="county.properties.id"
-            :class="{'selectedCounty': index === selectedCountyIndex.value }"
+            :class="{'selectedCounty': index === selectedCountyIndex }"
             :tabindex="index"
             class="cursor-pointer county"
             @keydown.down.exact="selectNextCounty"
@@ -213,6 +214,11 @@ onBeforeMount(() => {
         </li>
       </ul>
     </div>
+
+    <div class="absolute w-full h-full" v-for="error in getErrors()">
+      <error-message :text="error"/>
+    </div>
+
   </div>
 </template>
 

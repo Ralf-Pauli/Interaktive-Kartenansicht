@@ -116,14 +116,14 @@ export function switchTheme() {
     toggleDark();
     if (isDark._value) {
         document.getElementById("sidePanel").classList.add("sidepanel-dark")
-        for (let element of document.getElementsByClassName("leaflet-tile")) {
-            element.classList.add("dark-tiles")
-        }
+        // for (let element of document.getElementsByClassName("leaflet-tile")) {
+        //     element.classList.add("dark-tiles")
+        // }
     } else {
         document.getElementById("sidePanel").classList.remove("sidepanel-dark")
-        for (let element of document.getElementsByClassName("leaflet-tile")) {
-            element.classList.remove("dark-tiles")
-        }
+        // for (let element of document.getElementsByClassName("leaflet-tile")) {
+        //     element.classList.remove("dark-tiles")
+        // }
     }
 }
 

@@ -98,18 +98,6 @@
     filter: var(--leaflet-tile-filter, none);
 }
 
-#search {
-    @apply text-black bg-white dark:text-white dark:bg-black pl-1
-}
-
-#searchInput {
-    @apply outline-0 text-black bg-white dark:text-white dark:bg-black
-}
-
-.selectedCounty {
-    @apply bg-ninaLightOrange outline-0 dark:text-black
-}
-
 .leaflet-control-zoom-in:hover, .leaflet-control-zoom-out:hover {
     @apply dark:bg-black
 }
@@ -125,4 +113,16 @@
 input[type="radio"],
 input[type="checkbox"] {
     @apply accent-ninaLightOrange
+}
+
+#search {
+    @apply text-black bg-white dark:text-white dark:bg-black pl-1
+}
+
+#searchInput {
+    @apply outline-0 text-black bg-white dark:text-white dark:bg-black
+}
+
+.selectedCounty {
+    @apply bg-ninaLightOrange outline-0 dark:text-black
 }
