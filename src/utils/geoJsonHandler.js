@@ -1,9 +1,8 @@
 import L from "leaflet";
 import {getLayerControl, toggleSidebar} from "@/utils/mapControls";
 import {coronaStyle, onEachFeature, setCurrentLayer, style} from "@/utils/styling";
-import {addError} from "@/utils/mapManagement";
 
-export const proxyURL = "https://corspdroxy.io/?",
+export const proxyURL = "https://corsproxy.io/?",
     baseURL = "https://nina.api.proxy.bund.dev/api31",
     germanMapDataURL = "https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/main/landkreise.geojson",
     swissMapDataURL = "https://raw.githubusercontent.com/cividi/ch-municipalities/main/data/gemeinden.geojson";
@@ -55,7 +54,7 @@ export async function addCounties(map) {
         // baseMaps[Object.keys(baseMaps)[0]].bringToFront()
         setCurrentLayer(baseMaps[0]);
     } catch (e) {
-        console.log("Deutsche Landkreise konnten nicht geladen werden")
+         console.log("Deutsche Landkreise konnten nicht geladen werden")
     }
 }
 
@@ -71,7 +70,7 @@ export async function addSwissCounties() {
         baseMaps.push(swissCountiesMap)
     } catch (e) {
         console.log("Schweizer Landkreise konnten nicht geladen werden")
-        addError("Schweizer Landkreise konnten nicht geladen werden")
+         console.log("Schweizer Landkreise konnten nicht geladen werden")
     }
 }
 
@@ -86,7 +85,7 @@ export async function addCovidData(mapData) {
             feature.properties.deaths = covid.deaths;
         });
     } catch (e) {
-        console.log("Corona Daten konnten nicht geladen werden")
+         console.log("Corona Daten konnten nicht geladen werden")
     }
 }
 
@@ -121,7 +120,6 @@ export function addWarningGeoToMap(map, warningGeo) {
         }
     } catch (e) {
         console.log("GeoJsons für Warnungen konnten nicht geladen werden")
-        addError("GeoJsons für Warnungen konnten nicht geladen werden")
     }
 }
 

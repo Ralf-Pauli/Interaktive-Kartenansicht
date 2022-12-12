@@ -14,58 +14,68 @@ const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
 
-
 export function createInfo(map) {
-    info.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'info');
-        this.update();
-        return this._div;
-    };
+    try {
+        info.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
 
-    info.update = function (props) {
-        if (props) {
-            if (props.GEN) {
-                this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE', {maximumFractionDigits: 2}).format(props.cases7Per100k)
+        info.update = function (props) {
+            if (props) {
+                if (props.GEN) {
+                    this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + props.GEN + '</b><br />' + '7 Tage Inzidenz: ' + new Intl.NumberFormat('de-DE', {maximumFractionDigits: 2}).format(props.cases7Per100k)
+                } else {
+                    this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + props["gemeinde.NAME"] + '</b><br />' + 'Kanton: ' + props["kanton.NAME"];
+                }
             } else {
-                this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + props["gemeinde.NAME"] + '</b><br />' + 'Kanton: ' + props["kanton.NAME"];
+                this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + "Hover over a Landkreis" + '</b>';
             }
-        } else {
-            this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + "Hover over a Landkreis" + '</b>';
-        }
 
-    };
+        };
 
-    info.addTo(map);
+        info.addTo(map);
 
-    return info;
+        return info;
+    } catch (e) {
+        return null;
+    }
 }
 
 export function createLegend(map) {
-    let legend = L.control({position: "bottomleft"});
+    try {
+        let legend = L.control({position: "bottomleft"});
 
-    legend.onAdd = function (map) {
-        let div = L.DomUtil.create('div', 'infoLegend'),
-            stringConditions = [];
-
-        fetch(proxyURL + encodeURIComponent(baseURL + '/appdata/covid/covidmap/DE/covidmap.json'))
-            .then(value => value.json()).then(value => {
-            value.mapLegend.forEach(legendData => {
-                div.innerHTML += '<i style="background:' + legendData.properties.fillColor + '"></i> ' + legendData.label + ' <br>';
-                colors.push(legendData.properties.fillColor);
-                stringConditions.push(legendData.label);
+        legend.onAdd = function (map) {
+            let div = L.DomUtil.create('div', 'infoLegend'),
+                stringConditions = [];
+            let erg;
+            fetch(proxyURL + encodeURIComponent(baseURL + '/appdata/covid/covidmap/DE/covidmap.json'))
+                .then(value => value.json()).then(value => {
+                value.mapLegend.forEach(legendData => {
+                    div.innerHTML += '<i style="background:' + legendData.properties.fillColor + '"></i> ' + legendData.label + ' <br>';
+                    colors.push(legendData.properties.fillColor);
+                    stringConditions.push(legendData.label);
+                });
+                stringConditions.forEach(value => {
+                    conditions.push(value.match(/\d+/));
+                });
+                conditions.reverse();
+                colors.reverse();
+            }).catch(reason => {
+                div = null
             });
-            stringConditions.forEach(value => {
-                conditions.push(value.match(/\d+/));
-            });
-            conditions.reverse();
-            colors.reverse();
-        });
-        return div;
-    };
+            return div;
+        };
 
-    legend.addTo(map);
+        if (legend._container !== null) {
+            legend.addTo(map);
+        }
 
-    return legend;
+        return legend;
+    } catch (e) {
+    }
 }
 
 export function createFocusButton(map) {

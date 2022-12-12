@@ -124,6 +124,7 @@ import LoadingWarning from "./LoadingWarning.vue"
 import Warning from "./Warning.vue"
 import {onMounted, ref} from "vue";
 import NoWarningsFound from "@/components/NoWarningsFound.vue";
+import {baseURL, proxyURL} from "@/utils/geoJsonHandler";
 
 let warningGeo = [[], [], [], []];
 
@@ -133,9 +134,6 @@ let warnings = new Map(),
     floodWarnings = ref(new Map()),
     generalWarnings = ref(new Map()),
     allWarnings = new ref([]);
-
-const proxyURL = "https://corsproxy.io/?";
-const baseURL = "https://nina.sapi.proxy.bund.dev/api31";
 
 let symbolList = ["warning", "coronavirus", "thunderstorm", "flood"]
 let titles = ["Allgemeinen Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen", "Flutwarnungen"];
@@ -171,8 +169,6 @@ async function getWarnings() {
     });
     await setWarningDetails();
   } catch (e) {
-
-
     console.log("Warnungen konnten nicht abgerufen werden")
   }
 }
