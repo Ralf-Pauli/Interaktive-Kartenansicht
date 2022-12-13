@@ -30,6 +30,9 @@ export async function addCounties(map) {
             })
         })
 
+        // console.log(mapData.features)
+        // mapData.features.forEach(feature => console.log(feature.properties))
+
         countiesMap = L.geoJSON(mapData, {
             onEachFeature: onEachFeature,
             style: style,
@@ -54,7 +57,7 @@ export async function addCounties(map) {
         // baseMaps[Object.keys(baseMaps)[0]].bringToFront()
         setCurrentLayer(baseMaps[0]);
     } catch (e) {
-         console.log("Deutsche Landkreise konnten nicht geladen werden")
+        console.log("Deutsche Landkreise konnten nicht geladen werden")
     }
 }
 
@@ -70,22 +73,44 @@ export async function addSwissCounties() {
         baseMaps.push(swissCountiesMap)
     } catch (e) {
         console.log("Schweizer Landkreise konnten nicht geladen werden")
-         console.log("Schweizer Landkreise konnten nicht geladen werden")
     }
 }
 
 export async function addCovidData(mapData) {
     try {
         let covidData = await fetch(proxyURL + encodeURIComponent(baseURL + '/appdata/covid/covidmap/DE/covidmap.json')).then(value => value.json());
+
         mapData.features.forEach(feature => {
-            let covid = covidData.mapData.find(value => value.rs === feature.properties.RS) || 0;
-            feature.properties.cases = covid.cases;
-            feature.properties.cases7Per100k = covid.cases7Per100k;
-            feature.properties.cases_per_100k = covid.cases_per_100k;
-            feature.properties.deaths = covid.deaths;
+            let covid = covidData.mapData.find(value => value.rs === feature.properties.RS);
+
+            if (feature.properties.RS === "11000") {
+                feature.properties = JSON.parse(JSON.stringify(feature.properties))
+            } else {
+                feature.properties.cases = covid.cases;
+                feature.properties.cases7Per100k = covid.cases7Per100k;
+                feature.properties.cases_per_100k = covid.cases_per_100k;
+                feature.properties.deaths = covid.deaths;
+            }
+            combineBerlin(covidData,mapData);
         });
     } catch (e) {
-         console.log("Corona Daten konnten nicht geladen werden")
+        console.log("Corona Daten konnten nicht geladen werden")
+    }
+
+}
+
+function combineBerlin(covidData, mapData) {
+    try {
+        let berlinParts = covidData.mapData.filter(value => Number(value.rs) > 11000 && Number(value.rs) < 12000);
+        let berlin = mapData.features.find(value => value.properties.RS === "11000")
+        berlinParts.forEach(value => {
+            berlin.properties.cases += value.cases
+            berlin.properties.cases7Per100k = value.cases7Per100k;
+            berlin.properties.cases_per_100k += value.cases_per_100k;
+            berlin.properties.deaths += value.deaths;
+        })
+    } catch (e) {
+        console.log("Berlin could not be combined")
     }
 }
 

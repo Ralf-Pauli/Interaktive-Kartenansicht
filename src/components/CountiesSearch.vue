@@ -15,6 +15,7 @@
           :class="{'selectedCounty': index === selectedCountyIndex }"
           :tabindex="index"
           class="cursor-pointer county"
+          @click="selectCounty"
           @keydown.down.exact="selectNextCounty"
           @keydown.up.exact="selectPreviousCounty"
           @keydown.enter.exact="selectCounty">
@@ -27,7 +28,7 @@
 <script setup>
 import {getCountiesMap, getSearchData} from "@/utils/geoJsonHandler";
 import {ref} from "vue";
-import map from "@/utils/mapManagement";
+import {map} from "@/utils/mapManagement";
 
 let searchTerm = ref(""),
     filteredCounties = ref([]),
@@ -50,10 +51,9 @@ function searchCounties() {
       return county;
     }
   })
-  console.log(filteredCounties.value)
 }
 
-function selectNextCounty(ev) {
+function selectNextCounty() {
   if (selectedCountyIndex.value === "") {
     selectedCountyIndex.value = 0;
   } else {
@@ -68,10 +68,10 @@ function selectNextCounty(ev) {
     selectedCountyIndex.value = filteredCounties.value.length - 1;
   }
 
-  focusItem(ev);
+  focusItem();
 }
 
-function selectPreviousCounty(ev) {
+function selectPreviousCounty() {
   if (selectedCountyIndex.value === "") {
     selectedCountyIndex.value = filteredCounties.value.length - 1;
   } else {
@@ -87,10 +87,10 @@ function selectPreviousCounty(ev) {
     }, 0);
     return
   }
-  focusItem(ev);
+  focusItem();
 }
 
-function focusItem(ev) {
+function focusItem() {
   if (filteredCounties.value.length > 0) {
     let selectedCounty = document.getElementsByClassName("county").item(selectedCountyIndex.value);
     selectedCounty.focus();
@@ -98,6 +98,7 @@ function focusItem(ev) {
 }
 
 function selectCounty(ev) {
+  let startTime = performance.now();
   let county = getCountiesMap().getLayers().find(value => value.feature.properties.AGS === ev.target.id);
   map.fitBounds(county.getBounds());
   county.setStyle({
@@ -110,9 +111,11 @@ function selectCounty(ev) {
   });
   searchTerm.value = ev.target.innerText;
   filteredCounties.value = [];
+  let endTime = performance.now();
+  console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)
 }
 
-</script >
+</script>
 
 <style scoped>
 

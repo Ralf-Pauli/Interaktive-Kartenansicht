@@ -106,7 +106,7 @@ export function createSidePanel(map) {
         hasTabs: true,
         tabsPosition: 'right',
         pushControls: true,
-        darkMode: false,
+        darkMode: isDark,
         startTab: 'tab-1'
     }).addTo(map);
 }
@@ -118,6 +118,7 @@ export function createLayerControl() {
 export function toggleSidebar(e) {
     let sButton = document.getElementsByClassName("sidepanel-toggle-button")[0];
     sButton.click();
+    console.log(e)
     // previousWarning.classList.remove(styles)
 }
 
@@ -141,9 +142,15 @@ export function getIcon() {
     return icon;
 }
 
-// export function resetFocus(map) {
-//     map.flyTo(center, zoom, {duration: 1.5})
-// }
+export function createSearch(map) {
+    L.Control.Search = L.Control.extend({
+        onAdd: function (map) {
+            this._div = document.getElementById("search")
+            return this._div;
+        }
+    })
+    new L.Control.Search({position: "topleft"}).addTo(map);
+}
 
 export function getInfo() {
     return info;

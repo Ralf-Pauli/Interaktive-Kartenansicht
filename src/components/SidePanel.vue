@@ -4,15 +4,6 @@
       <nav aria-label="sidepanel tab navigation" class="sidepanel-tabs-wrapper">
         <ul class="sidepanel-tabs">
 
-
-          <!--            <li class="sidepanel-tab">-->
-          <!--              <a class="sidebar-tab-link" data-tab-link="tab-1" href="#" role="tab">-->
-          <!--                <span class="material-symbols-sharp">info</span>-->
-          <!--              </a>-->
-          <!--            </li>-->
-
-          <!--            <SidePanelTab v-for="(symbol,index) in symbolList" :tab-number="index" :symbol="symbol" :title="titles[index]"  />-->
-
           <li class="sidepanel-tab">
             <a class="sidebar-tab-link" data-tab-link="tab-1" href="#" role="tab">
               <span class="material-symbols-sharp">warning</span>
