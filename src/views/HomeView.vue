@@ -19,9 +19,10 @@ import {
 import {getCurrentLayer, setCurrentLayer} from "@/utils/styling";
 import {getIcon} from "@/utils/mapControls";
 import CountiesSearch from "@/components/CountiesSearch.vue";
+import Error from "@/components/Error.vue";
+import {getErrors} from "@/utils/ErrorHandler";
 
 let map;
-
 
 let warningGeo = ref();
 
@@ -64,6 +65,7 @@ onMounted(async () => {
   }
 
   loading.value = false;
+  console.log(getErrors());
 });
 
 onBeforeMount(() => {
@@ -99,10 +101,20 @@ onBeforeMount(() => {
     </button>
 
     <CountiesSearch/>
+
+    <ul id="errors" class="w-1/2 my-0 mx-auto inset-x-0 bottom-0">
+      <li v-for="(error) in getErrors()" v-if="!loading">
+        <Error :key="error.cause" :error="error"/>
+      </li>
+    </ul>
+
   </div>
 </template>
 
 <style>
-
+#errors {
+  z-index: 1000;
+  position: absolute;
+}
 
 </style>

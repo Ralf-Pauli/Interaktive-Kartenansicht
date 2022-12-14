@@ -1,6 +1,7 @@
 import L from "leaflet";
 import {useDark, useToggle} from "@vueuse/core";
 import {baseURL, proxyURL} from "@/utils/geoJsonHandler";
+import {addError} from "@/utils/ErrorHandler";
 
 export let colors = Array(),
     conditions = Array();
@@ -39,7 +40,7 @@ export function createInfo(map) {
 
         return info;
     } catch (e) {
-        return null;
+        addError(new Error("Landkreis Info konnte nicht geladen werden", {cause: e}))
     }
 }
 
@@ -75,6 +76,8 @@ export function createLegend(map) {
 
         return legend;
     } catch (e) {
+        addError(new Error("Legende konnte nicht geladen werden", {cause: e}))
+
     }
 }
 
@@ -101,14 +104,19 @@ export function createThemeButton(map) {
 }
 
 export function createSidePanel(map) {
-    return L.control.sidepanel('sidePanel', {
-        panelPosition: 'right',
-        hasTabs: true,
-        tabsPosition: 'right',
-        pushControls: true,
-        darkMode: isDark,
-        startTab: 'tab-1'
-    }).addTo(map);
+    try {
+        return L.control.sidepanel('sidePanel', {
+            panelPosition: 'right',
+            hasTabs: true,
+            tabsPosition: 'right',
+            pushControls: true,
+            darkMode: isDark,
+            startTab: 'tab-1'
+        }).addTo(map);
+    } catch (e) {
+        addError(new Error("SidePanel konnte nicht geladen werden", {cause: e}))
+        return null;
+    }
 }
 
 export function createLayerControl() {

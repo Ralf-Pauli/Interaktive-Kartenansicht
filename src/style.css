@@ -112,7 +112,7 @@
 
 input[type="radio"],
 input[type="checkbox"] {
-    @apply accent-ninaLightOrange
+    @apply  accent-ninaLightOrange
 }
 
 #search {

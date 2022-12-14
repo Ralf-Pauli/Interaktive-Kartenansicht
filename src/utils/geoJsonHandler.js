@@ -1,9 +1,10 @@
 import L from "leaflet";
 import {getLayerControl, toggleSidebar} from "@/utils/mapControls";
 import {coronaStyle, onEachFeature, setCurrentLayer, style} from "@/utils/styling";
+import {addError} from "@/utils/ErrorHandler";
 
 export const proxyURL = "https://corsproxy.io/?",
-    baseURL = "https://nina.api.proxy.bund.dev/api31",
+    baseURL = "https://n2ina.api.proxy.bund.dev/api31",
     germanMapDataURL = "https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/main/landkreise.geojson",
     swissMapDataURL = "https://raw.githubusercontent.com/cividi/ch-municipalities/main/data/gemeinden.geojson";
 
@@ -30,20 +31,28 @@ export async function addCounties(map) {
             })
         })
 
-        // console.log(mapData.features)
-        // mapData.features.forEach(feature => console.log(feature.properties))
 
-        countiesMap = L.geoJSON(mapData, {
-            onEachFeature: onEachFeature,
-            style: style,
-            zIndex: 2,
-        }).addTo(map);
+        try {
+            countiesMap = L.geoJSON(mapData, {
+                onEachFeature: onEachFeature,
+                style: style,
+                zIndex: 2,
+            }).addTo(map);
+        } catch (e) {
+            addError(new Error("Deutsche Landkreise konnten nicht geladen werden", {cause: e}))
+        }
 
-        let coronaMap = L.geoJSON(mapData, {
-            onEachFeature: onEachFeature,
-            style: coronaStyle,
-            zIndex: 2,
-        });
+        let coronaMap;
+        try {
+            coronaMap = L.geoJSON(mapData, {
+                onEachFeature: onEachFeature,
+                style: coronaStyle,
+                zIndex: 2,
+            });
+        } catch (e) {
+            addError(new Error("Corona Daten konnten nicht geladen werden", {cause: e}))
+        }
+
         let empty = L.geoJSON(null, {style: style});
 
         let layerControl = getLayerControl();
@@ -57,7 +66,7 @@ export async function addCounties(map) {
         // baseMaps[Object.keys(baseMaps)[0]].bringToFront()
         setCurrentLayer(baseMaps[0]);
     } catch (e) {
-        console.log("Deutsche Landkreise konnten nicht geladen werden")
+        addError("Layer Control konnten nicht geladen werden", {cause: e})
     }
 }
 
@@ -72,7 +81,7 @@ export async function addSwissCounties() {
         getLayerControl().addBaseLayer(swissCountiesMap, "Swiss Landkreise")
         baseMaps.push(swissCountiesMap)
     } catch (e) {
-        console.log("Schweizer Landkreise konnten nicht geladen werden")
+        addError("Schweizer Landkreise konnten nicht geladen werden", {cause: e})
     }
 }
 
@@ -91,10 +100,11 @@ export async function addCovidData(mapData) {
                 feature.properties.cases_per_100k = covid.cases_per_100k;
                 feature.properties.deaths = covid.deaths;
             }
-            combineBerlin(covidData,mapData);
+            combineBerlin(covidData, mapData);
         });
     } catch (e) {
-        console.log("Corona Daten konnten nicht geladen werden")
+        console.log(e.name)
+        addError("Corona Daten konnten nicht abgerufen werden", {cause: e})
     }
 
 }
@@ -110,7 +120,7 @@ function combineBerlin(covidData, mapData) {
             berlin.properties.deaths += value.deaths;
         })
     } catch (e) {
-        console.log("Berlin could not be combined")
+        addError(new Error("Berlin could not be combined", {cause: e}))
     }
 }
 
@@ -139,12 +149,14 @@ export function addWarningGeoToMap(map, warningGeo) {
                         }
                     },
                 })
+                warn.bringToFront()
                 warningLayer.addLayer(warn).addTo(map);
             }
+            // warningLayer.bringToFront();
             getLayerControl().addOverlay(warningLayer, titles[index])
         }
     } catch (e) {
-        console.log("GeoJsons für Warnungen konnten nicht geladen werden")
+        addError("GeoJsons für Warnungen konnten nicht geladen werden", {cause: e})
     }
 }
 

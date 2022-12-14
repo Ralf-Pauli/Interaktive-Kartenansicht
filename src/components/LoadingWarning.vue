@@ -11,10 +11,8 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "LoadingWarning"
-};
+<script setup>
+
 </script>
 
 <style scoped>

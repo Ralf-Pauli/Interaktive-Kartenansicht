@@ -116,6 +116,7 @@ import Warning from "./Warning.vue"
 import {onMounted, ref} from "vue";
 import NoWarningsFound from "@/components/NoWarningsFound.vue";
 import {baseURL, proxyURL} from "@/utils/geoJsonHandler";
+import {addError, getErrors} from "@/utils/ErrorHandler";
 
 let warningGeo = [[], [], [], []];
 
@@ -160,7 +161,7 @@ async function getWarnings() {
     });
     await setWarningDetails();
   } catch (e) {
-    console.log("Warnungen konnten nicht abgerufen werden")
+    addError(new Error("Warnungen konnten nicht abgerufen werden", {cause: e}))
   }
 }
 
@@ -169,7 +170,7 @@ async function setWarningDetails() {
     for (let key of warnings.keys()) {
       await fetch(proxyURL + baseURL + `/warnings/${key}.json`).then(res => {
         if (!res.ok) {
-          throw new Error("Error: " + res.status);
+          throw new Error("Error: " + res.status, {cause: res});
         }
         return res.json();
       }).then(value => {
@@ -196,8 +197,8 @@ async function setWarningDetails() {
             break;
         }
         allWarnings = [generalWarnings.value, coronaWarnings.value, weatherWarnings.value, floodWarnings.value];
-      }).catch(err => {
-        console.log(err);
+      }).catch(e => {
+        addError(new Error("Es konnten keine Warnungs Details konnten abgerufen werden", {cause: e}))
       });
     }
 
@@ -210,7 +211,7 @@ async function setWarningDetails() {
     emit("update:allWarnings", allWarnings);
     await getWarningGeoJSON();
   } catch (e) {
-    console.log("Es konnten keine Warnungs Details konnten abgerufen werden")
+    addError(new Error("Warnungen konnten nicht aufgeteilt werden", {cause: e}))
   }
 }
 
@@ -219,18 +220,16 @@ async function getWarningGeoJSON() {
   try {
     for (let index in allWarnings) {
       let geoJSONS = []
-      for (let warning of allWarnings[index]) {
-        try {
-          geoJSONS.push(await fetch(proxyURL + baseURL + `/warnings/${warning[0]}.geojson`).then(res => res.json()));
-        } catch (e) {
-          console.log(e)
-        }
+      for (let warning of allWarnings[index]) try {
+        geoJSONS.push(await fetch(proxyURL + baseURL + `/warnings/${warning[0]}.geojson`).then(res => res.json()));
+      } catch (e) {
+        addError(new Error("GeoJSON Informationen konnten nicht abgerufen werden", {cause: e}))
       }
       warningGeo[index].push(geoJSONS)
     }
     emit("update:warningGeo", warningGeo);
   } catch (e) {
-    console.log("Warnungs GeoJsons konnten nicht abegrufen werden")
+    addError(new Error("GeoJSON Informationen konnten nicht abgerufen werden", {cause: e}))
   }
 }
 </script>
