@@ -3,8 +3,8 @@ import {getLayerControl, toggleSidebar} from "@/utils/mapControls";
 import {coronaStyle, onEachFeature, setCurrentLayer, style} from "@/utils/styling";
 import {addError} from "@/utils/ErrorHandler";
 
-export const proxyURL = "https://corsproxy.io/?",
-    baseURL = "https://n2ina.api.proxy.bund.dev/api31",
+export const proxyURL = "https://scorsproxy.io/?",
+    baseURL = "https://nina.api.proxy.bund.dev/api31",
     germanMapDataURL = "https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/main/landkreise.geojson",
     swissMapDataURL = "https://raw.githubusercontent.com/cividi/ch-municipalities/main/data/gemeinden.geojson";
 
@@ -18,9 +18,11 @@ let searchData = [];
 let allWarnings;
 
 export async function addCounties(map) {
+    let mapData
+    let layerControl = getLayerControl();
+    let coronaMap;
     try {
-        let mapData = await fetch(proxyURL + germanMapDataURL).then(value => value.json());
-        await addCovidData(mapData);
+        mapData = await fetch(proxyURL + germanMapDataURL).then(value => value.json());
         mapData.features.forEach(feature => {
             searchData.push({
                 geometry: feature.geometry,
@@ -30,49 +32,48 @@ export async function addCounties(map) {
                 }
             })
         })
+    } catch (e) {
+        addError(new Error("Deutsche Landkreise konnten nicht abgerufen", {cause: e}));
+    }
 
+    try {
+        await addCovidData(mapData);
 
-        try {
-            countiesMap = L.geoJSON(mapData, {
-                onEachFeature: onEachFeature,
-                style: style,
-                zIndex: 2,
-            }).addTo(map);
-        } catch (e) {
-            addError(new Error("Deutsche Landkreise konnten nicht geladen werden", {cause: e}))
-        }
+    } catch (e) {
+        addError(Error("Corona Daten konnten nicht abgerufen werden", {cause: e}))
+    }
 
-        let coronaMap;
-        try {
+    if (mapData) {
+        countiesMap = L.geoJSON(mapData, {
+            onEachFeature: onEachFeature,
+            style: style,
+            zIndex: 2,
+        }).addTo(map);
+        layerControl.addBaseLayer(countiesMap, "Landkreise");
+        console.log(mapData)
+
+        if (mapData.features[0].properties.cases) {
             coronaMap = L.geoJSON(mapData, {
                 onEachFeature: onEachFeature,
                 style: coronaStyle,
                 zIndex: 2,
             });
-        } catch (e) {
-            addError(new Error("Corona Daten konnten nicht geladen werden", {cause: e}))
+            layerControl.addBaseLayer(coronaMap, "Corona");
         }
-
-        let empty = L.geoJSON(null, {style: style});
-
-        let layerControl = getLayerControl();
-
-        layerControl.addBaseLayer(empty, "Empty");
-        layerControl.addBaseLayer(countiesMap, "Landkreise");
-        layerControl.addBaseLayer(coronaMap, "Corona");
-
-        baseMaps.push(empty, countiesMap, coronaMap);
-
-        // baseMaps[Object.keys(baseMaps)[0]].bringToFront()
-        setCurrentLayer(baseMaps[0]);
-    } catch (e) {
-        addError("Layer Control konnten nicht geladen werden", {cause: e})
     }
+
+    let empty = L.geoJSON(null, {style: style});
+    layerControl.addBaseLayer(empty, "Empty");
+
+    baseMaps.push(empty, countiesMap, coronaMap);
+
+    setCurrentLayer(baseMaps[0]);
 }
 
 export async function addSwissCounties() {
     try {
         let swissMapData = await fetch(proxyURL + swissMapDataURL).then(value => value.json());
+        console.log(swissMapData)
         let swissCountiesMap = L.geoJSON(swissMapData, {
             onEachFeature: onEachFeature,
             style: style,
@@ -81,31 +82,28 @@ export async function addSwissCounties() {
         getLayerControl().addBaseLayer(swissCountiesMap, "Swiss Landkreise")
         baseMaps.push(swissCountiesMap)
     } catch (e) {
-        addError("Schweizer Landkreise konnten nicht geladen werden", {cause: e})
+        console.log(e)
+        addError(new Error("Schweizer Landkreise konnten nicht geladen werden", {cause: e}))
     }
 }
 
 export async function addCovidData(mapData) {
-    try {
-        let covidData = await fetch(proxyURL + encodeURIComponent(baseURL + '/appdata/covid/covidmap/DE/covidmap.json')).then(value => value.json());
+    let covidData = await fetch(proxyURL + encodeURIComponent(baseURL + '/appdata/covid/covidmap/DE/covidmap.json'))
+        .then(value => value.json());
+    mapData.features.forEach(feature => {
+        let covid = covidData.mapData.find(value => value.rs === feature.properties.RS);
 
-        mapData.features.forEach(feature => {
-            let covid = covidData.mapData.find(value => value.rs === feature.properties.RS);
+        if (feature.properties.RS === "11000") {
+            feature.properties = JSON.parse(JSON.stringify(feature.properties))
+        } else {
+            feature.properties.cases = covid.cases;
+            feature.properties.cases7Per100k = covid.cases7Per100k;
+            feature.properties.cases_per_100k = covid.cases_per_100k;
+            feature.properties.deaths = covid.deaths;
+        }
+        combineBerlin(covidData, mapData);
+    });
 
-            if (feature.properties.RS === "11000") {
-                feature.properties = JSON.parse(JSON.stringify(feature.properties))
-            } else {
-                feature.properties.cases = covid.cases;
-                feature.properties.cases7Per100k = covid.cases7Per100k;
-                feature.properties.cases_per_100k = covid.cases_per_100k;
-                feature.properties.deaths = covid.deaths;
-            }
-            combineBerlin(covidData, mapData);
-        });
-    } catch (e) {
-        console.log(e.name)
-        addError("Corona Daten konnten nicht abgerufen werden", {cause: e})
-    }
 
 }
 
@@ -156,7 +154,7 @@ export function addWarningGeoToMap(map, warningGeo) {
             getLayerControl().addOverlay(warningLayer, titles[index])
         }
     } catch (e) {
-        addError("GeoJsons für Warnungen konnten nicht geladen werden", {cause: e})
+        addError(new Error("GeoJsons für Warnungen konnten nicht geladen werden", {cause: e}));
     }
 }
 

@@ -33,9 +33,7 @@ export function createInfo(map) {
             } else {
                 this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + "Hover over a Landkreis" + '</b>';
             }
-
         };
-
         info.addTo(map);
 
         return info;
@@ -45,15 +43,14 @@ export function createInfo(map) {
 }
 
 export function createLegend(map) {
-    try {
-        let legend = L.control({position: "bottomleft"});
+    let legend = L.control({position: "bottomleft"});
+    legend.onAdd = function (map) {
+        let div = L.DomUtil.create('div', 'infoLegend'),
+            stringConditions = [];
 
-        legend.onAdd = function (map) {
-            let div = L.DomUtil.create('div', 'infoLegend'),
-                stringConditions = [];
-            let erg;
-            fetch(proxyURL + encodeURIComponent(baseURL + '/appdata/covid/covidmap/DE/covidmap.json'))
-                .then(value => value.json()).then(value => {
+        fetch(proxyURL + encodeURIComponent(baseURL + '/appdata/covid/covidmap/DE/covidmap.json'))
+            .then(value => value.json())
+            .then(value => {
                 value.mapLegend.forEach(legendData => {
                     div.innerHTML += '<i style="background:' + legendData.properties.fillColor + '"></i> ' + legendData.label + ' <br>';
                     colors.push(legendData.properties.fillColor);
@@ -64,21 +61,18 @@ export function createLegend(map) {
                 });
                 conditions.reverse();
                 colors.reverse();
-            }).catch(reason => {
-                div = null
+            })
+            .catch(err => {
+                addError(err);
             });
-            return div;
-        };
+        return div;
+    };
 
-        if (legend._container !== null) {
-            legend.addTo(map);
-        }
-
-        return legend;
-    } catch (e) {
-        addError(new Error("Legende konnte nicht geladen werden", {cause: e}))
-
+    if (legend._container !== undefined) {
+        legend.addTo(map);
     }
+
+    return legend;
 }
 
 export function createFocusButton(map) {
@@ -157,6 +151,7 @@ export function createSearch(map) {
             return this._div;
         }
     })
+
     new L.Control.Search({position: "topleft"}).addTo(map);
 }
 

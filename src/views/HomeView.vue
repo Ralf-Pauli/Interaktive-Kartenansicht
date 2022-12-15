@@ -20,7 +20,7 @@ import {getCurrentLayer, setCurrentLayer} from "@/utils/styling";
 import {getIcon} from "@/utils/mapControls";
 import CountiesSearch from "@/components/CountiesSearch.vue";
 import Error from "@/components/Error.vue";
-import {getErrors} from "@/utils/ErrorHandler";
+import {addError, getErrors} from "@/utils/ErrorHandler";
 
 let map;
 
@@ -32,13 +32,15 @@ let loading = ref(true);
 onMounted(async () => {
   map = createMap();
 
-  mapControls.createLayerControl();
-  mapControls.createInfo(map);
-  mapControls.createSidePanel(map);
-  mapControls.createLegend(map);
-  mapControls.createFocusButton(map);
-  mapControls.createThemeButton(map)
-  mapControls.createSearch(map)
+
+    mapControls.createLayerControl();
+    mapControls.createInfo(map);
+    mapControls.createSidePanel(map);
+    mapControls.createLegend(map);
+    mapControls.createFocusButton(map);
+    mapControls.createThemeButton(map)
+    mapControls.createSearch(map)
+
 
   map.doubleClickZoom.disable();
 
@@ -60,12 +62,11 @@ onMounted(async () => {
   await addCounties(map);
   await addSwissCounties()
 
-  if (mapControls.getLayerControl()._layers.length !== 0) {
+  if (mapControls.getLayerControl()._layers.length > 1) {
     mapControls.getLayerControl().addTo(map)
   }
 
   loading.value = false;
-  console.log(getErrors());
 });
 
 onBeforeMount(() => {
@@ -104,7 +105,7 @@ onBeforeMount(() => {
 
     <ul id="errors" class="w-1/2 my-0 mx-auto inset-x-0 bottom-0">
       <li v-for="(error) in getErrors()" v-if="!loading">
-        <Error :key="error.cause" :error="error"/>
+        <Error  :key="error.cause" :error="error"/>
       </li>
     </ul>
 
