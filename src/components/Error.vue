@@ -12,8 +12,8 @@
         <span>×</span>
       </button>
     </div>
-    <div class="w-full  bg-gray-200 rounded-full h-1 mb-4 dark:bg-gray-700">
-      <div class="bg-blue-600 h-1 rounded-full dark:bg-blue-500" style="width: 45%"></div>
+    <div class="w-full absolute bottom-0 left-0 mb-0 bg-gray-200 rounded-full h-1 mb-4 dark:bg-gray-700">
+      <div id="loadBar" style="width: 100%" class="bg-blue-600 h-1 rounded-full dark:bg-blue-500"></div>
     </div>
   </div>
 
@@ -23,7 +23,7 @@
 import {onMounted, ref} from "vue";
 
 let alertOpen = ref(true)
-
+let progress = 100;
 let props = defineProps(["error"])
 
 function closeAlert() {
@@ -32,9 +32,17 @@ function closeAlert() {
 
 
 onMounted(() => {
-  // setTimeout(() => {
-  //   alertOpen.value = false;
-  // }, 10 * 1000);
+  let pb = document.getElementById("loadBar");
+  let interval = setInterval(() => {
+    progress--;
+    pb.style.width = progress + "%"
+  }, 100)
+
+  setTimeout(() => {
+    clearInterval(interval);
+    closeAlert();
+  }, 10 * 1000)
+
 })
 
 </script>
