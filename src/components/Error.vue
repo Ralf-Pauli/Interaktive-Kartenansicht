@@ -13,7 +13,7 @@
       </button>
     </div>
     <div class="w-full absolute bottom-0 left-0 mb-0 bg-gray-200 rounded-full h-1 mb-4 dark:bg-gray-700">
-      <div id="loadBar" style="width: 100%" class="bg-blue-600 h-1 rounded-full dark:bg-blue-500"></div>
+      <div class="loadBar bg-blue-600 h-1 rounded-full dark:bg-blue-500" style="width: 100%"></div>
     </div>
   </div>
 
@@ -32,11 +32,13 @@ function closeAlert() {
 
 
 onMounted(() => {
-  let pb = document.getElementById("loadBar");
+  let pb = document.getElementsByClassName("loadBar");
   let interval = setInterval(() => {
-    progress--;
-    pb.style.width = progress + "%"
-  }, 100)
+    progress = progress - 0.1;
+    for (const progBar of pb) {
+      progBar.style.width = progress + "%";
+    }
+  }, 10)
 
   setTimeout(() => {
     clearInterval(interval);
