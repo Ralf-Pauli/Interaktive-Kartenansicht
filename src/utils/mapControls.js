@@ -47,7 +47,6 @@ export function createLegend(map) {
     legend.onAdd = function (map) {
         let div = L.DomUtil.create('div', 'infoLegend'),
             stringConditions = [];
-
         fetch(proxyURL + encodeURIComponent(baseURL + '/appdata/covid/covidmap/DE/covidmap.json'))
             .then(value => value.json())
             .then(value => {
@@ -56,6 +55,7 @@ export function createLegend(map) {
                     colors.push(legendData.properties.fillColor);
                     stringConditions.push(legendData.label);
                 });
+                console.log(stringConditions)
                 stringConditions.forEach(value => {
                     conditions.push(value.match(/\d+/));
                 });
@@ -68,11 +68,11 @@ export function createLegend(map) {
         return div;
     };
 
-    if (legend._container !== undefined) {
-        legend.addTo(map);
-    }
+    console.log(legend)
 
+    legend.addTo(map);
     return legend;
+
 }
 
 export function createFocusButton(map) {

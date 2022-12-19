@@ -1,0 +1,39 @@
+= Projektdokumentation NINK
+:doctype: book
+:author: Ralf Pauli
+:source-highlighter: highlightjs
+:docinfo: shared
+:lang: de
+:toc: left
+:toclevels: 3
+:toc-title: Inhaltsverzeichnis
+:sectnums:
+:sectnumlevels: 10
+:imagesdir: .\docu\images
+:figure-caption: Abbildung
+:table-caption: Tabelle
+:app-name: Dokumentation
+
+== Einleitung Ralf Pauli
+
+=== Ziele
+Es soll eine interaktive Kartenansicht entstehen, welche aktuelle Informationen aus der Region bzw. ganz Deutschlands anzeigt. +
+Auf der Karte sollen aktuelle Corona-Zahlen sowie, Warnmeldungen des Bevölkerungsschutzes angezeigt werden.
+
+== Allgemeine Umsetzung 
+
+=== Quellcodeverwaltung
+Die Quellcodeverwaltung erfolgt über Git. Der Sourcecode wird auf einem Schulinternen GitLab-Server gespeichert.
+
+=== Umsetzung
+
+===  Programmiersprache/Entwicklungsumgebung
+Als Grundlage für die App wird NodeJS verwendet. +
+NodeJS ist eine Laufzeitumgebung, die dazu dient, https://developer.mozilla.org/en-US/docs/Web/JavaScript[*JavaScript*]-Code außerhalb eines Webbrowsers auszuführen. +
+Das Projekt wurde in der JetBrains IDE https://www.jetbrains.com/webstorm/[*WebStorm*] entwickelt.
+
+=== Verwendete Bibliotheken/Frameworks
+Ein fundamentales Framework ist https://vuejs.org/[*VueJS*].
+Es ist ein Open-Source-JavaScript-Framework, welches es ermöglicht, Benutzeroberflächen zu erstellen und diese zu verwalten. +
+Als Grundlage für die Kartenansicht wird die Open-Source-Bibliothek https://leafletjs.com/[*Leaflet*] verwendet, die es ermöglicht, Karten, Marker und andere geografischen Daten anzeigen zu lassen. +
+https://tailwindcss.com/[*Tailwind*] CSS ist ein Utility-First CSS-Framework, das eine Reihe von Low-Level-Styling-Tools sowie vordefinierte UI-Komponenten und Layout-Module bereitstellt, um dem Nutzer dabei zu helfen, schnell und effizient benutzerdefinierte Designs zu erstellen.

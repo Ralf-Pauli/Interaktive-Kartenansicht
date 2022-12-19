@@ -9,7 +9,7 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
       meta: {
-        title: "Interaktive Kartenansicht"
+        title: "NINK"
       }
     },
   ]

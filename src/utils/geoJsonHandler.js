@@ -3,7 +3,7 @@ import {getLayerControl, toggleSidebar} from "@/utils/mapControls";
 import {coronaStyle, onEachFeature, setCurrentLayer, style} from "@/utils/styling";
 import {addError} from "@/utils/ErrorHandler";
 
-export const proxyURL = "https://scorsproxy.io/?",
+export const proxyURL = "https://corsproxy.io/?",
     baseURL = "https://nina.api.proxy.bund.dev/api31",
     germanMapDataURL = "https://raw.githubusercontent.com/Ralf-Pauli/Geojson_Files/main/landkreise.geojson",
     swissMapDataURL = "https://raw.githubusercontent.com/cividi/ch-municipalities/main/data/gemeinden.geojson";
@@ -38,7 +38,6 @@ export async function addCounties(map) {
 
     try {
         await addCovidData(mapData);
-
     } catch (e) {
         addError(Error("Corona Daten konnten nicht abgerufen werden", {cause: e}))
     }
@@ -50,7 +49,6 @@ export async function addCounties(map) {
             zIndex: 2,
         }).addTo(map);
         layerControl.addBaseLayer(countiesMap, "Landkreise");
-        console.log(mapData)
 
         if (mapData.features[0].properties.cases) {
             coronaMap = L.geoJSON(mapData, {
@@ -73,7 +71,6 @@ export async function addCounties(map) {
 export async function addSwissCounties() {
     try {
         let swissMapData = await fetch(proxyURL + swissMapDataURL).then(value => value.json());
-        console.log(swissMapData)
         let swissCountiesMap = L.geoJSON(swissMapData, {
             onEachFeature: onEachFeature,
             style: style,

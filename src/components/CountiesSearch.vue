@@ -98,7 +98,6 @@ function focusItem() {
 }
 
 function selectCounty(ev) {
-  let startTime = performance.now();
   let county = getCountiesMap().getLayers().find(value => value.feature.properties.AGS === ev.target.id);
   map.fitBounds(county.getBounds());
   county.setStyle({
@@ -111,8 +110,6 @@ function selectCounty(ev) {
   });
   searchTerm.value = ev.target.innerText;
   filteredCounties.value = [];
-  let endTime = performance.now();
-  console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)
 }
 
 </script>
