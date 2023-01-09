@@ -35,7 +35,7 @@
         <div class="sidepanel-content w-full h-full">
 
           <div class="sidepanel-tab-content" data-tab-content="tab-1">
-            <h2 class=" text-2xl text-center font-bold mb-3">Warnmeldungen</h2>
+            <h2 class=" text-2xl text-center font-bold mb-3">{{ titles[0] }}</h2>
 
             <div v-if="isLoading">
               <LoadingWarning></LoadingWarning>
@@ -50,7 +50,7 @@
           </div>
 
           <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-2">
-            <h2 class="text-2xl text-center font-bold mb-3">Covid-19</h2>
+            <h2 class="text-2xl text-center font-bold mb-3">{{titles[1]}}</h2>
 
             <div v-if="isLoading">
               <LoadingWarning></LoadingWarning>
@@ -68,7 +68,7 @@
           </div>
 
           <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-3">
-            <h2 class="text-2xl text-center font-bold">Unwetterwarnungen</h2>
+            <h2 class="text-2xl text-center font-bold">{{titles[2]}}</h2>
             <div v-if="isLoading">
               <LoadingWarning></LoadingWarning>
             </div>
@@ -84,7 +84,7 @@
           </div>
 
           <div class="sidepanel-tab-content w-full h-full" data-tab-content="tab-4">
-            <h2 class="text-2xl text-center font-bold">Unwetterwarnungen</h2>
+            <h2 class="text-2xl text-center font-bold">{{titles[3]}}</h2>
             <div v-if="isLoading">
               <LoadingWarning></LoadingWarning>
             </div>

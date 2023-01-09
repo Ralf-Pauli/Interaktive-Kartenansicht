@@ -9,31 +9,60 @@
 :toc-title: Inhaltsverzeichnis
 :sectnums:
 :sectnumlevels: 10
-:imagesdir: .\docu\images
+:imagesdir: .\images
 :figure-caption: Abbildung
 :table-caption: Tabelle
 :app-name: Dokumentation
+:chapter-label:
 
 == Einleitung Ralf Pauli
 
+=== Motivation
+Für die Trainingsfirma der EDV-Schulen des Landkreises Deggendorf soll ein
+Programm erstellt werden, welche aktuelle Informationen aus der Region auf einer interaktiven Karte anzeigt.
+
 === Ziele
+
 Es soll eine interaktive Kartenansicht entstehen, welche aktuelle Informationen aus der Region bzw. ganz Deutschlands anzeigt. +
 Auf der Karte sollen aktuelle Corona-Zahlen sowie, Warnmeldungen des Bevölkerungsschutzes angezeigt werden.
 
-== Allgemeine Umsetzung 
-
 === Quellcodeverwaltung
-Die Quellcodeverwaltung erfolgt über Git. Der Sourcecode wird auf einem Schulinternen GitLab-Server gespeichert.
 
-=== Umsetzung
+Die Quellcodeverwaltung erfolgt über Git.
+Der Sourcecode wird auf einem Schulinternen GitLab-Server gespeichert.
+
+== Allgemeines
 
 ===  Programmiersprache/Entwicklungsumgebung
+
 Als Grundlage für die App wird NodeJS verwendet. +
-NodeJS ist eine Laufzeitumgebung, die dazu dient, https://developer.mozilla.org/en-US/docs/Web/JavaScript[*JavaScript*]-Code außerhalb eines Webbrowsers auszuführen. +
-Das Projekt wurde in der JetBrains IDE https://www.jetbrains.com/webstorm/[*WebStorm*] entwickelt.
+NodeJS ist eine Laufzeitumgebung, die dazu dient, https://developer.mozilla.org/en-US/docs/Web/JavaScript[JavaScript]-Code außerhalb eines Webbrowsers auszuführen. +
+Das Projekt wurde in der JetBrains IDE https://www.jetbrains.com/webstorm/[WebStorm] entwickelt.
 
 === Verwendete Bibliotheken/Frameworks
-Ein fundamentales Framework ist https://vuejs.org/[*VueJS*].
+
+Ein fundamentales Framework ist https://vuejs.org/[VueJS].
 Es ist ein Open-Source-JavaScript-Framework, welches es ermöglicht, Benutzeroberflächen zu erstellen und diese zu verwalten. +
-Als Grundlage für die Kartenansicht wird die Open-Source-Bibliothek https://leafletjs.com/[*Leaflet*] verwendet, die es ermöglicht, Karten, Marker und andere geografischen Daten anzeigen zu lassen. +
-https://tailwindcss.com/[*Tailwind*] CSS ist ein Utility-First CSS-Framework, das eine Reihe von Low-Level-Styling-Tools sowie vordefinierte UI-Komponenten und Layout-Module bereitstellt, um dem Nutzer dabei zu helfen, schnell und effizient benutzerdefinierte Designs zu erstellen.
+Als Grundlage für die Kartenansicht wird die Open-Source-Bibliothek https://leafletjs.com/[Leaflet] verwendet, die es ermöglicht, Karten, Marker und andere geografischen Daten anzeigen zu lassen. +
+https://tailwindcss.com/[Tailwind] CSS ist ein Utility-First CSS-Framework, das eine Reihe von Low-Level-Styling-Tools sowie vordefinierte UI-Komponenten und Layout-Module bereitstellt, um dem Nutzer dabei zu helfen, schnell und effizient benutzerdefinierte Designs zu erstellen.
+
+=== Verwendete Schnittstellen
+
+https://nina.api.bund.dev[Nina.api.bund.dev] stellt verschiedene offene Daten des Bundes bereit, darunter auch Corona-Zahlen und Warnungen des Bevölkerungsschutzes. +
+Für die GeoJSON Datei der deutschen Landkreise nutze ich ein Tool von
+https://opendatalab.de/projects/geojson-utilities/[Opendatalab.de] welche eine API zur Konvertierung von Shapefiles in das GeoJSON-Format anbietet.
+Diese Datei wurde auf ein privates GitHub Repository hochgeladen, um dieses als API-Schnittstelle verwenden, zu können.
+
+// == Projektplanung
+
+// === Ist-Analyse
+//
+// Die Corona-Zahlen und Warnungen des Bevölkerungsschutzes, sowie die GeoJSON Dateien sind bereits vorhanden und können über https://nina.api.bund.dev[nina.api.bund.dev], bzw. http://opendatalab.de/projects/geojson-utilities/[Opendatalab.de] abgerufen werden.
+
+// === Soll-Konzept
+== Funktionalität
+
+=== Anzeigen der Karte
+image::NINK.png[title=Übersicht NINK ,alt=Nink]
+Zum Anzeigen der Karte habe ich mich für die Bibliothek https://leafletjs.com/[Leaflet] entschieden. Die Gründe für Leaflet liegen unter anderem in seiner Eigenschaft als Open-Source-Bibliothek, seiner Leichtigkeit und seiner Mobilfreundlichkeit.
+

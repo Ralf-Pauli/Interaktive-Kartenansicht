@@ -48,7 +48,7 @@ export async function addCounties(map) {
             style: style,
             zIndex: 2,
         }).addTo(map);
-        layerControl.addBaseLayer(countiesMap, "Landkreise");
+        layerControl.addBaseLayer(countiesMap, "Deutschland Landkreise");
 
         if (mapData.features[0].properties.cases) {
             coronaMap = L.geoJSON(mapData, {
@@ -76,7 +76,7 @@ export async function addSwissCounties() {
             style: style,
             zIndex: 2,
         });
-        getLayerControl().addBaseLayer(swissCountiesMap, "Swiss Landkreise")
+        getLayerControl().addBaseLayer(swissCountiesMap, "Schweiz Landkreise")
         baseMaps.push(swissCountiesMap)
     } catch (e) {
         console.log(e)
