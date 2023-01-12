@@ -11,7 +11,7 @@
       </div>
       <button class="self-center mt-1" @click="warning.visible = !warning.visible">
         <span :class="warning.visible ? 'rotate-180' : 'rotate-0'"
-          class="m-0 p-0 material-symbols-sharp transform transition-transform duration-500 ease-in-out ">expand_more</span>
+              class="m-0 p-0 material-symbols-sharp transform transition-transform duration-500 ease-in-out ">expand_more</span>
       </button>
     </div>
     <div v-show="warning.visible" class="flex flex-col gap-4">
@@ -19,7 +19,7 @@
         Warnstufe: {{ warning.severity }}
       </div>
 
-      <div class="flex flex-col gap-1">
+      <div v-if="warning.info[0].instruction" class="flex flex-col gap-1">
         <div class="flex gap-1 flex-wrap justify-start justify-items-center ">
           <span class="material-symbols-sharp ">Accessibility</span>
           <div class="flex-auto self-center text-sm font-bold">Handlungsempfehlung</div>
@@ -28,7 +28,7 @@
       </div>
 
 
-      <div class="flex flex-col gap-1">
+      <div v-if="warning.info[0].contact" class="flex flex-col gap-1">
         <div class="flex gap-1 flex-wrap justify-start justify-items-center ">
           <span class="material-symbols-sharp ">exclamation</span>
           <div class="flex-auto self-center text-sm font-bold">Weitere Informationen</div>
@@ -44,7 +44,7 @@
 
       </div>
 
-      <div class="flex flex-col gap-1">
+      <div v-if="warning.info[0].area[0].areaDesc" class="flex flex-col gap-1">
         <div class="flex gap-1 flex-wrap justify-start justify-items-center ">
           <span class="material-symbols-sharp">map</span>
           <div class="flex-auto self-center text-sm font-bold">Betroffene Region(en)</div>
@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-const props = defineProps(["warning","current"]);
+const props = defineProps(["warning", "current"]);
 </script>
 
 <style scoped>

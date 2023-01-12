@@ -14,9 +14,9 @@ let icon = "light_mode";
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
-export function toggleStartUpDarkMode(){
+export function toggleStartUpDarkMode() {
     if (isDark) {
-        document.querySelector("#map > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-tile-pane > div").classList.add("dark-map-tiles")
+        setDarkStyle()
     }
 }
 
@@ -36,7 +36,7 @@ export function createInfo(map) {
                     this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + props["gemeinde.NAME"] + '</b><br />' + 'Kanton: ' + props["kanton.NAME"];
                 }
             } else {
-                this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + "Hover over a Landkreis" + '</b>';
+                this._div.innerHTML = '<h4>Landkreise</h4>' + '<b>' + "Maus über eine Gemeinde bewegen" + '</b>';
             }
         };
         info.addTo(map);
@@ -127,19 +127,16 @@ export function switchTheme() {
     icon = (icon === "light_mode" ? "dark_mode" : "light_mode")
     toggleDark();
     if (isDark._value) {
-        document.getElementById("sidePanel").classList.add("sidepanel-dark")
-        document.querySelector("#map > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-tile-pane > div").classList.add("dark-map-tiles")
-        // for (let element of document.getElementsByClassName("leaflet-tile")) {
-        //     element.classList.add("dark-tiles")
-        // }
+        setDarkStyle()
     } else {
         document.getElementById("sidePanel").classList.remove("sidepanel-dark")
         document.querySelector("#map > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-tile-pane > div").classList.remove("dark-map-tiles")
-
-        // for (let element of document.getElementsByClassName("leaflet-tile")) {
-        //     element.classList.remove("dark-tiles")
-        // }
     }
+}
+
+function setDarkStyle() {
+    document.getElementById("sidePanel").classList.add("sidepanel-dark")
+    document.querySelector("#map > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-tile-pane > div").classList.add("dark-map-tiles")
 }
 
 export function getIcon() {

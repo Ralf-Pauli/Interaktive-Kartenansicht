@@ -35,19 +35,18 @@ export function getColor(value) {
     conditions.forEach((condition, index) => {
         if (value > condition) {
             color = colors[index];
-        } else {
-            return;
         }
     });
     return color || colors[colors.length - 1];
 }
 
 export function style() {
+
     return {
         fillColor: "rgba(255, 0, 0, 0)",
         weight: 2,
         opacity: 1,
-        color: 'black',
+        color: "black",
         dashArray: '3',
         fillOpacity: 0.7
     };

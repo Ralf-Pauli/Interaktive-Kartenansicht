@@ -1,4 +1,4 @@
-<template >
+<template>
   <div class="text-xl gap-2 justify-center flex flex-col  text-center mt-8">
     <p>Es liegen keine {{ warnType }}en vor</p>
     <div>

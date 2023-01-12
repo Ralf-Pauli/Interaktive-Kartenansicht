@@ -1,5 +1,5 @@
 import L from "leaflet";
-import {addError} from "@/utils/ErrorHandler";
+import {addError} from "./ErrorHandler";
 
 let center = [51.1642292, 10.4541194],
     zoom = 6;

@@ -1,7 +1,7 @@
 <script setup>
 import {onBeforeMount, onMounted, ref, watch} from 'vue';
+import  L from "leaflet"
 import "leaflet/dist/leaflet.css";
-import L from 'leaflet';
 import "@/assets/leaflet-sidepanel.css";
 import "@/assets/leaflet-sidepanel.min";
 import SidePanel from "@/components/SidePanel.vue"
@@ -10,17 +10,13 @@ import "leaflet-search/dist/leaflet-search.min.css"
 import "@/utils/mapControls";
 import {createMap} from "@/utils/mapManagement";
 import * as mapControls from "@/utils/mapControls";
-import {
-  addCounties,
-  addSwissCounties,
-  addWarningGeoToMap,
-  setAllWarnings
-} from "@/utils/geoJsonHandler";
-import {getCurrentLayer, setCurrentLayer} from "@/utils/styling";
 import {getIcon, toggleStartUpDarkMode} from "@/utils/mapControls";
+import {addCounties, addSwissCounties, addWarningGeoToMap, setAllWarnings} from "@/utils/geoJsonHandler";
+import {getCurrentLayer, setCurrentLayer} from "@/utils/styling";
 import CountiesSearch from "@/components/CountiesSearch.vue";
 import Error from "@/components/Error.vue";
-import {addError, getErrors} from "@/utils/ErrorHandler";
+import {getErrors} from "@/utils/ErrorHandler";
+import {swissCountiesMap} from "../utils/geoJsonHandler";
 
 let map;
 
@@ -33,14 +29,13 @@ onMounted(async () => {
   map = createMap();
   toggleStartUpDarkMode();
 
-
-    mapControls.createLayerControl();
-    mapControls.createInfo(map);
-    mapControls.createSidePanel(map);
-    mapControls.createLegend(map);
-    mapControls.createFocusButton(map);
-    mapControls.createThemeButton(map)
-    mapControls.createSearch(map)
+  mapControls.createLayerControl();
+  mapControls.createInfo(map);
+  mapControls.createSidePanel(map);
+  mapControls.createLegend(map);
+  mapControls.createFocusButton(map);
+  mapControls.createThemeButton(map)
+  mapControls.createSearch(map)
 
 
   map.doubleClickZoom.disable();
@@ -48,6 +43,9 @@ onMounted(async () => {
   map.on('baselayerchange', function (e) {
     setCurrentLayer(e.layer)
     getCurrentLayer().bringToBack();
+    if (map.hasLayer(swissCountiesMap)) {
+
+    }
   });
 
   document.getElementById("focus").onclick = function () {
@@ -106,10 +104,9 @@ onBeforeMount(() => {
 
     <ul id="errors" class="w-1/2 my-0 mx-auto inset-x-0 bottom-0">
       <li v-for="(error) in getErrors()" v-if="!loading">
-        <Error  :key="error.cause" :error="error"/>
+        <Error :key="error.cause" :error="error"/>
       </li>
     </ul>
-
   </div>
 </template>
 

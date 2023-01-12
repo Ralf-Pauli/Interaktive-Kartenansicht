@@ -9,7 +9,9 @@ export const proxyURL = "https://corsproxy.io/?",
     swissMapDataURL = "https://raw.githubusercontent.com/cividi/ch-municipalities/main/data/gemeinden.geojson";
 
 let baseMaps = Array();
-let countiesMap;
+export let countiesMap,
+    swissCountiesMap;
+
 let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen", "Flutwarnungen"],
     warningColors = ["#FB8C00", "#ff5900", "darkblue", "#0ea5e9"];
 let styles = ["text-ninaOrange"];
@@ -74,7 +76,7 @@ export async function addCounties(map) {
 export async function addSwissCounties() {
     try {
         let swissMapData = await fetch(proxyURL + swissMapDataURL).then(value => value.json());
-        let swissCountiesMap = L.geoJSON(swissMapData, {
+        swissCountiesMap = L.geoJSON(swissMapData, {
             onEachFeature: onEachFeature,
             style: style,
             zIndex: 2,
@@ -82,7 +84,7 @@ export async function addSwissCounties() {
         getLayerControl().addBaseLayer(swissCountiesMap, "Schweiz Landkreise")
         baseMaps.push(swissCountiesMap)
     } catch (e) {
-        
+
         addError(new Error("Schweizer Landkreise konnten nicht geladen werden", {cause: e}))
     }
 }
