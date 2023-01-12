@@ -14,6 +14,11 @@ let icon = "light_mode";
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
+export function toggleStartUpDarkMode(){
+    if (isDark) {
+        document.querySelector("#map > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-tile-pane > div").classList.add("dark-map-tiles")
+    }
+}
 
 export function createInfo(map) {
     try {
@@ -55,12 +60,9 @@ export function createLegend(map) {
                     colors.push(legendData.properties.fillColor);
                     stringConditions.push(legendData.label);
                 });
-                console.log(stringConditions)
                 stringConditions.forEach(value => {
                     conditions.push(value.match(/\d+/));
                 });
-                conditions.reverse();
-                colors.reverse();
             })
             .catch(err => {
                 addError(err);
@@ -68,11 +70,8 @@ export function createLegend(map) {
         return div;
     };
 
-    console.log(legend)
-
     legend.addTo(map);
     return legend;
-
 }
 
 export function createFocusButton(map) {
@@ -120,7 +119,7 @@ export function createLayerControl() {
 export function toggleSidebar(e) {
     let sButton = document.getElementsByClassName("sidepanel-toggle-button")[0];
     sButton.click();
-    console.log(e)
+
     // previousWarning.classList.remove(styles)
 }
 
@@ -129,11 +128,14 @@ export function switchTheme() {
     toggleDark();
     if (isDark._value) {
         document.getElementById("sidePanel").classList.add("sidepanel-dark")
+        document.querySelector("#map > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-tile-pane > div").classList.add("dark-map-tiles")
         // for (let element of document.getElementsByClassName("leaflet-tile")) {
         //     element.classList.add("dark-tiles")
         // }
     } else {
         document.getElementById("sidePanel").classList.remove("sidepanel-dark")
+        document.querySelector("#map > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-tile-pane > div").classList.remove("dark-map-tiles")
+
         // for (let element of document.getElementsByClassName("leaflet-tile")) {
         //     element.classList.remove("dark-tiles")
         // }

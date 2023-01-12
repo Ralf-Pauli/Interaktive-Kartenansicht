@@ -6,7 +6,7 @@
           {{ warning.info[0].headline }}
         </div>
         <div class="text-xs pt-1 font-extralight">
-          {{ new Date(warning.sent).toLocaleString("de-DE") + " Uhr" }}
+          {{ new Date(warning.sent).toLocaleString("de-DE", {timeStyle: "medium", dateStyle: "medium"}) + " Uhr" }}
         </div>
       </div>
       <button class="self-center mt-1" @click="warning.visible = !warning.visible">
@@ -36,7 +36,9 @@
         <div class="text-xs pl-1.5 text-gray-400">
           <div v-html="warning.info[0].contact"></div>
           <div v-for="link in warning.info[0].web">
-            <a v-bind:href="link">{{ link }}</a>
+            <div v-if="link.includes('<a')" v-html="link"></div>
+            <a v-else v-bind:href="link">{{ link }}</a>
+
           </div>
         </div>
 

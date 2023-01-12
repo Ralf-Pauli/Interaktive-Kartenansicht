@@ -17,7 +17,7 @@ import {
   setAllWarnings
 } from "@/utils/geoJsonHandler";
 import {getCurrentLayer, setCurrentLayer} from "@/utils/styling";
-import {getIcon} from "@/utils/mapControls";
+import {getIcon, toggleStartUpDarkMode} from "@/utils/mapControls";
 import CountiesSearch from "@/components/CountiesSearch.vue";
 import Error from "@/components/Error.vue";
 import {addError, getErrors} from "@/utils/ErrorHandler";
@@ -31,6 +31,7 @@ let loading = ref(true);
 
 onMounted(async () => {
   map = createMap();
+  toggleStartUpDarkMode();
 
 
     mapControls.createLayerControl();

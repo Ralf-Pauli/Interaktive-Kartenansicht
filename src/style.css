@@ -94,10 +94,6 @@
     /*@apply animate-pulse*/
 }
 
-.dark-tiles {
-    filter: var(--leaflet-tile-filter, none);
-}
-
 .leaflet-control-zoom-in:hover, .leaflet-control-zoom-out:hover {
     @apply dark:bg-black
 }
@@ -112,7 +108,7 @@
 
 input[type="radio"],
 input[type="checkbox"] {
-    @apply  accent-ninaLightOrange
+    @apply accent-ninaLightOrange
 }
 
 #search {
@@ -125,4 +121,12 @@ input[type="checkbox"] {
 
 .selectedCounty {
     @apply bg-ninaLightOrange outline-0 dark:text-black
+}
+
+:root {
+    --map-tiles-filter: brightness(0.57) invert(1) contrast(3.5) hue-rotate(200deg) saturate(0) brightness(0.45);
+}
+
+.dark-map-tiles {
+    filter: var(--map-tiles-filter, none);
 }

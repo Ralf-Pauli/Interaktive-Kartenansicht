@@ -11,7 +11,7 @@ export const proxyURL = "https://corsproxy.io/?",
 let baseMaps = Array();
 let countiesMap;
 let titles = ["Allgemeine Warnmeldungen", "Coronawarnungen", "Unwetterwarnungen", "Flutwarnungen"],
-    warningColors = ["#FB8C00", "#ff5900", "darkblue"];
+    warningColors = ["#FB8C00", "#ff5900", "darkblue", "#0ea5e9"];
 let styles = ["text-ninaOrange"];
 
 let searchData = [];
@@ -22,7 +22,9 @@ export async function addCounties(map) {
     let layerControl = getLayerControl();
     let coronaMap;
     try {
+        // hole deutsche landkreis Daten aus dem privaten GitHub Repository
         mapData = await fetch(proxyURL + germanMapDataURL).then(value => value.json());
+        // Füge die Landkreise in das SuchArray hinein
         mapData.features.forEach(feature => {
             searchData.push({
                 geometry: feature.geometry,
@@ -41,8 +43,9 @@ export async function addCounties(map) {
     } catch (e) {
         addError(Error("Corona Daten konnten nicht abgerufen werden", {cause: e}))
     }
-
+    // Wenn die Kartendaten vorhanden sind
     if (mapData) {
+        // Setze Events (onEachFeature), style und zIndex (höhe) auf jeden Landkreis
         countiesMap = L.geoJSON(mapData, {
             onEachFeature: onEachFeature,
             style: style,
@@ -79,17 +82,22 @@ export async function addSwissCounties() {
         getLayerControl().addBaseLayer(swissCountiesMap, "Schweiz Landkreise")
         baseMaps.push(swissCountiesMap)
     } catch (e) {
-        console.log(e)
+        
         addError(new Error("Schweizer Landkreise konnten nicht geladen werden", {cause: e}))
     }
 }
 
 export async function addCovidData(mapData) {
-    let covidData = await fetch(proxyURL + encodeURIComponent(baseURL + '/appdata/covid/covidmap/DE/covidmap.json'))
+    // hole Corona Daten aus der NINA API
+    let covidData = await fetch(proxyURL + baseURL + '/appdata/covid/covidmap/DE/covidmap.json')
         .then(value => value.json());
+    // Loope durch jeden Landkreis
     mapData.features.forEach(feature => {
+        // Finde die Corona-Daten zum jeweiligen Landkreis
         let covid = covidData.mapData.find(value => value.rs === feature.properties.RS);
 
+        // Wenn nicht Berlin
+        // Füge die Coronazahlen als Attribute hinzu
         if (feature.properties.RS === "11000") {
             feature.properties = JSON.parse(JSON.stringify(feature.properties))
         } else {
@@ -98,10 +106,9 @@ export async function addCovidData(mapData) {
             feature.properties.cases_per_100k = covid.cases_per_100k;
             feature.properties.deaths = covid.deaths;
         }
+        // Kombiniere Corona Daten von Berlin
         combineBerlin(covidData, mapData);
     });
-
-
 }
 
 function combineBerlin(covidData, mapData) {

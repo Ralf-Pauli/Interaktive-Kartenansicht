@@ -30,15 +30,16 @@ export function resetHighlight(e) {
     getInfo().update();
 }
 
-export function getColor(d) {
-    return d > conditions[0] ? colors[0] :
-        d > conditions[1] ? colors[1] :
-            d > conditions[2] ? colors[2] :
-                d > conditions[3] ? colors[3] :
-                    d > conditions[4] ? colors[4] :
-                        d > conditions[5] ? colors[5] :
-                            d > conditions[6] ? colors[6] :
-                                colors[7];
+export function getColor(value) {
+    let color;
+    conditions.forEach((condition, index) => {
+        if (value > condition) {
+            color = colors[index];
+        } else {
+            return;
+        }
+    });
+    return color || colors[colors.length - 1];
 }
 
 export function style() {
