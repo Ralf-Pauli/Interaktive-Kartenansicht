@@ -1,4 +1,10 @@
-# Interaktive Kartenansicht
+# NINK
+
+NINK (Notfall-Informations- und Nachrichten Karte) is an emergency information and message map that displays acute warnings, messages and corona numbers clearly.
+
+## Installation
+
+Use the package manager [npm](https://www.npmjs.com/) to install NINK.
 
 ```sh
 npm install
